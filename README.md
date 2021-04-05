@@ -44,4 +44,4 @@ You should then see the following messages:
 #### 7. Now, you would've noticed that the bot starts to respond to your messages.
 
 
-## Please start and fork my repo if you like it..
+## Please star and fork my repo if you like it..
