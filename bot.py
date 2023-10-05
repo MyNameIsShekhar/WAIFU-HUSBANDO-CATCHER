@@ -4,7 +4,7 @@ from pymongo import MongoClient
 import random
 
 # Connect to MongoDB
-client = MongoClient('your_mongodb_connection_string')
+client = MongoClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
 db = client['telegram_bot']
 collection = db['images']
 
