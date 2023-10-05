@@ -171,25 +171,7 @@ def button(update: Update, context: CallbackContext) -> None:
 
         query.edit_message_text(text=leaderboard_text, reply_markup=reply_markup,parse_mode='Markdown',disable_web_page_preview=True)
 
-def start(update, context):
-    keyboard = [
-        [
-            InlineKeyboardButton("Add me in your group", url='t.me/NezukoProBot?startgroup=new'),
-        ],
-        [
-        InlineKeyboardButton("Update", url='https://t.me/nezukoolmao'),
-         
-        InlineKeyboardButton("Network", url='https://t.me/MacNetwork')
-        ]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
-    # Open the image file and send it with the message
-    with open('assets/261ee4655e8051830973279ba8240830.jpg', 'rb') as photo:
-        context.bot.send_photo(chat_id=update.effective_chat.id,
-                               photo=photo,
-                               caption='add Me In your Group.. and I will send Random Words And Who writes that word Fast.. that user will get.. 5 coins.. do /help to see my all commands',
-                               reply_markup=reply_markup)
+
 
 def help_command(update, context):
     update.message.reply_text('Here are the commands you can use:\n'
@@ -199,7 +181,7 @@ def help_command(update, context):
                              )
 
 def main() -> None:
-    updater = Updater(token='6614791345:AAFkyeol1-tr5slxZj0qaUqA4NspSGdXT4M')
+    updater = Updater(token='6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs')
 
     dispatcher = updater.dispatcher
 
@@ -208,16 +190,13 @@ def main() -> None:
     message_handler = MessageHandler(Filters.text & ~Filters.command, handle_message)
     dispatcher.add_handler(message_handler)
 
-    dispatcher.add_handler(CommandHandler("logo", logo))
-
     
-    dispatcher.add_handler(CommandHandler('start', start))
+    
     dispatcher.add_handler(CommandHandler('help', help_command))
   
     # Add these handlers to your dispatcher
     dispatcher.add_handler(CommandHandler('leaderboard', leaderboard))
     dispatcher.add_handler(CallbackQueryHandler(button))
-    dispatcher.add_handler(CallbackQueryHandler(logobutton))
     
     
 
