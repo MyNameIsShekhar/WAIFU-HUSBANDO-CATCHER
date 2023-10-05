@@ -37,8 +37,8 @@ word_time = None
 
 
 def generate_image(word: str) -> io.BytesIO:
-    fonts = ['', 'assets/font2.ttf',]  # List of fonts
-    images = ['assets/image1.jpg', 'assets/image3.jpg']  # List of images
+    fonts = ['assets/adrip1.ttf',]  # List of fonts
+    images = ['assets/392eb296b941c76ebd423bc383b0e970.jpg',]  # List of images
 
     font_path = random.choice(fonts)  # Randomly choose a font
     image_path = random.choice(images)  # Randomly choose an image
