@@ -58,7 +58,7 @@ def generate_image(word: str) -> io.BytesIO:
 def handle_message(update: Update, context: CallbackContext) -> None:
     global current_word, message_count, word_guessed, word_time
     message_count += 1
-    if message_count >= 100:
+    if message_count >= 10:
         message_count = 0
         group_id = update.effective_chat.id
         group_data = groups.find_one({"group_id": group_id})
