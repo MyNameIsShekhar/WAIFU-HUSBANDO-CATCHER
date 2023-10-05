@@ -43,7 +43,7 @@ def upload(update: Update, context: CallbackContext) -> None:
 
 def main() -> None:
     # Create the Updater and pass it your bot's token.
-    updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
+    updater = updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
 
     # Get the dispatcher to register handlers
     dispatcher = updater.dispatcher
