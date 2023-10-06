@@ -6,9 +6,10 @@ import random
 updater = Updater(token='6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs', use_context=True)
 
 # This is your list of quiz questions, answers and images.
+ 
 quiz_list = [
     {"question": "Question 1", "options": ["Option 1", "Option 2", "Option 3"], "answer": 0, "image": "https://graph.org/file/bce79a4a7b2e5e73dc37a.jpg"},
-    {"question": "Question 2", "options": ["Option 1", "Option 2", "Option 3"], "answer": 1, "image": "https://graph.org/file/bce79a4a7b2e5e73dc37a.jpg"},
+    {"question": "Question 2", "options": ["Option 1", "Option 2", "Option 3"], "answer": 1, "image": "https://graph.org/file/314324a8e1831137c8f94.jpg"},
     # Add more questions here.
 ]
 
@@ -21,9 +22,8 @@ def start(update: Update, context: CallbackContext) -> None:
 
     keyboard = [[InlineKeyboardButton(option, callback_data=str(i))] for i, option in enumerate(quiz["options"])]
 
-    with open(quiz["image"], 'rb') as f:
-        context.bot.send_photo(chat_id=update.effective_chat.id, photo=f)
-        context.bot.send_message(chat_id=update.effective_chat.id, text=quiz["question"], reply_markup=InlineKeyboardMarkup(keyboard))
+    context.bot.send_photo(chat_id=update.effective_chat.id, photo=quiz["image"])
+    context.bot.send_message(chat_id=update.effective_chat.id, text=quiz["question"], reply_markup=InlineKeyboardMarkup(keyboard))
 
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
