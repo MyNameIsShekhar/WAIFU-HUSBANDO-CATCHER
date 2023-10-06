@@ -46,7 +46,7 @@ def add(update: Update, context: CallbackContext) -> None:
         
         # Send the photo to the channel with caption
         username = update.effective_user.username or 'Unknown'
-        caption = f'Category: {category}\nAdded by: {username}'
+        caption = f'Added by: {username}'
         context.bot.send_photo(chat_id='-1001865838715', photo=photo_file, caption=caption)
         
     except Exception as e:
