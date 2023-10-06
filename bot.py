@@ -30,7 +30,8 @@ def add(update: Update, context: CallbackContext) -> None:
         update.message.reply_text('/add <picture link> ; <category>')
         return
 
-    picture_link, category = context.args
+    picture_link = context.args[0]
+    category = " ".join(context.args[1:])  # Join all elements after the first one
 
     # Download the photo
     response = requests.get(picture_link)
