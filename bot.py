@@ -50,26 +50,6 @@ def add(update: Update, context: CallbackContext) -> None:
     except Exception as e:
         update.message.reply_text(f'Failed to add photo: {e}')
 
-def logo(update: Update, context: CallbackContext) -> None:
-    user_input_text = " ".join(context.args)
-
-    if not user_input_text:
-        update.message.reply_text('Please provide text to draw on the image.')
-        return
-
-    # Store user_input_text in context.user_data
-    context.user_data['user_input_text'] = user_input_text
-
-    keyboard = [
-        [InlineKeyboardButton("Boy", callback_data='boy'),
-         InlineKeyboardButton("Girl", callback_data='girl'),
-         InlineKeyboardButton("Scenary", callback_data='scenary')]
-    ]
-
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    update.message.reply_text('Please choose:', reply_markup=reply_markup)
-
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 
@@ -86,9 +66,6 @@ def button(update: Update, context: CallbackContext) -> None:
 
     # Fetch one image from the database based on the selected category, skipping over random_index documents
     image_data = collection.find({'category': query.data}).skip(random_index).limit(1).next()
-
-    # Store the message_id of the "Wait for some seconds..." message
-    message_to_delete = query.message.message_id
 
     query.edit_message_text(text="Wait for some seconds...")
 
