@@ -9,8 +9,8 @@ logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s
 logger = logging.getLogger(__name__)
 
 # Connect to MongoDB
-client = MongoClient("mongodb://localhost:27017/")
-db = client["telegram_bot"]
+client = MongoClient("mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority")
+db = client["telegrambbot"]
 questions_db = db["questions"]
 
 # Load questions from MongoDB
