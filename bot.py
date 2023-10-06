@@ -17,27 +17,26 @@ fonts = ['Assets/adrip1.ttf']
 
 # Define authorized user ids
 authorized_ids = [6404226395, 5654523936]
-
 def add(update: Update, context: CallbackContext) -> None:
     # Check if the command is used by an authorized user
     if update.message.from_user.id not in authorized_ids:
-        update.message.reply_text('Sojaaaa...')
+        update.message.reply_text('Sojaa...')
         return
 
-    # Check if the message has a photo
-    if not update.message.photo:
-        update.message.reply_text('Photo Bhej Aur Category Likh.')
+    # Check if the message is a reply to a photo message
+    if not update.message.reply_to_message or not update.message.reply_to_message.photo:
+        update.message.reply_text('/add (Category daal) ')
         return
 
     # Check if a category is provided
     if not context.args:
-        update.message.reply_text('Category Kya tera baap Likhega?')
+        update.message.reply_text('Category Daal bhai')
         return
 
     category = context.args[0]
 
     # Download the photo
-    photo_path = update.message.photo[-1].get_file().download()
+    photo_path = update.message.reply_to_message.photo[-1].get_file().download()
 
     # Insert the photo into the database with the specified category
     with open(photo_path, 'rb') as photo_file:
@@ -46,6 +45,7 @@ def add(update: Update, context: CallbackContext) -> None:
             update.message.reply_text('Photo added successfully.')
         except Exception as e:
             update.message.reply_text(f'Failed to add photo: {e}')
+
 
 def logo(update: Update, context: CallbackContext) -> None:
     user_input_text = " ".join(context.args)
