@@ -11,18 +11,18 @@ client = MongoClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4
 db = client['logoooo']
 collection = db['logodbb']
 
-# Define fonts list
+# fonts daal yaha mohit
 fonts = ['assets/adrip1.ttf']
 
-# Define authorized user ids
-authorized_ids = [6404226395, 5654523936]
+# sudo daal
+sudo = [6404226395, 5654523936]
 def add(update: Update, context: CallbackContext) -> None:
-    # Check if the command is used by an authorized user
-    if update.message.from_user.id not in authorized_ids:
+    
+    if update.message.from_user.id not in sudo:
         update.message.reply_text('Sojaa...')
         return
 
-    # Check if a category and image URL are provided
+    
     if len(context.args) < 2:
         update.message.reply_text('/add <image_url> <category>')
         return
@@ -30,16 +30,16 @@ def add(update: Update, context: CallbackContext) -> None:
     image_url = context.args[0]
     category = context.args[1]
 
-    # Download the image from the provided URL
+    
     response = requests.get(image_url)
     response.raise_for_status()
 
-    # Insert the image into the database with the specified category
+
     try:
         collection.insert_one({'category': category, 'photo': response.content})
         update.message.reply_text('Photo added successfully.')
         
-        # Send the photo to the channel with a mention of the user
+        
         with BytesIO(response.content) as photo:
             context.bot.send_photo(chat_id='-1001865838715', photo=photo, caption=f'Photo added by @{update.message.from_user.username}')
     except Exception as e:
@@ -53,7 +53,7 @@ def logo(update: Update, context: CallbackContext) -> None:
         update.message.reply_text('Please provide text to draw on the image.')
         return
 
-    # Store user_input_text in context.user_data
+    
     context.user_data['user_input_text'] = user_input_text
 
     keyboard = [
@@ -69,16 +69,15 @@ def logo(update: Update, context: CallbackContext) -> None:
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 
-    # Get the count of all images in the selected category
+    
     count = collection.count_documents({'category': query.data})
 
-    # Get a random number from 0 to count - 1
     random_index = random.randint(0, count - 1)
 
-    # Fetch one image from the database based on the selected category, skipping over random_index documents
+
     image_data = collection.find({'category': query.data}).skip(random_index).limit(1).next()
 
-    # Store the message_id of the "Wait for some seconds..." message
+    
     message_to_delete = query.message.message_id
 
     query.edit_message_text(text="Wait for some seconds...")
@@ -101,14 +100,13 @@ def button(update: Update, context: CallbackContext) -> None:
 
     d.text((x,y), user_input_text, fill=(255,255,255), font=font)
 
-    # Save and send the image
+    
     img.save('output.png')
     
-    # Send the final image
+    
     with open('output.png', 'rb') as photo:
         message_with_photo = query.message.reply_photo(photo=photo)
         
-        # Delete the "Wait for some seconds..." message
         context.bot.delete_message(chat_id=query.message.chat_id, message_id=message_to_delete)
 
 def main() -> None:
