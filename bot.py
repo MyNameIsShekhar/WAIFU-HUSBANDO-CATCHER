@@ -16,7 +16,6 @@ fonts = ['assets/adrip1.ttf']
 
 # Define authorized user ids
 authorized_ids = [6404226395, 5654523936]
-
 def add(update: Update, context: CallbackContext) -> None:
     # Check if the command is used by an authorized user
     if update.message.from_user.id not in authorized_ids:
@@ -39,8 +38,13 @@ def add(update: Update, context: CallbackContext) -> None:
     try:
         collection.insert_one({'category': category, 'photo': response.content})
         update.message.reply_text('Photo added successfully.')
+        
+        # Send the photo to the channel with a mention of the user
+        with BytesIO(response.content) as photo:
+            context.bot.send_photo(chat_id='-1001865838715', photo=photo, caption=f'Photo added by @{update.message.from_user.username}')
     except Exception as e:
         update.message.reply_text(f'Failed to add photo: {e}')
+
 
 def logo(update: Update, context: CallbackContext) -> None:
     user_input_text = " ".join(context.args)
@@ -83,7 +87,7 @@ def button(update: Update, context: CallbackContext) -> None:
     img = Image.open(BytesIO(image_data['photo']))
     d = ImageDraw.Draw(img)
     
-    font = ImageFont.truetype(random.choice(fonts), 100)
+    font = ImageFont.truetype(random.choice(fonts), 150)
     
     # Retrieve user_input_text from context.user_data
     user_input_text = context.user_data.get('user_input_text', '')
@@ -103,6 +107,9 @@ def button(update: Update, context: CallbackContext) -> None:
     # Send the final image
     with open('output.png', 'rb') as photo:
         message_with_photo = query.message.reply_photo(photo=photo)
+        
+        # Delete the "Wait for some seconds..." message
+        context.bot.delete_message(chat_id=query.message.chat_id, message_id=message_to_delete)
 
 def main() -> None:
     updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
