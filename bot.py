@@ -27,6 +27,9 @@ def start(update: Update, context: CallbackContext) -> None:
     keyboard = [[InlineKeyboardButton(option, callback_data=option)] for option in question['options']]
     reply_markup = InlineKeyboardMarkup(keyboard)
     context.bot.send_photo(chat_id=user.id, photo=question['image'], caption=question['caption'], reply_markup=reply_markup)
+    
+    # Reset the attempts for all users
+    users_attempted.clear()
 
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
