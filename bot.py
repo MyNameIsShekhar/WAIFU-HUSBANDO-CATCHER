@@ -73,6 +73,9 @@ def button(update: Update, context: CallbackContext) -> None:
     # Fetch random image from the database based on the selected category
     image_data = collection.find_one({'category': query.data})
 
+    # Store the message_id of the "Wait for some seconds..." message
+    message_to_delete = query.message.message_id
+
     query.edit_message_text(text="Wait for some seconds...")
 
     # Open image and draw text
@@ -99,6 +102,9 @@ def button(update: Update, context: CallbackContext) -> None:
     # Send the final image
     with open('output.png', 'rb') as photo:
         query.message.reply_photo(photo=photo)
+
+    # Delete the "Wait for some seconds..." message
+    context.bot.delete_message(chat_id=query.message.chat_id, message_id=message_to_delete)
 
 def main() -> None:
     updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
