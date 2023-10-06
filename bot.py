@@ -17,10 +17,10 @@ class ImageBot:
 
     def count_messages(self, update: Update, context: CallbackContext):
         chat_id = update.effective_chat.id
-         user_id = update.effective_user.id
-         username = update.effective_user.username
-         first_name = update.effective_user.first_name
-         user = self.users.find_one({'chat_id': chat_id, 'user_id': user_id})
+        user_id = update.effective_user.id
+        username = update.effective_user.username
+        first_name = update.effective_user.first_name
+        user = self.users.find_one({'chat_id': chat_id, 'user_id': user_id})
     if not user:
         user = {'chat_id': chat_id, 'user_id': user_id, 'username': username, 'first_name': first_name, 'message_count': 0, 'coins': 0}
         self.users.insert_one(user)
