@@ -66,15 +66,17 @@ def logo(update: Update, context: CallbackContext) -> None:
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     update.message.reply_text('Please choose:', reply_markup=reply_markup)
-
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 
-    # Fetch random image from the database based on the selected category
-    image_data = collection.find_one({'category': query.data})
+    # Get the count of all images in the selected category
+    count = collection.count_documents({'category': query.data})
 
-    # Store the message_id of the "Wait for some seconds..." message
-    message_to_delete = query.message.message_id
+    # Get a random number from 0 to count - 1
+    random_index = random.randint(0, count - 1)
+
+    # Fetch one image from the database based on the selected category, skipping over random_index documents
+    image_data = collection.find({'category': query.data}).skip(random_index).limit(1).next()
 
     query.edit_message_text(text="Wait for some seconds...")
 
@@ -105,6 +107,7 @@ def button(update: Update, context: CallbackContext) -> None:
 
     # Delete the "Wait for some seconds..." message
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=message_to_delete)
+
 
 def main() -> None:
     updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
