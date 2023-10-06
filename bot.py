@@ -15,10 +15,9 @@ class ImageBot:
 
     
     def send_image(self):
-        if self.images:  # Check if there are any images left
-            self.current_image = self.images.pop(0)  # Get the next image from the list
-            self.updater.bot.send_photo(chat_id=chat_id, photo=self.current_image[0])
-            
+       if self.images:  # Check if there are any images left
+           self.current_image = self.images.pop(0)  # Get the next image from the list
+           self.updater.bot.send_photo(chat_id=chat_id, photo=self.current_image[0])
 
 
 
