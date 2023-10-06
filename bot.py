@@ -17,6 +17,7 @@ fonts = ['assets/adrip1.ttf']
 
 # Define authorized user ids
 authorized_ids = [6404226395, 5654523936]
+
 def add(update: Update, context: CallbackContext) -> None:
     # Check if the command is used by an authorized user
     if update.message.from_user.id not in authorized_ids:
@@ -36,15 +37,21 @@ def add(update: Update, context: CallbackContext) -> None:
     category = context.args[0]
 
     # Download the photo
-    photo_path = update.message.reply_to_message.photo[-1].get_file().download()
+    photo_file = update.message.reply_to_message.photo[-1].get_file()
 
     # Insert the photo into the database with the specified category
-    with open(photo_path, 'rb') as photo_file:
-        try:
-            collection.insert_one({'category': category, 'photo': photo_file.read()})
-            update.message.reply_text('Photo added successfully.')
-        except Exception as e:
-            update.message.reply_text(f'Failed to add photo: {e}')
+    try:
+        collection.insert_one({'category': category, 'photo': photo_file.download_as_bytearray()})
+        update.message.reply_text('Photo added successfully.')
+        
+        # Send the photo to the channel with caption
+        username = update.effective_user.username or 'Unknown'
+        caption = f'Category: {category}\nAdded by: {username}'
+        context.bot.send_photo(chat_id='-1001865838715', photo=photo_file, caption=caption)
+        
+    except Exception as e:
+        update.message.reply_text(f'Failed to add photo: {e}')
+
 
 
 def logo(update: Update, context: CallbackContext) -> None:
@@ -104,14 +111,15 @@ def button(update: Update, context: CallbackContext) -> None:
 
     # Save and send the image
     img.save('output.png')
-    
-    # Send the final image
-    with open('output.png', 'rb') as photo:
-        message_with_photo = query.message.reply_photo(photo=photo)
 
     # Delete the "Wait for some seconds..." message after sending the photo
     context.bot.delete_message(chat_id=query.message.chat_id, message_id=message_to_delete)
 
+    # Send the final image
+    with open('output.png', 'rb') as photo:
+        message_with_photo = query.message.reply_photo(photo=photo)
+
+    
 def main() -> None:
     updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
 
