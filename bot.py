@@ -18,30 +18,27 @@ fonts = ['assets/adrip1.ttf']
 # Define authorized user ids
 authorized_ids = [6404226395, 5654523936]
 
+
 def add(update: Update, context: CallbackContext) -> None:
     # Check if the command is used by an authorized user
     if update.message.from_user.id not in authorized_ids:
         update.message.reply_text('Sojaa...')
         return
 
-    # Check if the message is a reply to a photo message
-    if not update.message.reply_to_message or not update.message.reply_to_message.photo:
-        update.message.reply_text('/add (Category daal) ')
+    # Check if a category and picture link are provided
+    if not context.args or len(context.args) < 2:
+        update.message.reply_text('/add <picture link> ; <category>')
         return
 
-    # Check if a category is provided
-    if not context.args:
-        update.message.reply_text('Category Daal bhai')
-        return
-
-    category = context.args[0]
+    picture_link, category = context.args
 
     # Download the photo
-    photo_file = update.message.reply_to_message.photo[-1].get_file()
+    response = requests.get(picture_link)
+    photo_file = BytesIO(response.content)
 
     # Insert the photo into the database with the specified category
     try:
-        collection.insert_one({'category': category, 'photo': photo_file.download_as_bytearray()})
+        collection.insert_one({'category': category, 'photo': photo_file.getvalue()})
         update.message.reply_text('Photo added successfully.')
         
         # Send the photo to the channel with caption
@@ -51,8 +48,6 @@ def add(update: Update, context: CallbackContext) -> None:
         
     except Exception as e:
         update.message.reply_text(f'Failed to add photo: {e}')
-
-
 
 def logo(update: Update, context: CallbackContext) -> None:
     user_input_text = " ".join(context.args)
