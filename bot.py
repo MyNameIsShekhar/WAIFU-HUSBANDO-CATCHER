@@ -1,5 +1,6 @@
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
+from pymongo import MongoClient
 
 class ImageBot:
     def __init__(self):
