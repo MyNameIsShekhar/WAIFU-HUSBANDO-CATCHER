@@ -9,8 +9,8 @@ from pymongo import MongoClient
 
 # Connect to your MongoDB database
 client = MongoClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
-db = client['logooo']
-collection = db['logodb']
+db = client['logoooo']
+collection = db['logodbb']
 
 # Define fonts list
 fonts = ['assets/adrip1.ttf']
