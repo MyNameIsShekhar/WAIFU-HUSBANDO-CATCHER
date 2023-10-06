@@ -51,8 +51,11 @@ def logo(update: Update, context: CallbackContext) -> None:
     user_input_text = " ".join(context.args)
 
     if not user_input_text:
-        update.message.reply_text('Please provide some text...')
+        update.message.reply_text('Please provide text to draw on the image.')
         return
+
+    # Store user_input_text in context.user_data
+    context.user_data['user_input_text'] = user_input_text
 
     keyboard = [
         [InlineKeyboardButton("Boy", callback_data='boy'),
@@ -76,8 +79,11 @@ def button(update: Update, context: CallbackContext) -> None:
     img = Image.open(BytesIO(image_data['photo']))
     d = ImageDraw.Draw(img)
     
-    font = ImageFont.truetype(random.choice(fonts), 150)
+    font = ImageFont.truetype(random.choice(fonts), 100)
     
+    # Retrieve user_input_text from context.user_data
+    user_input_text = context.user_data.get('user_input_text', '')
+
     # Calculate width and height of the text
     w, h = d.textsize(user_input_text, font=font)
 
