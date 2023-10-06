@@ -1,4 +1,3 @@
-
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
 from PIL import Image, ImageDraw, ImageFont
@@ -18,37 +17,50 @@ fonts = ['assets/adrip1.ttf']
 # Define authorized user ids
 authorized_ids = [6404226395, 5654523936]
 
-
 def add(update: Update, context: CallbackContext) -> None:
     # Check if the command is used by an authorized user
     if update.message.from_user.id not in authorized_ids:
         update.message.reply_text('Sojaa...')
         return
 
-    # Check if a category and picture link are provided
-    if not context.args or len(context.args) < 2:
-        update.message.reply_text('/add <picture link> ; <category>')
+    # Check if a category and image URL are provided
+    if len(context.args) < 2:
+        update.message.reply_text('/add <image_url> <category>')
         return
 
-    picture_link = context.args[0]
-    category = " ".join(context.args[1:])  # Join all elements after the first one
+    image_url = context.args[0]
+    category = context.args[1]
 
-    # Download the photo
-    response = requests.get(picture_link)
-    photo_file = BytesIO(response.content)
+    # Download the image from the provided URL
+    response = requests.get(image_url)
+    response.raise_for_status()
 
-    # Insert the photo into the database with the specified category
+    # Insert the image into the database with the specified category
     try:
-        collection.insert_one({'category': category, 'photo': photo_file.getvalue()})
+        collection.insert_one({'category': category, 'photo': response.content})
         update.message.reply_text('Photo added successfully.')
-        
-        # Send the photo to the channel with caption
-        username = update.effective_user.username or 'Unknown'
-        caption = f'Added by: {username}'
-        context.bot.send_photo(chat_id='-1001865838715', photo=photo_file, caption=caption)
-        
     except Exception as e:
         update.message.reply_text(f'Failed to add photo: {e}')
+
+def logo(update: Update, context: CallbackContext) -> None:
+    user_input_text = " ".join(context.args)
+
+    if not user_input_text:
+        update.message.reply_text('Please provide text to draw on the image.')
+        return
+
+    # Store user_input_text in context.user_data
+    context.user_data['user_input_text'] = user_input_text
+
+    keyboard = [
+        [InlineKeyboardButton("Boy", callback_data='boy'),
+         InlineKeyboardButton("Girl", callback_data='girl'),
+         InlineKeyboardButton("Scenary", callback_data='scenary')]
+    ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    update.message.reply_text('Please choose:', reply_markup=reply_markup)
 
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
@@ -56,16 +68,14 @@ def button(update: Update, context: CallbackContext) -> None:
     # Get the count of all images in the selected category
     count = collection.count_documents({'category': query.data})
 
-    # If count is zero, send a message to the user and return
-    if count == 0:
-        query.edit_message_text(text="No images found in this category.")
-        return
-
     # Get a random number from 0 to count - 1
     random_index = random.randint(0, count - 1)
 
     # Fetch one image from the database based on the selected category, skipping over random_index documents
     image_data = collection.find({'category': query.data}).skip(random_index).limit(1).next()
+
+    # Store the message_id of the "Wait for some seconds..." message
+    message_to_delete = query.message.message_id
 
     query.edit_message_text(text="Wait for some seconds...")
 
@@ -89,6 +99,10 @@ def button(update: Update, context: CallbackContext) -> None:
 
     # Save and send the image
     img.save('output.png')
+    
+    # Send the final image
+    with open('output.png', 'rb') as photo:
+        message_with_photo = query.message.reply_photo(photo=photo)
 
 def main() -> None:
     updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
@@ -100,4 +114,4 @@ def main() -> None:
     updater.start_polling()
 
 if __name__ == '__main__':
-    main()
+   main()
