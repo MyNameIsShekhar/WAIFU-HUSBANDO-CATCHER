@@ -6,7 +6,7 @@ class ImageBot:
         self.updater = Updater(token='6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs', use_context=True)
         self.dispatcher = self.updater.dispatcher
         self.message_count = 0
-        self.images = ('https://graph.org/file/bce79a4a7b2e5e73dc37a.jpg', 'Naruto Uzumaki'), ('https://graph.org/file/314324a8e1831137c8f94.jpg', 'Hinata')]  # Add your image URLs here
+        self.images = [('https://graph.org/file/bce79a4a7b2e5e73dc37a.jpg', 'Naruto Uzumaki'), ('https://graph.org/file/314324a8e1831137c8f94.jpg', 'Hinata')]  # Add your image URLs here
         self.current_image = None
 
     def start(self, update: Update, context: CallbackContext):
