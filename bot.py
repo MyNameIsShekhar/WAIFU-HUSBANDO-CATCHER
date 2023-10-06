@@ -1,55 +1,41 @@
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, CallbackContext
-from pymongo import MongoClient
-import random
 
-# Connect to MongoDB
-client = MongoClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
-db = client['telegram_bot']
-collection = db['images']
+class ImageBot:
+    def __init__(self):
+        self.updater = Updater(token='6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs', use_context=True)
+        self.dispatcher = self.updater.dispatcher
+        self.message_count = 0
+        self.images = ('https://graph.org/file/bce79a4a7b2e5e73dc37a.jpg', 'Naruto Uzumaki'), ('https://graph.org/file/314324a8e1831137c8f94.jpg', 'Hinata')]  # Add your image URLs here
+        self.current_image = None
 
-def upload(update: Update, context: CallbackContext) -> None:
-    if update.message.reply_to_message.photo:
-        file = context.bot.getFile(update.message.reply_to_message.photo[-1].file_id)
-        image_name = ' '.join(context.args)
-        image_id = file.file_id
-        collection.insert_one({'_id': image_id, 'name': image_name})
-        update.message.reply_text('Upload done')
-    else:
-        update.message.reply_text('Something wrong')
+    def start(self, update: Update, context: CallbackContext):
+        context.bot.send_message(chat_id=update.effective_chat.id, text="I'm a bot, please talk to me!")
 
-def guess(update: Update, context: CallbackContext) -> None:
-    image_name = ' '.join(context.args)
-    image = collection.find_one({'name': image_name})
-    if image:
-        # Add coins to the user's account
-        update.message.reply_text('Correct guess! You get coins.')
-    else:
-        update.message.reply_text('Incorrect guess.')
+    def count_messages(self, update: Update, context: CallbackContext):
+        self.message_count += 1
+        if self.message_count >= 10:
+            self.message_count = 0
+            self.current_image = self.images.pop(0)  # Get the next image from the list
+            context.bot.send_photo(chat_id=update.effective_chat.id, photo=self.current_image[0])
 
-def handle_messages(update: Update, context: CallbackContext) -> None:
-    if update.message.chat.type == 'group':
-        if 'counter' not in context.chat_data:
-            context.chat_data['counter'] = 0
-        context.chat_data['counter'] += 1
-        if context.chat_data['counter'] % 10 == 0:
-            images = list(collection.find())
-            if images:
-                selected_image = random.choice(images)
-                context.bot.send_photo(chat_id=update.message.chat_id, photo=selected_image['_id'])
+    def guess(self, update: Update, context: CallbackContext):
+        if ' '.join(context.args) == self.current_image[1]:
+            context.bot.send_message(chat_id=update.effective_chat.id, text="Correct! You get 5 coins.")
+        else:
+            context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, that's not correct.")
 
-def main() -> None:
-    updater = Updater(token='6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs')
+    def run(self):
+        start_handler = CommandHandler('start', self.start)
+        message_handler = MessageHandler(Filters.text & (~Filters.command), self.count_messages)
+        guess_handler = CommandHandler('guess', self.guess)
 
-    dispatcher = updater.dispatcher
+        self.dispatcher.add_handler(start_handler)
+        self.dispatcher.add_handler(message_handler)
+        self.dispatcher.add_handler(guess_handler)
 
-    dispatcher.add_handler(CommandHandler('upload', upload))
-    dispatcher.add_handler(CommandHandler('guess', guess))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, handle_messages))
-
-    updater.start_polling()
-
-    updater.idle()
+        self.updater.start_polling()
 
 if __name__ == '__main__':
-    main()
+    bot = ImageBot()
+    bot.run()
