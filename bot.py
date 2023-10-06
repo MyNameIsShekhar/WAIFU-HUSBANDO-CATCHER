@@ -76,6 +76,11 @@ def button(update: Update, context: CallbackContext) -> None:
     # Get the count of all images in the selected category
     count = collection.count_documents({'category': query.data})
 
+    # If count is zero, send a message to the user and return
+    if count == 0:
+        query.edit_message_text(text="No images found in this category.")
+        return
+
     # Get a random number from 0 to count - 1
     random_index = random.randint(0, count - 1)
 
@@ -108,15 +113,6 @@ def button(update: Update, context: CallbackContext) -> None:
     # Save and send the image
     img.save('output.png')
 
-    # Delete the "Wait for some seconds..." message after sending the photo
-    # Delete the "Wait for some seconds..." message after sending the photo
-    context.bot.delete_message(chat_id=query.message.chat_id, message_id=message_to_delete)
-
-    # Send the final image
-    with open('output.png', 'rb') as photo:
-        message_with_photo = query.message.reply_photo(photo=photo)
-    
-    
 def main() -> None:
     updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
 
