@@ -21,7 +21,7 @@ class ImageBot:
         username = update.effective_user.username
         first_name = update.effective_user.first_name
         user = self.users.find_one({'chat_id': chat_id, 'user_id': user_id})
-    if not user:
+     if not user:
         user = {'chat_id': chat_id, 'user_id': user_id, 'username': username, 'first_name': first_name, 'message_count': 0, 'coins': 0}
         self.users.insert_one(user)
     else:
