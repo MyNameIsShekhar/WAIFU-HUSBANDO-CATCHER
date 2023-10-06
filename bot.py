@@ -13,7 +13,7 @@ db = client['logooo']
 collection = db['logodb']
 
 # Define fonts list
-fonts = ['Assets/adrip1.ttf']
+fonts = ['assets/adrip1.ttf']
 
 # Define authorized user ids
 authorized_ids = [6404226395, 5654523936]
