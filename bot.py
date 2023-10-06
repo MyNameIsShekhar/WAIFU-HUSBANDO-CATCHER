@@ -1,53 +1,75 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
-import random
+from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext, MessageHandler, Filters
+from pymongo import MongoClient
+import logging
 
+logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                     level=logging.INFO)
 
-# This is your list of quiz questions, answers and images.
- 
+logger = logging.getLogger(__name__)
 
-# List of questions. Each question is a dictionary with 'image', 'options' and 'answer'
-questions = [
-    {'image': 'https://graph.org/file/314324a8e1831137c8f94.jpg', 'options': ['Naruto', 'Sasuke', 'Sakura', 'Orochimaru'], 'answer': 'Naruto'},
-    # Add more questions here
-]
+# Connect to MongoDB
+client = MongoClient("mongodb://localhost:27017/")
+db = client["telegram_bot"]
+questions_db = db["questions"]
+
+# Load questions from MongoDB
+questions = list(questions_db.find({}))
+
+users_attempted = {}
 
 def start(update: Update, context: CallbackContext) -> None:
-    # Select a random question
-    question = random.choice(questions)
-    context.chat_data['answer'] = question['answer']
-
-    keyboard = [[InlineKeyboardButton(opt, callback_data=opt) for opt in question['options']]]
-
+    user = update.effective_user
+    question = questions.pop(0)
+    keyboard = [[InlineKeyboardButton(option, callback_data=option)] for option in question['options']]
     reply_markup = InlineKeyboardMarkup(keyboard)
-
-    # Send the image with the options
-    context.bot.send_photo(chat_id=update.effective_chat.id, photo=question['image'], caption="Guess the image name", reply_markup=reply_markup)
+    context.bot.send_photo(chat_id=user.id, photo=question['image'], caption=question['caption'], reply_markup=reply_markup)
 
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
-
-    # CallbackQueries need to be answered
-    query.answer()
-
-    if query.data == context.chat_data['answer']:
-        query.edit_message_text(text="Correct answer! You get coins!")
+    user_id = query.from_user.id
+    if user_id in users_attempted:
+        query.answer("You've already tried.")
     else:
-        query.edit_message_text(text="That's wrong!")
+        users_attempted[user_id] = True
+        if query.data == questions[0]['answer']:
+            # Add 5 coins to the user's account
+            users.update_one({"_id": user_id}, {"$inc": {"group_coins": 5, "global_coins": 5}}, upsert=True)
+            query.edit_message_text(f"Congratulations {query.from_user.first_name}! You've earned 5 coins.")
+        else:
+            query.answer("Your answer is wrong.")
+
+def add(update: Update, context: CallbackContext) -> None:
+    # This function will be called when the /add command is issued.
+    # It expects the question data to be sent as a single message in the following format:
+    # /add <image_url>;<caption>;<option1>;<option2>;<option3>;<option4>;<answer>
+    data = update.message.text.split(' ', 1)
+    if len(data) != 2 or len(data[1].split(';')) != 7:
+        update.message.reply_text("Invalid format. Please use: /add <image_url>;<caption>;<option1>;<option2>;<option3>;<option4>;<answer>")
+        return
+
+    data = data[1].split(';')
+    question = {
+        "image": data[0],
+        "caption": data[1],
+        "options": data[2:6],
+        "answer": data[6]
+    }
+    
+    try:
+        questions_db.insert_one(question)
+        update.message.reply_text(f"Question added successfully by {update.message.from_user.first_name}.")
+    except Exception as e:
+        logger.error(e)
+        update.message.reply_text("Failed to add question.")
 
 def main() -> None:
-    # Create the Updater and pass it your bot's token.
     updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
-
-    updater.dispatcher.add_handler(CommandHandler('start', start))
-    updater.dispatcher.add_handler(CallbackQueryHandler(button))
-
-    # Start the Bot
+    dispatcher = updater.dispatcher
+    dispatcher.add_handler(CommandHandler("start", start))
+    dispatcher.add_handler(CommandHandler("add", add))
+    dispatcher.add_handler(CallbackQueryHandler(button))
     updater.start_polling()
-
-    # Run the bot until you press Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT. This should be used most of the time, since
-    # start_polling() is non-blocking and will stop the bot gracefully.
     updater.idle()
 
 if __name__ == '__main__':
