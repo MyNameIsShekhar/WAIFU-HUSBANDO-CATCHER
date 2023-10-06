@@ -20,6 +20,9 @@ users_attempted = {}
 
 def start(update: Update, context: CallbackContext) -> None:
     user = update.effective_user
+    if not questions:
+        # Load questions from MongoDB
+        questions.extend(list(questions_db.find({})))
     question = questions.pop(0)
     keyboard = [[InlineKeyboardButton(option, callback_data=option)] for option in question['options']]
     reply_markup = InlineKeyboardMarkup(keyboard)
