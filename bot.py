@@ -119,5 +119,5 @@ def main() -> None:
     updater.start_polling(timeout=15, read_latency=4, drop_pending_updates=True)
     updater.idle()
 
-if __name__ == '__main__'
+if __name__ == '__main__':
    main()
