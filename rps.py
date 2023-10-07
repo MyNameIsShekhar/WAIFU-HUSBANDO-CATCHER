@@ -54,7 +54,6 @@ def button(update: Update, context: CallbackContext) -> None:
         # The other player hasn't made a choice yet.
         query.edit_message_text(text=f'{query.from_user.first_name} ✅ vs {game["name"]} ❌')
 
-updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs")
 dispatcher.add_handler(CommandHandler('start', start))
 dispatcher.add_handler(CommandHandler('rps', rps))
 dispatcher.add_handler(CallbackQueryHandler(button))
