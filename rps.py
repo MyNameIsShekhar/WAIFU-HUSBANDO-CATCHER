@@ -1,7 +1,6 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
 import random
-from bot import updater 
 
 # Game state
 game_state = {}
@@ -55,9 +54,7 @@ def button(update: Update, context: CallbackContext) -> None:
         # The other player hasn't made a choice yet.
         query.edit_message_text(text=f'{query.from_user.first_name} ✅ vs {game["name"]} ❌')
 
-
-
-
+updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs")
 updater.dispatcher.add_handler(CommandHandler('start', start))
 updater.dispatcher.add_handler(CommandHandler('rps', rps))
 updater.dispatcher.add_handler(CallbackQueryHandler(button))
