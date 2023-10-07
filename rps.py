@@ -55,10 +55,7 @@ def button(update: Update, context: CallbackContext) -> None:
         query.edit_message_text(text=f'{query.from_user.first_name} ✅ vs {game["name"]} ❌')
 
 updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs")
-updater.dispatcher.add_handler(CommandHandler('start', start))
-updater.dispatcher.add_handler(CommandHandler('rps', rps))
-updater.dispatcher.add_handler(CallbackQueryHandler(button))
-
-updater.start_polling()
-updater.idle()
+dispatcher.add_handler(CommandHandler('start', start))
+dispatcher.add_handler(CommandHandler('rps', rps))
+dispatcher.add_handler(CallbackQueryHandler(button))
 
