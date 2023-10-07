@@ -5,6 +5,7 @@ import requests
 from io import BytesIO
 import random
 from pymongo import MongoClient
+from client import updater, dispatcher 
 
 # Connect to your MongoDB database
 client = MongoClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
@@ -110,13 +111,13 @@ def button(update: Update, context: CallbackContext) -> None:
         context.bot.delete_message(chat_id=query.message.chat_id, message_id=message_to_delete)
 
 def main() -> None:
-    updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
+    
+    dispatcher.add_handler(CommandHandler('add', add))
+    dispatcher.add_handler(CommandHandler('logo', logo))
+    dispatcher.add_handler(CallbackQueryHandler(button))
 
-    updater.dispatcher.add_handler(CommandHandler('add', add))
-    updater.dispatcher.add_handler(CommandHandler('logo', logo))
-    updater.dispatcher.add_handler(CallbackQueryHandler(button))
+    updater.start_polling(timeout=15, read_latency=4, drop_pending_updates=True)
+    updater.idle()
 
-    updater.start_polling()
-
-if __name__ == '__main__':
+if __name__ == '__main__'
    main()
