@@ -58,7 +58,7 @@ def button(update: Update, context: CallbackContext) -> None:
         query.edit_message_text(text="Sorry, that's not correct.")
 
 def main() -> None:
-    updater = Updater("5823371420:AAERluGPDzcPUjQzGnRe9OoBbECe19_JFXk", use_context=True)
+    updater = Updater("6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg", use_context=True)
 
     updater.dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, send_character))
     updater.dispatcher.add_handler(CallbackQueryHandler(button))
