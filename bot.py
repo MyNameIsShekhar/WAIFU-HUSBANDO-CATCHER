@@ -9,7 +9,7 @@ from pymongo import MongoClient
 client = MongoClient("mongodb+srv://shuyaaaaa12:NvpoBuRp7MVPcAYA@cluster0.q2yycqx.mongodb.net/")
 db = client["Japanese_database"]
 collection = db["Japanese_users"]
-characters_collection = db["Japanese_characters"]
+characters_collection = db["Japanese_characterss"]
 
 # Dictionary to keep track of user attempts and message counts
 group_data = {}
@@ -39,7 +39,7 @@ def question(update: Update, context: CallbackContext) -> None:
     
     # Increment the character index for the next question
     group_data[group_id]["character_index"] = (group_data[group_id]["character_index"] + 1) % len(characters)
-    
+   
     # Create a list of options including the correct one
     options = correct_character["options"].copy()
     options.append(correct_character["name"])
@@ -48,17 +48,16 @@ def question(update: Update, context: CallbackContext) -> None:
     random.shuffle(options)
     
     # Create an inline keyboard with the character names as buttons
-    keyboard = []
-    if len(options) > 2:
-        keyboard.append([InlineKeyboardButton(options[i], callback_data=options[i]) for i in range(3)])  # First row with 3 buttons
-    if len(options) > 3:
-        keyboard.append([InlineKeyboardButton(options[i], callback_data=options[i]) for i in range(3, len(options))])  # Second row with remaining buttons
+    keyboard = [
+        [InlineKeyboardButton(options[i], callback_data=options[i]) for i in range(3)],  # First row with 3 buttons
+        [InlineKeyboardButton(options[i], callback_data=options[i]) for i in range(3, 5)]  # Second row with 2 buttons
+    ]
     
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     # Send the question message with the inline keyboard
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=correct_character["image_url"], caption="Choose Correct Name Of The Character", reply_markup=reply_markup)
-
+ 
 
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
