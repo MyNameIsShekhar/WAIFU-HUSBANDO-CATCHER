@@ -1,8 +1,13 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import CallbackContext, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, Updater
+from telegram.ext import CallbackContext, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 from telegram.error import BadRequest
 import random
+from pymongo import MongoClient
 
+# MongoDB setup
+client = MongoClient("mongodb://<username>:<password>@<host>:<port>/<database>")
+db = client["Japanese_database"]
+collection = db["Japanese_users"]
 
 # List of dictionaries with image links and their names
 characters = [
@@ -10,14 +15,23 @@ characters = [
     {"name": "Hinata", "image_url": "https://graph.org/file/314324a8e1831137c8f94.jpg", "options": ["gandu", "choda", "moda", "lofa"]},
     # Add more characters as needed
 ]
+# Dictionary to keep track of user attempts and message counts
+group_data = {}
 
-# Dictionary to keep track of user attempts
+def count_messages(update: Update, context: CallbackContext) -> None:
+    # Increment the message count for the group
+    group_id = update.effective_chat.id
+    if group_id not in group_data:
+        group_data[group_id] = {"message_count": 0, "user_attempts": {}}
+    group_data[group_id]["message_count"] += 1
+    
+    # If the message count reaches 20, reset it and ask a question
+    if group_data[group_id]["message_count"] >= 20:
+        group_data[group_id]["message_count"] = 0
+        group_data[group_id]["user_attempts"] = {}
+        question(update, context)
 
-
-# Dictionary to keep track of user attempts
-user_attempts = {}
-
-def lmao(update: Update, context: CallbackContext) -> None:
+def question(update: Update, context: CallbackContext) -> None:
     # Select a random character
     correct_character = random.choice(characters)
     
@@ -43,7 +57,10 @@ def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     
     # Check if the user has already attempted to answer
-    if query.from_user.id in user_attempts and user_attempts[query.from_user.id]:
+    group_id = query.message.chat_id
+    user_id = query.from_user.id
+    
+    if user_id in group_data[group_id]["user_attempts"] and group_data[group_id]["user_attempts"][user_id]:
         query.answer("You've already tried", show_alert=True)
         return
     
@@ -52,29 +69,42 @@ def button(update: Update, context: CallbackContext) -> None:
         if character["name"] == query.data:
             try:
                 # Delete the original message
-                context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+                context.bot.delete_message(chat_id=group_id, message_id=query.message.message_id)
                 
                 # Send a new message
-                context.bot.send_message(chat_id=query.message.chat_id, text=f"Correct! The character is {query.data}. Well done {query.from_user.first_name}!")
+                context.bot.send_message(chat_id=group_id, text=f"Correct! The character is {query.data}. Well done {query.from_user.first_name}!")
                 
-                user_attempts[query.from_user.id] = True
+                group_data[group_id]["user_attempts"][user_id] = True
+                
+                # Give the user 5 coins in this group and globally
+                
+                # Prepare the update document for MongoDB
+                update_doc_group = {"$set": {"first_name": query.from_user.first_name}, "$inc": {"coins": 5}}
+                update_doc_global = {"$set": {"first_name": query.from_user.first_name}, "$inc": {"global_coins": 5}}
+                
+                if query.from_user.username is not None:
+                    update_doc_group["$set"]["username"] = query.from_user.username
+                    update_doc_global["$set"]["username"] = query.from_user.username
+                
+                # Update the user's coins in this group
+                collection.update_one({"group_id": group_id, "user_id": user_id}, update_doc_group, upsert=True)
+                
+                # Update the user's global coins
+                collection.update_one({"user_id": user_id}, update_doc_global, upsert=True)
             except BadRequest:
                 pass
             return
     
     # If the selected option is incorrect
     query.answer("You're wrong", show_alert=True)
-    user_attempts[query.from_user.id] = True
-
-
-    
+    group_data[group_id]["user_attempts"][user_id] = True
 
 def main() -> None:
     updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
 
     dispatcher = updater.dispatcher
 
-    dispatcher.add_handler(CommandHandler('lmao', lmao))
+    dispatcher.add_handler(MessageHandler(Filters.all & ~Filters.command, count_messages))
     
     dispatcher.add_handler(CallbackQueryHandler(button))
 
