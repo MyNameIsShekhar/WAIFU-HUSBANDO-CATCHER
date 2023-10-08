@@ -58,13 +58,12 @@ def question(update: Update, context: CallbackContext) -> None:
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     # Send the question message with the inline keyboard
-    context.bot.send_photo(chat_id=update.effective_chat.id, photo=correct_character["image_url"], caption="*🖼 Cʜᴏᴏsᴇ Tʜᴇ Cᴏʀʀᴇᴄᴛ Mᴇᴀɴɪɴɢ Oғ Tʜɪs Jᴀᴘɴᴇsᴇ Wᴏʀᴅ ɪɴ Eɴɢʟɪsʜ.. Aɴᴅ Gᴇᴛ Pᴏɪɴᴛs..*", reply_markup=reply_markup)
+    context.bot.send_photo(chat_id=update.effective_chat.id, photo=correct_character["image_url"], caption="***🖼 Cʜᴏᴏsᴇ Tʜᴇ Cᴏʀʀᴇᴄᴛ Mᴇᴀɴɪɴɢ Oғ Tʜɪs Jᴀᴘɴᴇsᴇ Wᴏʀᴅ ɪɴ Eɴɢʟɪsʜ.. Aɴᴅ Gᴇᴛ Pᴏɪɴᴛs..***", reply_markup=reply_markup)
 
     # Increment the index and reset it to 0 if it's out of bounds
     current_character_index += 1
     if current_character_index >= len(characters):
         current_character_index = 0
-
 
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
@@ -84,19 +83,10 @@ def button(update: Update, context: CallbackContext) -> None:
                 # Delete the original message
                 context.bot.delete_message(chat_id=group_id, message_id=query.message.message_id)
                 
-                # Send a new message
-                context.bot.send_message(chat_id=group_id, text=f"The Meaning is {query.data} ...\n*{query.from_user.first_name}* Answers/Guessed First.. \n*{query.from_user.first_name}* Wins 5 Ponits 🏆")
-                
-                group_data[group_id]["user_attempts"][user_id] = True
-                
-                # Give the user 5 points in this group and globally
-                
                 # Prepare the update document for MongoDB
                 update_doc_group = {"$set": {"first_name": query.from_user.first_name}, "$inc": {"points": 5}}
                 update_doc_global = {"$set": {"first_name": query.from_user.first_name}, "$inc": {"global_points": 5}}
                 if query.from_user.username is not None:
-                    
-                
                     update_doc_group["$set"]["username"] = query.from_user.username
                     update_doc_global["$set"]["username"] = query.from_user.username
                 
@@ -105,6 +95,19 @@ def button(update: Update, context: CallbackContext) -> None:
                 
                 # Update the user's global coins
                 collection.update_one({"user_id": user_id}, update_doc_global, upsert=True)
+                
+                # Fetch the updated points from MongoDB
+                group_points_doc = collection.find_one({"group_id": group_id, "user_id": user_id})
+                global_points_doc = collection.find_one({"user_id": user_id})
+                
+                group_points = group_points_doc.get("points", 0) if group_points_doc else 0
+                global_points = global_points_doc.get("global_points", 0) if global_points_doc else 0
+                
+                # Send a new message
+                context.bot.send_message(chat_id=group_id, text=f"The Meaning is {query.data} ...\n*{query.from_user.first_name}* Answers/Guessed First.. \n*{query.from_user.first_name}* Wins 5 Ponits 🏆\nTotal Group Points: {group_points}\nTotal Global Points: {global_points}")
+                
+                group_data[group_id]["user_attempts"][user_id] = True
+                
             except BadRequest:
                 pass
             return
@@ -112,6 +115,7 @@ def button(update: Update, context: CallbackContext) -> None:
     # If the selected option is incorrect
     query.answer("You're wrong", show_alert=True)
     group_data[group_id]["user_attempts"][user_id] = True
+
 
 def main() -> None:
     updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
