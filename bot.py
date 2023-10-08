@@ -58,7 +58,7 @@ def question(update: Update, context: CallbackContext) -> None:
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     # Send the question message with the inline keyboard
-    context.bot.send_photo(chat_id=update.effective_chat.id, photo=correct_character["image_url"], caption="**🖼 Cʜᴏᴏsᴇ Tʜᴇ Cᴏʀʀᴇᴄᴛ Mᴇᴀɴɪɴɢ Oғ Tʜɪs Jᴀᴘɴᴇsᴇ Wᴏʀᴅ ɪɴ Eɴɢʟɪsʜ.. Aɴᴅ Gᴇᴛ Pᴏɪɴᴛs..**", reply_markup=reply_markup)
+    context.bot.send_photo(chat_id=update.effective_chat.id, photo=correct_character["image_url"], caption="*🖼 Cʜᴏᴏsᴇ Tʜᴇ Cᴏʀʀᴇᴄᴛ Mᴇᴀɴɪɴɢ Oғ Tʜɪs Jᴀᴘɴᴇsᴇ Wᴏʀᴅ ɪɴ Eɴɢʟɪsʜ.. Aɴᴅ Gᴇᴛ Pᴏɪɴᴛs..*", reply_markup=reply_markup)
 
     # Increment the index and reset it to 0 if it's out of bounds
     current_character_index += 1
@@ -85,15 +85,15 @@ def button(update: Update, context: CallbackContext) -> None:
                 context.bot.delete_message(chat_id=group_id, message_id=query.message.message_id)
                 
                 # Send a new message
-                context.bot.send_message(chat_id=group_id, text=f"Correct! The character is {query.data}. Well done {query.from_user.first_name}!")
+                context.bot.send_message(chat_id=group_id, text=f"The Meaning is {query.data} ...\n*{query.from_user.first_name}* Answers/Guessed First.. \n*{query.from_user.first_name}* Wins 5 Ponits 🏆")
                 
                 group_data[group_id]["user_attempts"][user_id] = True
                 
-                # Give the user 5 coins in this group and globally
+                # Give the user 5 points in this group and globally
                 
                 # Prepare the update document for MongoDB
-                update_doc_group = {"$set": {"first_name": query.from_user.first_name}, "$inc": {"coins": 5}}
-                update_doc_global = {"$set": {"first_name": query.from_user.first_name}, "$inc": {"global_coins": 5}}
+                update_doc_group = {"$set": {"first_name": query.from_user.first_name}, "$inc": {"points": 5}}
+                update_doc_global = {"$set": {"first_name": query.from_user.first_name}, "$inc": {"global_points": 5}}
                 if query.from_user.username is not None:
                     
                 
