@@ -5,7 +5,7 @@ import random
 from pymongo import MongoClient
 
 # MongoDB setup
-client = MongoClient("mongodb://<username>:<password>@<host>:<port>/<database>")
+client = MongoClient("mongodb+srv://shuyaaaaa12:NvpoBuRp7MVPcAYA@cluster0.q2yycqx.mongodb.net/")
 db = client["Japanese_database"]
 collection = db["Japanese_users"]
 
