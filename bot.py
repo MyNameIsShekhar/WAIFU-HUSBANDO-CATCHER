@@ -3,6 +3,7 @@ from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, Callback
 from pymongo import MongoClient
 from PIL import Image, ImageDraw, ImageFont
 
+import random
 # Connect to your MongoDB
 client = MongoClient('mongodb+srv://shuyaaaaa12:NvpoBuRp7MVPcAYA@cluster0.q2yycqx.mongodb.net/')
 db = client['telegram_bot']
