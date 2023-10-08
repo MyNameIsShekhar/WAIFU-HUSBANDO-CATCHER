@@ -26,7 +26,7 @@ def button(update: Update, context: CallbackContext) -> None:
     query.answer("You're not eligible.")
 
 def main() -> None:
-    updater = Updater("6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg", use_context=True)
+    updater = Updater("6684851741:AAFdjonPh64ISqm0nBjS_xSI1fqCww6oBiw", use_context=True)
 
     dispatcher = updater.dispatcher
 
