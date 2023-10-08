@@ -58,7 +58,7 @@ def question(update: Update, context: CallbackContext) -> None:
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     # Send the question message with the inline keyboard
-    context.bot.send_photo(chat_id=update.effective_chat.id, photo=correct_character["image_url"], caption="***🖼 Cʜᴏᴏsᴇ Tʜᴇ Cᴏʀʀᴇᴄᴛ Mᴇᴀɴɪɴɢ Oғ Tʜɪs Jᴀᴘɴᴇsᴇ Wᴏʀᴅ ɪɴ Eɴɢʟɪsʜ.. Aɴᴅ Gᴇᴛ Pᴏɪɴᴛs..***", reply_markup=reply_markup)
+    context.bot.send_photo(chat_id=update.effective_chat.id, photo=correct_character["image_url"], caption="<b>🖼 Cʜᴏᴏsᴇ Tʜᴇ Cᴏʀʀᴇᴄᴛ Mᴇᴀɴɪɴɢ Oғ Tʜɪs Jᴀᴘɴᴇsᴇ Wᴏʀᴅ ɪɴ Eɴɢʟɪsʜ.. Aɴᴅ Gᴇᴛ Pᴏɪɴᴛs..<b>", parse_mode='HTML', reply_markup=reply_markup)
 
     # Increment the index and reset it to 0 if it's out of bounds
     current_character_index += 1
@@ -103,8 +103,8 @@ def button(update: Update, context: CallbackContext) -> None:
                 group_points = group_points_doc.get("points", 0) if group_points_doc else 0
                 global_points = global_points_doc.get("global_points", 0) if global_points_doc else 0
                 
-                # Send a new message
-                context.bot.send_message(chat_id=group_id, text=f"The Meaning is {query.data} ...\n*{query.from_user.first_name}* Answers/Guessed First.. \n*{query.from_user.first_name}* Wins 5 Ponits 🏆\nTotal Group Points: {group_points}\nTotal Global Points: {global_points}")
+                # Send a new message with HTML formatting
+                context.bot.send_message(chat_id=group_id, text=f"<b>The Meaning is {query.data} ...\n{query.from_user.first_name} Answers/Guessed First.. \n{query.from_user.first_name} Wins 5 Ponits 🏆\nTotal Group Points: {group_points}\nTotal Global Points: {global_points}</b>", parse_mode='HTML')
                 
                 group_data[group_id]["user_attempts"][user_id] = True
                 
