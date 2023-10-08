@@ -12,6 +12,9 @@ characters = [
 ]
 
 # Dictionary to keep track of user attempts
+
+
+# Dictionary to keep track of user attempts
 user_attempts = {}
 
 def lmao(update: Update, context: CallbackContext) -> None:
@@ -26,7 +29,10 @@ def lmao(update: Update, context: CallbackContext) -> None:
     random.shuffle(options)
     
     # Create an inline keyboard with the character names as buttons
-    keyboard = [[InlineKeyboardButton(option, callback_data=option) for option in options]]
+    keyboard = [
+        [InlineKeyboardButton(options[i], callback_data=options[i]) for i in range(3)],  # First row with 3 buttons
+        [InlineKeyboardButton(options[i], callback_data=options[i]) for i in range(3, 5)]  # Second row with 2 buttons
+    ]
     
     reply_markup = InlineKeyboardMarkup(keyboard)
     
@@ -45,7 +51,12 @@ def button(update: Update, context: CallbackContext) -> None:
     for character in characters:
         if character["name"] == query.data:
             try:
-                query.edit_message_text(text=f"Correct! The character is {query.data}. Well done {query.from_user.first_name}!")
+                # Delete the original message
+                context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
+                
+                # Send a new message
+                context.bot.send_message(chat_id=query.message.chat_id, text=f"Correct! The character is {query.data}. Well done {query.from_user.first_name}!")
+                
                 user_attempts[query.from_user.id] = True
             except BadRequest:
                 pass
@@ -54,6 +65,9 @@ def button(update: Update, context: CallbackContext) -> None:
     # If the selected option is incorrect
     query.answer("You're wrong", show_alert=True)
     user_attempts[query.from_user.id] = True
+
+
+    
 
 def main() -> None:
     updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
