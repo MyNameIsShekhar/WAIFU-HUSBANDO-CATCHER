@@ -74,6 +74,7 @@ def main() -> None:
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler("start", start))
+    dispatcher.add_handler(CommandHandler("send_word",send_word))
     dispatcher.add_handler(CallbackQueryHandler(button))
 
     updater.start_polling()
