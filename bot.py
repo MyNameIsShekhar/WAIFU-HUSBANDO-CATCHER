@@ -1,8 +1,8 @@
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update, Updater
 from telegram.ext import CallbackContext, CommandHandler, MessageHandler, Filters, CallbackQueryHandler
 from telegram.error import BadRequest
 import random
-from telegram.ext import Updater
+
 
 # List of dictionaries with image links and their names
 characters = [
