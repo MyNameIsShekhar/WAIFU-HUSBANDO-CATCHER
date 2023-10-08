@@ -3,6 +3,8 @@ from telegram.ext import CallbackContext, CommandHandler, MessageHandler, Filter
 from telegram.error import BadRequest
 import random
 
+import requests
+from io import BytesIO
 from pymongo import MongoClient
 
 # MongoDB setup
@@ -11,11 +13,12 @@ db = client["Japanese_database"]
 collection = db["Japanese_users"]
 
 # List of dictionaries with image links and their names
-characters = [
-    {"name": "Naruto", "image_url": "https://graph.org/file/9d78c4029a5d0aea6e7d0.jpg", "options": ["Rendi", "amedni", "bkl", "bsdk"]},
-    {"name": "Hinata", "image_url": "https://graph.org/file/314324a8e1831137c8f94.jpg", "options": ["gandu", "choda", "moda", "lofa"]},
-    # Add more characters as needed
+words = [
+    {"japanese": "konnichiwa", "english": "Hello", "options": ["Goodbye", "Thank you", "Yes", "No"]},
+    {"japanese": "arigatou", "english": "Thank you", "options": ["Hello", "Goodbye", "Yes", "No"]},
+    # Add more words as needed
 ]
+
 # Dictionary to keep track of user attempts and message counts
 group_data = {}
 
@@ -32,18 +35,22 @@ def count_messages(update: Update, context: CallbackContext) -> None:
         group_data[group_id]["user_attempts"] = {}
         question(update, context)
 
+
+
+
+
 def question(update: Update, context: CallbackContext) -> None:
-    # Select a random character
-    correct_character = random.choice(characters)
+    # Select a random word
+    correct_word = random.choice(words)
     
     # Create a list of options including the correct one
-    options = correct_character["options"].copy()
-    options.append(correct_character["name"])
+    options = correct_word["options"].copy()
+    options.append(correct_word["english"])
     
     # Shuffle the options to randomize the correct answer's position
     random.shuffle(options)
     
-    # Create an inline keyboard with the character names as buttons
+    # Create an inline keyboard with the English translations as buttons
     keyboard = [
         [InlineKeyboardButton(options[i], callback_data=options[i]) for i in range(3)],  # First row with 3 buttons
         [InlineKeyboardButton(options[i], callback_data=options[i]) for i in range(3, 5)]  # Second row with 2 buttons
@@ -51,8 +58,28 @@ def question(update: Update, context: CallbackContext) -> None:
     
     reply_markup = InlineKeyboardMarkup(keyboard)
     
+    # Download the image from the URL
+    response = requests.get("https://graph.org/file/cb384e79bc3ff2a36e1fa.jpg")
+    image = Image.open(BytesIO(response.content))
+    
+    draw = ImageDraw.Draw(image)
+    
+    # You might need to adjust the following values or make them dynamic depending on your image and text
+    text_position = (100, 100)
+    text_color = (237, 230, 211)  # RGB color of the text
+    font_size = 30
+    
+    font = ImageFont.truetype("Arial.ttf", font_size)  # You might need to replace this with the path to a font file that supports Japanese characters
+    
+    draw.text(text_position, correct_word["japanese"], fill=text_color, font=font)
+    
+    # Save the image to a BytesIO object to send it without saving it to disk
+    image_stream = io.BytesIO()
+    image.save(image_stream, format='JPEG')
+    image_stream.seek(0)
+    
     # Send the question message with the inline keyboard
-    context.bot.send_photo(chat_id=update.effective_chat.id, photo=correct_character["image_url"], caption="Choose Correct Name Of The Character", reply_markup=reply_markup)
+    context.bot.send_photo(chat_id=update.effective_chat.id, photo=image_stream, caption=f"Choose Correct English Translation Of The Word: {correct_word['japanese']}", reply_markup=reply_markup)
 
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
@@ -66,14 +93,14 @@ def button(update: Update, context: CallbackContext) -> None:
         return
     
     # Check if the selected option is correct
-    for character in characters:
-        if character["name"] == query.data:
+    for word in words:
+        if word["english"] == query.data:
             try:
                 # Delete the original message
                 context.bot.delete_message(chat_id=group_id, message_id=query.message.message_id)
                 
                 # Send a new message
-                context.bot.send_message(chat_id=group_id, text=f"Correct! The character is {query.data}. Well done {query.from_user.first_name}!")
+                context.bot.send_message(chat_id=group_id, text=f"Correct! The translation of {word['japanese']} is {query.data}. Well done {query.from_user.first_name}!")
                 
                 group_data[group_id]["user_attempts"][user_id] = True
                 
