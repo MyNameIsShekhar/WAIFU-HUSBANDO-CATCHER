@@ -1,86 +1,116 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import Updater, CommandHandler, CallbackQueryHandler, CallbackContext
-from pymongo import MongoClient
-from PIL import Image, ImageDraw, ImageFont
-
+from telegram.ext import CallbackContext, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, Updater 
+from telegram.error import BadRequest
 import random
-# Connect to your MongoDB
-client = MongoClient('mongodb+srv://shuyaaaaa12:NvpoBuRp7MVPcAYA@cluster0.q2yycqx.mongodb.net/')
-db = client['telegram_bot']
-users = db['users']
 
-TOKEN = '6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs'
-FONT_PATH ='assets/adrip1.ttf'  # Update this to the path of your font file
+from pymongo import MongoClient
 
-def start(update: Update, context: CallbackContext) -> None:
-    user = update.effective_user
-    context.user_data['coins'] = 0
+# MongoDB setup
+client = MongoClient("mongodb+srv://shuyaaaaa12:NvpoBuRp7MVPcAYA@cluster0.q2yycqx.mongodb.net/")
+db = client["Japanese_database"]
+collection = db["Japanese_users"]
 
-    # Store user data in MongoDB
-    users.insert_one({'user_id': user.id, 'coins': 0})
+# List of dictionaries with image links and their names
+characters = [
+    {"name": "Naruto", "image_url": "https://graph.org/file/9d78c4029a5d0aea6e7d0.jpg", "options": ["Rendi", "amedni", "bkl", "bsdk"]},
+    {"name": "Hinata", "image_url": "https://graph.org/file/314324a8e1831137c8f94.jpg", "options": ["gandu", "choda", "moda", "lofa"]},
+    # Add more characters as needed
+]
+# Dictionary to keep track of user attempts and message counts
+group_data = {}
 
-    update.message.reply_text(f'Hello {user.first_name}! Let\'s start learning Japanese.')
+def count_messages(update: Update, context: CallbackContext) -> None:
+    # Increment the message count for the group
+    group_id = update.effective_chat.id
+    if group_id not in group_data:
+        group_data[group_id] = {"message_count": 0, "user_attempts": {}}
+    group_data[group_id]["message_count"] += 1
+    
+    # If the message count reaches 20, reset it and ask a question
+    if group_data[group_id]["message_count"] >= 20:
+        group_data[group_id]["message_count"] = 0
+        group_data[group_id]["user_attempts"] = {}
+        question(update, context)
 
-def send_word(update: Update, context: CallbackContext) -> None:
-    words = [
-        {"japanese": "konnichiwa", "english": "Hello", "options": ["Goodbye", "Thank you", "Yes", "No"]},
-        {"japanese": "arigatou", "english": "Thank you", "options": ["Hello", "Goodbye", "Yes", "No"]},
+def question(update: Update, context: CallbackContext) -> None:
+    # Select a random character
+    correct_character = random.choice(characters)
+    
+    # Create a list of options including the correct one
+    options = correct_character["options"].copy()
+    options.append(correct_character["name"])
+    
+    # Shuffle the options to randomize the correct answer's position
+    random.shuffle(options)
+    
+    # Create an inline keyboard with the character names as buttons
+    keyboard = [
+        [InlineKeyboardButton(options[i], callback_data=options[i]) for i in range(3)],  # First row with 3 buttons
+        [InlineKeyboardButton(options[i], callback_data=options[i]) for i in range(3, 5)]  # Second row with 2 buttons
     ]
-
-    # Select a random word
-    word = random.choice(words)
-    context.user_data['current_word'] = word
-    context.user_data['tried'] = False
-
-    keyboard = [[InlineKeyboardButton(opt, callback_data=opt)] for opt in word['options']]
+    
     reply_markup = InlineKeyboardMarkup(keyboard)
-
-    # Draw text on image
-    image_path = 'assets/392eb296b941c76ebd423bc383b0e970.jpg'  # Update this to the path of your image file
-    image = Image.open(image_path)
-    draw = ImageDraw.Draw(image)
-    font = ImageFont.truetype(FONT_PATH, size=45)
-    draw.text((100, 100), word["japanese"], fill='rgb(0, 0, 0)', font=font)
-
-    # Save the image and send it
-    image.save('output.jpg')
-    context.bot.send_photo(chat_id=update.effective_chat.id, photo=open('output.jpg', 'rb'), caption="Tap On correct English Meaning Word and get coins", reply_markup=reply_markup)
+    
+    # Send the question message with the inline keyboard
+    context.bot.send_photo(chat_id=update.effective_chat.id, photo=correct_character["image_url"], caption="Choose Correct Name Of The Character", reply_markup=reply_markup)
 
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
-
-    selected_option = query.data
-    current_word = context.user_data.get('current_word', {})
-
-    if selected_option == current_word.get('english'):
-        # Increase coins and update in MongoDB
-        context.user_data['coins'] += 5
-        users.update_one({'user_id': query.from_user.id}, {'$inc': {'coins': 5}})
-
-        query.delete_message()
-        context.bot.send_message(chat_id=query.message.chat_id, text=f"Correct! @{query.from_user.username} now has {context.user_data['coins']} coins.")
-        send_word(update, context)
-    else:
-        if not context.user_data.get('tried', False):
-            query.answer(show_alert=True)
-            query.edit_message_text(text="You're wrong. Try again.")
-            context.user_data['tried'] = True
-        else:
-            query.answer(show_alert=True)
-            query.edit_message_text(text="You've already tried. Wait for the next word.")
+    
+    # Check if the user has already attempted to answer
+    group_id = query.message.chat_id
+    user_id = query.from_user.id
+    
+    if user_id in group_data[group_id]["user_attempts"] and group_data[group_id]["user_attempts"][user_id]:
+        query.answer("You've already tried", show_alert=True)
+        return
+    
+    # Check if the selected option is correct
+    for character in characters:
+        if character["name"] == query.data:
+            try:
+                # Delete the original message
+                context.bot.delete_message(chat_id=group_id, message_id=query.message.message_id)
+                
+                # Send a new message
+                context.bot.send_message(chat_id=group_id, text=f"Correct! The character is {query.data}. Well done {query.from_user.first_name}!")
+                
+                group_data[group_id]["user_attempts"][user_id] = True
+                
+                # Give the user 5 coins in this group and globally
+                
+                # Prepare the update document for MongoDB
+                update_doc_group = {"$set": {"first_name": query.from_user.first_name}, "$inc": {"coins": 5}}
+                update_doc_global = {"$set": {"first_name": query.from_user.first_name}, "$inc": {"global_coins": 5}}
+                if query.from_user.username is not None:
+                    
+                
+                    update_doc_group["$set"]["username"] = query.from_user.username
+                    update_doc_global["$set"]["username"] = query.from_user.username
+                
+                # Update the user's coins in this group
+                collection.update_one({"group_id": group_id, "user_id": user_id}, update_doc_group, upsert=True)
+                
+                # Update the user's global coins
+                collection.update_one({"user_id": user_id}, update_doc_global, upsert=True)
+            except BadRequest:
+                pass
+            return
+    
+    # If the selected option is incorrect
+    query.answer("You're wrong", show_alert=True)
+    group_data[group_id]["user_attempts"][user_id] = True
 
 def main() -> None:
-    updater = Updater(TOKEN)
+    updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
 
     dispatcher = updater.dispatcher
 
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CommandHandler("send_word",send_word))
+    dispatcher.add_handler(MessageHandler(Filters.all & ~Filters.command, count_messages))
+    
     dispatcher.add_handler(CallbackQueryHandler(button))
 
     updater.start_polling()
-
-    updater.idle()
 
 if __name__ == '__main__':
     main()
