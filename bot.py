@@ -58,7 +58,7 @@ def question(update: Update, context: CallbackContext) -> None:
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     # Send the question message with the inline keyboard
-    context.bot.send_photo(chat_id=update.effective_chat.id, photo=correct_character["image_url"], caption="</b>🖼 Cʜᴏᴏsᴇ Tʜᴇ Cᴏʀʀᴇᴄᴛ Mᴇᴀɴɪɴɢ Oғ Tʜɪs Jᴀᴘɴᴇsᴇ Wᴏʀᴅ ɪɴ Eɴɢʟɪsʜ.. Aɴᴅ Gᴇᴛ Pᴏɪɴᴛs..</b>", parse_mode='HTML', reply_markup=reply_markup)
+    context.bot.send_photo(chat_id=update.effective_chat.id, photo=correct_character["image_url"], caption=f"</b>🖼 Cʜᴏᴏsᴇ Tʜᴇ Cᴏʀʀᴇᴄᴛ Mᴇᴀɴɪɴɢ Oғ Tʜɪs Jᴀᴘɴᴇsᴇ Wᴏʀᴅ ɪɴ Eɴɢʟɪsʜ.. Aɴᴅ Gᴇᴛ Pᴏɪɴᴛs..</b>", parse_mode='HTML', reply_markup=reply_markup)
 
     # Increment the index and reset it to 0 if it's out of bounds
     current_character_index += 1
