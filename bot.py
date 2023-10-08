@@ -9,6 +9,7 @@ db = client["mydatabase"]
 users = db["users"]
 
 # Setup Pyrogram
+restrictions = [types.Restriction._parse(r) for r in user.restriction_reason] if user.restriction_reason else None
 
 
 api_id = '24427150'
