@@ -1,49 +1,77 @@
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler
+from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
+from pymongo import MongoClient
+import random
 
-# Define your images, options, and correct answers here
-quiz = [
+# Setup MongoDB
+client = MongoClient("mongodb://localhost:27017/")
+db = client["mydatabase"]
+users = db["users"]
+
+# Setup Pyrogram
+
+
+api_id = '24427150'
+api_hash = '9fcc60263a946ef550d11406667404fa'
+bot_token = '6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg'
+
+app = Client(":memory:", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
+
+
+# After every 20 messages, the bot will send a question
+message_counter = 0
+
+# Questions, options and answers
+questions = [
     {
-        "image_url": "https://graph.org/file/cb384e79bc3ff2a36e1fa.jpg",
-        "options": ["Salad", "Beef Steak", "Hamburger"],
-        "answer": "Hamburger"
+        "question": "Question 1",
+        "options": ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"],
+        "answer": "Option 1",
+        "image": "https://graph.org/file/cb384e79bc3ff2a36e1fa.jpg"
     },
     {
-        "image_url": "https://graph.org/file/60dcb0e5dc76ad24d52b8.jpg",
-        "options": ["Pizza", "Pasta", "Lasagna"],
-        "answer": "Pizza"
+        "question": "Question 2",
+        "options": ["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"],
+        "answer": "Option 2",
+        "image": "https://graph.org/file/cb384e79bc3ff2a36e1fa.jpg"
     },
-    # Add more images and options here
+    # Add more questions here...
 ]
 
+@app.on_message(filters.text & filters.group)
+def handle_messages(client, message):
+    global message_counter
+    message_counter += 1
 
-def start(update: Update, context: CallbackContext) -> None:
-    for i, q in enumerate(quiz):
-        question = f"What is this food? (Question {i+1})"
-        keyboard = [[InlineKeyboardButton(o, callback_data=f"{i}:{o}")] for o in q["options"]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-        context.bot.send_photo(chat_id=update.effective_chat.id, photo=q["image_url"], caption=question, reply_markup=reply_markup)
+    if message_counter >= 20:
+        message_counter = 0
+        ask_question(message.chat.id)
 
-def button(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-    query.answer()
-    i, answer = query.data.split(":")
-    if answer == quiz[int(i)]["answer"]:
-        query.edit_message_text(text=f"Correct! You've earned a coin.")
-    else:
-        query.edit_message_text(text=f"Sorry, that's not correct.")
+def ask_question(chat_id):
+    # Choose a random question
+    question_data = random.choice(questions)
+    
+    # Create InlineKeyboardMarkup with options as InlineKeyboardButton
+    reply_markup = InlineKeyboardMarkup(
+        [[InlineKeyboardButton(option, callback_data=option)] for option in question_data["options"]]
+    )
 
-def main() -> None:
-    updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
+    # Send the question and the options to the user
+    app.send_photo(chat_id, question_data["image"], caption=question_data["question"], reply_markup=reply_markup)
 
-    dispatcher = updater.dispatcher
+@app.on_callback_query()
+def handle_callback_query(client, callback_query):
+    # Check if the answer is correct
+    if callback_query.data == correct_answer:
+        # If correct, delete the question and send a new message
+        app.delete_messages(chat_id, callback_query.message.message_id)
+        app.send_message(chat_id, f"@{callback_query.from_user.username}, you're correct! You get 5 coins.")
 
-    dispatcher.add_handler(CommandHandler("start", start))
-    dispatcher.add_handler(CallbackQueryHandler(button))
+        # Add coins to the user's account in the database
+        user = users.find_one({"username": callback_query.from_user.username})
+        if user:
+            users.update_one({"_id": user["_id"]}, {"$inc": {"coins": 5}})
+        else:
+            users.insert_one({"username": callback_query.from_user.username, "coins": 5})
 
-    updater.start_polling()
-
-    updater.idle()
-
-if __name__ == '__main__':
-    main()
+app.run()
