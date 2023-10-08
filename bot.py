@@ -8,7 +8,7 @@ client = MongoClient('mongodb+srv://shuyaaaaa12:NvpoBuRp7MVPcAYA@cluster0.q2yycq
 db = client['telegram_bot']
 users = db['users']
 
-TOKEN = '6430015242:AAG5eGK4MYd9-58PjYfJZy0LhcfMvpWly1I'
+TOKEN = '6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs'
 FONT_PATH ='assets/adrip1.ttf'  # Update this to the path of your font file
 
 def start(update: Update, context: CallbackContext) -> None:
