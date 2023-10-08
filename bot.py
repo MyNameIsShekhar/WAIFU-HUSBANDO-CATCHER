@@ -9,13 +9,8 @@ from pymongo import MongoClient
 client = MongoClient("mongodb+srv://shuyaaaaa12:NvpoBuRp7MVPcAYA@cluster0.q2yycqx.mongodb.net/")
 db = client["Japanese_database"]
 collection = db["Japanese_users"]
+characters_collection = db["Japanese_characters"]
 
-# List of dictionaries with image links and their names
-characters = [
-    {"name": "Naruto", "image_url": "https://graph.org/file/9d78c4029a5d0aea6e7d0.jpg", "options": ["Rendi", "amedni", "bkl", "bsdk"]},
-    {"name": "Hinata", "image_url": "https://graph.org/file/314324a8e1831137c8f94.jpg", "options": ["gandu", "choda", "moda", "lofa"]},
-    # Add more characters as needed
-]
 # Dictionary to keep track of user attempts and message counts
 group_data = {}
 
@@ -23,7 +18,7 @@ def count_messages(update: Update, context: CallbackContext) -> None:
     # Increment the message count for the group
     group_id = update.effective_chat.id
     if group_id not in group_data:
-        group_data[group_id] = {"message_count": 0, "user_attempts": {}}
+        group_data[group_id] = {"message_count": 0, "user_attempts": {}, "character_index": 0}
     group_data[group_id]["message_count"] += 1
     
     # If the message count reaches 20, reset it and ask a question
@@ -33,8 +28,18 @@ def count_messages(update: Update, context: CallbackContext) -> None:
         question(update, context)
 
 def question(update: Update, context: CallbackContext) -> None:
-    # Select a random character
-    correct_character = random.choice(characters)
+    # Fetch all characters from the database
+    characters = list(characters_collection.find())
+    
+    # Get the group data
+    group_id = update.effective_chat.id
+    group_data.setdefault(group_id, {"message_count": 0, "user_attempts": {}, "character_index": 0})
+    
+    # Select the next character
+    correct_character = characters[group_data[group_id]["character_index"]]
+    
+    # Increment the character index for the next question
+    group_data[group_id]["character_index"] = (group_data[group_id]["character_index"] + 1) % len(characters)
     
     # Create a list of options including the correct one
     options = correct_character["options"].copy()
@@ -101,6 +106,45 @@ def button(update: Update, context: CallbackContext) -> None:
     query.answer("You're wrong", show_alert=True)
     group_data[group_id]["user_attempts"][user_id] = True
 
+def upload(update: Update, context: CallbackContext) -> None:
+    # Extract arguments from the command
+    args = context.args
+    
+    if len(args) < 3:
+        update.message.reply_text("Please provide an image URL, name and options in the format.. ask @shigeoo")
+        return
+    
+    image_url = args[0]
+    name = args[1]
+    options = args[2].split(',')
+    
+    # Insert the new character into the database
+    try:
+        characters_collection.insert_one({"name": name, "image_url": image_url, "options": options})
+        update.message.reply_text("Successfully uploaded.")
+    except Exception as e:
+        update.message.reply_text(f"Error: {str(e)}")
+
+def delete(update: Update, context: CallbackContext) -> None:
+    # Extract arguments from the command
+    args = context.args
+    
+    if len(args) != 1:
+        update.message.reply_text("Please provide a name in the format: /delete <name>")
+        return
+    
+    name = args[0]
+    
+    # Delete the character from the database
+    try:
+        characters_collection.delete_one({"name": name})
+        if characters_collection.count_documents({"name": name}) == 0:
+            update.message.reply_text("Successfully deleted.")
+        else:
+            update.message.reply_text("Error: Character not found.")
+    except Exception as e:
+        update.message.reply_text(f"Error: {str(e)}")
+
 def main() -> None:
     updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
 
@@ -109,6 +153,10 @@ def main() -> None:
     dispatcher.add_handler(MessageHandler(Filters.all & ~Filters.command, count_messages))
     
     dispatcher.add_handler(CallbackQueryHandler(button))
+    
+    dispatcher.add_handler(CommandHandler("upload", upload))
+    
+    dispatcher.add_handler(CommandHandler("delete", delete))
 
     updater.start_polling()
 
