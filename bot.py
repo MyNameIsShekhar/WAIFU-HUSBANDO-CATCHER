@@ -68,9 +68,9 @@ def question(update: Update, context: CallbackContext) -> None:
     # You might need to adjust the following values or make them dynamic depending on your image and text
     text_position = (100, 100)
     text_color = (237, 230, 211)  # RGB color of the text
-    font_size = 30
+    font_size = 50
     
-    font = ImageFont.truetype("Arial.ttf", font_size)  # You might need to replace this with the path to a font file that supports Japanese characters
+    font = ImageFont.truetype("assets/adrip1.ttf", font_size)  # You might need to replace this with the path to a font file that supports Japanese characters
     
     draw.text(text_position, correct_word["japanese"], fill=text_color, font=font)
     
