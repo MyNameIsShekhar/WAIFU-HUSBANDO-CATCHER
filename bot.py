@@ -35,7 +35,7 @@ def send_word(update: Update, context: CallbackContext) -> None:
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     # Draw text on image
-    image_path = 'path_to_your_image.jpg'  # Update this to the path of your image file
+    image_path = 'assets/392eb296b941c76ebd423bc383b0e970.jpg'  # Update this to the path of your image file
     image = Image.open(image_path)
     draw = ImageDraw.Draw(image)
     font = ImageFont.truetype(FONT_PATH, size=45)
