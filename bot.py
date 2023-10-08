@@ -9,7 +9,7 @@ from pymongo import MongoClient
 client = MongoClient("mongodb+srv://shuyaaaaa12:NvpoBuRp7MVPcAYA@cluster0.q2yycqx.mongodb.net/")
 db = client["Japanese_database"]
 collection = db["Japanese_users"]
-characters_collection = db["Japanese_characterss"]
+characters_collection = db["Japanese_charactersss"]
 
 # Dictionary to keep track of user attempts and message counts
 group_data = {}
