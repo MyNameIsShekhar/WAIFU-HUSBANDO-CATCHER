@@ -8,9 +8,14 @@ from pymongo import MongoClient
 # MongoDB setup
 client = MongoClient("mongodb+srv://shuyaaaaa12:NvpoBuRp7MVPcAYA@cluster0.q2yycqx.mongodb.net/")
 db = client["Japanese_database"]
-collection = db["Japanese_users"]
-characters_collection = db["Japanese_charactersss"]
+collection = db["Japanesewoedss"]
 
+# List of dictionaries with image links and their names
+characters = [
+    {"name": "Idiot", "image_url": "https://graph.org/file/428c2ab890a2bc4caa4c3.jpg", "options": ["Goodbye", "Cry", "Handsome", "intelligent"]},
+    {"name": "Good Morning", "image_url": "https://te.legra.ph/file/687db2df2db365151e289.jpg", "options": ["goodnight", "LoveYou", "GoodBye", "HateYou"]},
+    # Add more characters as needed
+]
 # Dictionary to keep track of user attempts and message counts
 group_data = {}
 
@@ -18,7 +23,7 @@ def count_messages(update: Update, context: CallbackContext) -> None:
     # Increment the message count for the group
     group_id = update.effective_chat.id
     if group_id not in group_data:
-        group_data[group_id] = {"message_count": 0, "user_attempts": {}, "character_index": 0}
+        group_data[group_id] = {"message_count": 0, "user_attempts": {}}
     group_data[group_id]["message_count"] += 1
     
     # If the message count reaches 20, reset it and ask a question
@@ -26,20 +31,11 @@ def count_messages(update: Update, context: CallbackContext) -> None:
         group_data[group_id]["message_count"] = 0
         group_data[group_id]["user_attempts"] = {}
         question(update, context)
+
 def question(update: Update, context: CallbackContext) -> None:
-    # Fetch all characters from the database
-    characters = list(characters_collection.find())
+    # Select a random character
+    correct_character = random.choice(characters)
     
-    # Get the group data
-    group_id = update.effective_chat.id
-    group_data.setdefault(group_id, {"message_count": 0, "user_attempts": {}, "character_index": 0})
-    
-    # Select the next character
-    correct_character = characters[group_data[group_id]["character_index"]]
-    
-    # Increment the character index for the next question
-    group_data[group_id]["character_index"] = (group_data[group_id]["character_index"] + 1) % len(characters)
-   
     # Create a list of options including the correct one
     options = correct_character["options"].copy()
     options.append(correct_character["name"])
@@ -57,8 +53,6 @@ def question(update: Update, context: CallbackContext) -> None:
     
     # Send the question message with the inline keyboard
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=correct_character["image_url"], caption="Choose Correct Name Of The Character", reply_markup=reply_markup)
- 
-
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     
@@ -106,45 +100,6 @@ def button(update: Update, context: CallbackContext) -> None:
     query.answer("You're wrong", show_alert=True)
     group_data[group_id]["user_attempts"][user_id] = True
 
-def upload(update: Update, context: CallbackContext) -> None:
-    # Extract arguments from the command
-    args = context.args
-    
-    if len(args) < 3:
-        update.message.reply_text("Please provide an image URL, name and options in the format.. ask @shigeoo")
-        return
-    
-    image_url = args[0]
-    name = args[1]
-    options = args[2].split(',')
-    
-    # Insert the new character into the database
-    try:
-        characters_collection.insert_one({"name": name, "image_url": image_url, "options": options})
-        update.message.reply_text("Successfully uploaded.")
-    except Exception as e:
-        update.message.reply_text(f"Error: {str(e)}")
-
-def delete(update: Update, context: CallbackContext) -> None:
-    # Extract arguments from the command
-    args = context.args
-    
-    if len(args) != 1:
-        update.message.reply_text("Please provide a name in the format: /delete <name>")
-        return
-    
-    name = args[0]
-    
-    # Delete the character from the database
-    try:
-        characters_collection.delete_one({"name": name})
-        if characters_collection.count_documents({"name": name}) == 0:
-            update.message.reply_text("Successfully deleted.")
-        else:
-            update.message.reply_text("Error: Character not found.")
-    except Exception as e:
-        update.message.reply_text(f"Error: {str(e)}")
-
 def main() -> None:
     updater = Updater("6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs", use_context=True)
 
@@ -153,10 +108,6 @@ def main() -> None:
     dispatcher.add_handler(MessageHandler(Filters.all & ~Filters.command, count_messages))
     
     dispatcher.add_handler(CallbackQueryHandler(button))
-    
-    dispatcher.add_handler(CommandHandler("upload", upload))
-    
-    dispatcher.add_handler(CommandHandler("delete", delete))
 
     updater.start_polling()
 
