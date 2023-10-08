@@ -23,7 +23,7 @@ def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 
     # Answer the query
-    query.answer("You're not eligible.")
+    query.answer("You're not eligible." , show_alert=True)
 
 def main() -> None:
     updater = Updater("6684851741:AAFdjonPh64ISqm0nBjS_xSI1fqCww6oBiw", use_context=True)
