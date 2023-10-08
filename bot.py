@@ -26,7 +26,6 @@ def count_messages(update: Update, context: CallbackContext) -> None:
         group_data[group_id]["message_count"] = 0
         group_data[group_id]["user_attempts"] = {}
         question(update, context)
-
 def question(update: Update, context: CallbackContext) -> None:
     # Fetch all characters from the database
     characters = list(characters_collection.find())
@@ -49,15 +48,17 @@ def question(update: Update, context: CallbackContext) -> None:
     random.shuffle(options)
     
     # Create an inline keyboard with the character names as buttons
-    keyboard = [
-        [InlineKeyboardButton(options[i], callback_data=options[i]) for i in range(3)],  # First row with 3 buttons
-        [InlineKeyboardButton(options[i], callback_data=options[i]) for i in range(3, 5)]  # Second row with 2 buttons
-    ]
+    keyboard = []
+    if len(options) > 2:
+        keyboard.append([InlineKeyboardButton(options[i], callback_data=options[i]) for i in range(3)])  # First row with 3 buttons
+    if len(options) > 3:
+        keyboard.append([InlineKeyboardButton(options[i], callback_data=options[i]) for i in range(3, len(options))])  # Second row with remaining buttons
     
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     # Send the question message with the inline keyboard
     context.bot.send_photo(chat_id=update.effective_chat.id, photo=correct_character["image_url"], caption="Choose Correct Name Of The Character", reply_markup=reply_markup)
+
 
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
