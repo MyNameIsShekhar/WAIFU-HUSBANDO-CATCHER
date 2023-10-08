@@ -18,6 +18,7 @@ characters = [
 ]
 # Dictionary to keep track of user attempts and message counts
 group_data = {}
+current_character_index = 0
 
 def count_messages(update: Update, context: CallbackContext) -> None:
     # Increment the message count for the group
@@ -32,27 +33,39 @@ def count_messages(update: Update, context: CallbackContext) -> None:
         group_data[group_id]["user_attempts"] = {}
         question(update, context)
 
+# Create a variable to keep track of the current character index
+
+
 def question(update: Update, context: CallbackContext) -> None:
-    # Select a random character
-    correct_character = random.choice(characters)
-    
+    global current_character_index  # Use the global variable
+
+    # Select the character at the current index
+    correct_character = characters[current_character_index]
+
     # Create a list of options including the correct one
     options = correct_character["options"].copy()
     options.append(correct_character["name"])
-    
+
     # Shuffle the options to randomize the correct answer's position
     random.shuffle(options)
-    
+
     # Create an inline keyboard with the character names as buttons
     keyboard = [
         [InlineKeyboardButton(options[i], callback_data=options[i]) for i in range(3)],  # First row with 3 buttons
         [InlineKeyboardButton(options[i], callback_data=options[i]) for i in range(3, 5)]  # Second row with 2 buttons
     ]
-    
+
     reply_markup = InlineKeyboardMarkup(keyboard)
-    
+
     # Send the question message with the inline keyboard
-    context.bot.send_photo(chat_id=update.effective_chat.id, photo=correct_character["image_url"], caption="Choose Correct Name Of The Character", reply_markup=reply_markup)
+    context.bot.send_photo(chat_id=update.effective_chat.id, photo=correct_character["image_url"], caption="**🖼 Cʜᴏᴏsᴇ Tʜᴇ Cᴏʀʀᴇᴄᴛ Mᴇᴀɴɪɴɢ Oғ Tʜɪs Jᴀᴘɴᴇsᴇ Wᴏʀᴅ ɪɴ Eɴɢʟɪsʜ.. Aɴᴅ Gᴇᴛ Pᴏɪɴᴛs..**", reply_markup=reply_markup)
+
+    # Increment the index and reset it to 0 if it's out of bounds
+    current_character_index += 1
+    if current_character_index >= len(characters):
+        current_character_index = 0
+
+
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     
