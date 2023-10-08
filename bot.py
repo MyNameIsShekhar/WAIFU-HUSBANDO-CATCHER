@@ -14,7 +14,7 @@ characters = [
 # Dictionary to keep track of user attempts
 user_attempts = {}
 
-def random(update: Update, context: CallbackContext) -> None:
+def lmao(update: Update, context: CallbackContext) -> None:
     # Select a random character
     correct_character = random.choice(characters)
     
@@ -60,7 +60,7 @@ def main() -> None:
 
     dispatcher = updater.dispatcher
 
-    dispatcher.add_handler(CommandHandler('random', random))
+    dispatcher.add_handler(CommandHandler('lmao', lmao))
     
     dispatcher.add_handler(CallbackQueryHandler(button))
 
