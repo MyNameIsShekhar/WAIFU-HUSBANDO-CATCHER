@@ -1,11 +1,12 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext, CommandHandler, MessageHandler, Filters, CallbackQueryHandler, Updater 
 from telegram.error import BadRequest
-from io import BytesIO
-from PIL import Image, ImageDraw, ImageFont
-from pymongo import MongoClient
 import random
 import requests
+from io import BytesIO
+from PIL import Image, ImageDraw, ImageFont
+
+from pymongo import MongoClient
 
 
 
