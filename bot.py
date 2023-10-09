@@ -105,9 +105,11 @@ def total(update: Update, context: CallbackContext) -> None:
         # Get all characters of the given anime
         characters = collection.find({'anime': anime_name})
 
+        # Create a list of character names and IDs
+        character_list = [f'Character Name: {character["name"]}\nID: {character["id"]}' for character in characters]
+
         # Send message with character names and IDs
-        for character in characters:
-            update.message.reply_text(f'Character Name: {character["name"]}\nID: {character["id"]}')
+        update.message.reply_text('\n\n'.join(character_list))
     except Exception as e:
         update.message.reply_text('Failed to fetch characters.')
 
