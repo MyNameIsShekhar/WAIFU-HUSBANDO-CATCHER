@@ -194,8 +194,7 @@ def main() -> None:
     # Add run_async=True to the MessageHandler
     dispatcher.add_handler(MessageHandler(Filters.all & ~Filters.command, count_messages, run_async=True))
     
-    # Add run_async=True to the CallbackQueryHandler
-    dispatcher.add_handler(CallbackQueryHandler(button, run_async=True))
+    dispatcher.add_handler(CallbackQueryHandler(button, pattern='^\w+$', run_async=True))
 
     dispatcher.add_handler(CommandHandler('leaderboard', leaderboard, run_async=True))
     dispatcher.add_handler(CallbackQueryHandler(leaderboard_callback, pattern='^(group|global|back|close)$', run_async=True))
