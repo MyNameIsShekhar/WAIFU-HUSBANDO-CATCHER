@@ -190,16 +190,21 @@ def guess(update: Update, context: CallbackContext) -> None:
     guess = ' '.join(context.args).lower() if context.args else ''
     
     if not guess and chat_id in last_characters:
-        update.message.reply_text('Please use the format: /guess Character-Name')
-        return
+        # If someone has already guessed correctly
+        if chat_id in first_correct_guesses:
+            update.message.reply_text(f'Already guessed by <a href="tg://user?id={first_correct_guesses[chat_id]}">{update.effective_user.first_name}</a>', parse_mode='HTML')
+            return
+        else:
+            update.message.reply_text('Your guess is incorrect.')
+            return
 
     elif guess and guess in last_characters[chat_id]['name'].lower():
         # Check if someone has already guessed correctly
         if chat_id in first_correct_guesses:
-            update.message.reply_text(f'Already guessed by <a href="tg://user?id={first_correct_guesses[chat_id]}">user</a>', parse_mode='HTML')
+            update.message.reply_text(f'Already guessed by <a href="tg://user?id={first_correct_guesses[chat_id]}">{update.effective_user.first_name}</a>', parse_mode='HTML')
             return
 
-        update.message.reply_text(f'Correct guess! {update.effective_user.first_name} guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.')
+        update.message.reply_text(f'Correct guess! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
         first_correct_guesses[chat_id] = user_id
 
         # Get user's collection
@@ -224,7 +229,7 @@ def guess(update: Update, context: CallbackContext) -> None:
             character['first_name'] = update.effective_user.first_name
             
             user_collection.insert_one(character)
-
+    
 def main() -> None:
     updater = Updater(token='6526883785:AAEAGc396CqAuokk5o237ZP4k6dIhB0d6_k')
 
