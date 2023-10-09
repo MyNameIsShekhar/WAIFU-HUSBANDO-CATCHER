@@ -64,17 +64,25 @@ def question(update: Update, context: CallbackContext) -> None:
     current_character_index += 1
     if current_character_index >= len(characters):
         current_character_index = 0
-
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     
     # Check if the user has already attempted to answer
     group_id = query.message.chat_id
     user_id = query.from_user.id
-    
-    if user_id in group_data[group_id]["user_attempts"] and group_data[group_id]["user_attempts"][user_id]:
+
+    # Initialize group_data for this group and user if it doesn't exist
+    if group_id not in group_data:
+        group_data[group_id] = {"message_count": 0, "user_attempts": {}}
+    if user_id not in group_data[group_id]["user_attempts"]:
+        group_data[group_id]["user_attempts"][user_id] = False
+
+    if group_data[group_id]["user_attempts"][user_id]:
         query.answer("You've already tried", show_alert=True)
         return
+    
+    # Check if the selected option is correct
+    
     
     # Check if the selected option is correct
     for character in characters:
