@@ -64,6 +64,7 @@ def question(update: Update, context: CallbackContext) -> None:
     current_character_index += 1
     if current_character_index >= len(characters):
         current_character_index = 0
+        
 def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     
@@ -77,12 +78,13 @@ def button(update: Update, context: CallbackContext) -> None:
     if user_id not in group_data[group_id]["user_attempts"]:
         group_data[group_id]["user_attempts"][user_id] = False
 
-    if group_data[group_id]["user_attempts"][user_id]:
+    # Get the character names
+    character_names = [character["name"] for character in characters]
+
+    # Only check user_attempts for character questions
+    if query.data in character_names and group_data[group_id]["user_attempts"][user_id]:
         query.answer("You've already tried", show_alert=True)
         return
-    
-    # Check if the selected option is correct
-    
     
     # Check if the selected option is correct
     for character in characters:
@@ -123,7 +125,7 @@ def button(update: Update, context: CallbackContext) -> None:
     # If the selected option is incorrect
     query.answer("You're wrong", show_alert=True)
     group_data[group_id]["user_attempts"][user_id] = True
-    
+
 def leaderboard(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 
