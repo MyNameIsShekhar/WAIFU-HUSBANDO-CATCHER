@@ -113,6 +113,75 @@ def total(update: Update, context: CallbackContext) -> None:
     except Exception as e:
         update.message.reply_text('Failed to fetch characters.')
 
+# Counter for messages in each group
+message_counters = {}
+
+# Last sent character in each group
+last_characters = {}
+
+# Characters that have been sent in each group
+sent_characters = {}
+
+def message_counter(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+
+    # Increment counter for this chat
+    if chat_id not in message_counters:
+        message_counters[chat_id] = 0
+    message_counters[chat_id] += 1
+
+    # Send image after every 20 messages
+    if message_counters[chat_id] % 20 == 0:
+        send_image(update, context)
+
+def send_image(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+
+    # Get all characters
+    all_characters = list(collection.find({}))
+
+    # Initialize sent characters list for this chat if it doesn't exist
+    if chat_id not in sent_characters:
+        sent_characters[chat_id] = []
+
+    # Reset sent characters list if all characters have been sent
+    if len(sent_characters[chat_id]) == len(all_characters):
+        sent_characters[chat_id] = []
+
+    # Select a random character that hasn't been sent yet
+    character = random.choice([c for c in all_characters if c['id'] not in sent_characters[chat_id]])
+
+    # Add character to sent characters list and set as last sent character
+    sent_characters[chat_id].append(character['id'])
+    last_characters[chat_id] = character
+
+    # Send image with caption
+    context.bot.send_photo(
+        chat_id=chat_id,
+        photo=character['img_url'],
+        caption="Use /Guess Command And.. Guess This Character Name.."
+    )
+
+def guess(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+
+    # Check if a character has been sent in this chat yet
+    if chat_id not in last_characters:
+        update.message.reply_text('No character has been sent yet.')
+        return
+
+    # Check if guess is correct
+    guess = ' '.join(context.args).lower()
+    if guess in last_characters[chat_id]['name'].lower():
+        update.message.reply_text('Correct guess!')
+
+        # Add character to user's DB (not implemented)
+        # ...
+    else:
+        update.message.reply_text('Incorrect guess.')
+
+
+
 def main() -> None:
     updater = Updater(token='6526883785:AAEAGc396CqAuokk5o237ZP4k6dIhB0d6_k')
 
@@ -122,6 +191,8 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('anime', anime))
     dispatcher.add_handler(CommandHandler('delete', delete))
     dispatcher.add_handler(CommandHandler('total', total))
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter))
+    dispatcher.add_handler(CommandHandler('guess', guess))
 
     updater.start_polling()
 
