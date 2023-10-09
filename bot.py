@@ -112,7 +112,7 @@ def total(update: Update, context: CallbackContext) -> None:
         update.message.reply_text('Failed to fetch characters.')
 
 def main() -> None:
-    updater = Updater(token='6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg')
+    updater = Updater(token='6526883785:AAEAGc396CqAuokk5o237ZP4k6dIhB0d6_k')
 
     dispatcher = updater.dispatcher
 
