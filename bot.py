@@ -79,8 +79,7 @@ def button(update: Update, context: CallbackContext) -> None:
         group_data[group_id]["user_attempts"][user_id] = False
 
     # Get the character names
-    character_names = [character["name"] for character in characters]
-
+    character_names = '|'.join(character["name"] for character in characters)
     # Only check user_attempts for character questions
     if query.data in character_names and group_data[group_id]["user_attempts"][user_id]:
         query.answer("You've already tried", show_alert=True)
@@ -196,8 +195,7 @@ def main() -> None:
     # Add run_async=True to the MessageHandler
     dispatcher.add_handler(MessageHandler(Filters.all & ~Filters.command, count_messages, run_async=True))
     
-    dispatcher.add_handler(CallbackQueryHandler(button, pattern='^\w+$', run_async=True))
-
+    dispatcher.add_handler(CallbackQueryHandler(button, pattern=f'^({character_names})$', run_async=True))
     dispatcher.add_handler(CommandHandler('leaderboard', leaderboard, run_async=True))
     dispatcher.add_handler(CallbackQueryHandler(leaderboard_callback, pattern='^(group|global|back|close)$', run_async=True))
 
