@@ -10,6 +10,8 @@ client = MongoClient("mongodb+srv://shuyaaaaa12:NvpoBuRp7MVPcAYA@cluster0.q2yycq
 db = client["Japanese_database"]
 collection = db["Japanesewoedss"]
 
+character_names = '|'.join(character["name"] for character in characters) 
+
 # List of dictionaries with image links and their names
 characters = [
     {"name": "Idiot", "image_url": "https://graph.org/file/428c2ab890a2bc4caa4c3.jpg", "options": ["Goodbye", "Cry", "Handsome", "intelligent"]},
@@ -79,7 +81,7 @@ def button(update: Update, context: CallbackContext) -> None:
         group_data[group_id]["user_attempts"][user_id] = False
 
     # Get the character names
-    character_names = '|'.join(character["name"] for character in characters)
+    
     # Only check user_attempts for character questions
     if query.data in character_names and group_data[group_id]["user_attempts"][user_id]:
         query.answer("You've already tried", show_alert=True)
