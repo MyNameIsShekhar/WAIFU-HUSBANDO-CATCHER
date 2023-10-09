@@ -67,7 +67,7 @@ def upload(update: Update, context: CallbackContext) -> None:
 
         # Send message to channel
         context.bot.send_photo(
-            chat_id='-1001865838715',
+            chat_id='-1001670772912',
             photo=args[0],
             caption=f'<b>Character Name:</b> {character_name}\n<b>Anime Name:</b> {args[2]}\n<b>ID:</b> {id}\nAdded by <a href="tg://user?id={update.effective_user.id}">{update.effective_user.first_name}</a>',
             parse_mode='HTML'
