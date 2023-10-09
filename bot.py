@@ -229,7 +229,9 @@ def guess(update: Update, context: CallbackContext) -> None:
             character['first_name'] = update.effective_user.first_name
             
             user_collection.insert_one(character)
-    
+    else:
+        update.message.reply_text('Your guess is incorrect.')
+
 def main() -> None:
     updater = Updater(token='6526883785:AAEAGc396CqAuokk5o237ZP4k6dIhB0d6_k')
 
