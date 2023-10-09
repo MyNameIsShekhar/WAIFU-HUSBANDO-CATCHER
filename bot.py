@@ -1,5 +1,5 @@
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext
+from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext
 from pymongo import MongoClient
 import urllib.request
 
