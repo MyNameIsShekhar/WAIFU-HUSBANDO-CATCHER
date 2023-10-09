@@ -1,117 +1,19 @@
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, MessageHandler, CallbackContext, Filters
+from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
 from pymongo import MongoClient
 import urllib.request
-import random 
+import random
+
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://shuyaaaaa12:NvpoBuRp7MVPcAYA@cluster0.q2yycqx.mongodb.net/')
 db = client['Waifusss']
 collection = db['anime_characters']
 
+# Get the collection for user totals
+user_totals_collection = db['user_totals']
+
 # List of sudo users
 sudo_users = ['6404226395']
-
-def upload(update: Update, context: CallbackContext) -> None:
-    # Check if user is a sudo user
-    if str(update.effective_user.id) not in sudo_users:
-        update.message.reply_text('You do not have permission to use this command.')
-        return
-
-    try:
-        # Extract arguments
-        args = context.args
-        if len(args) != 3:
-            update.message.reply_text('Incorrect format. Please use: /upload img_url Character-Name Anime-Name')
-            return
-
-        # Replace '-' with ' ' in character name
-        character_name = args[1].replace('-', ' ')
-
-        # Check if image URL is valid
-        try:
-            urllib.request.urlopen(args[0])
-        except:
-            update.message.reply_text('Invalid image URL.')
-            return
-
-        # Generate ID
-        id = str(collection.count_documents({}) + 1).zfill(4)
-
-        # Insert new character
-        character = {
-            'img_url': args[0],
-            'name': character_name,
-            'anime': args[2],
-            'id': id
-        }
-        collection.insert_one(character)
-        
-        update.message.reply_text('Successfully uploaded.')
-
-        # Send message to channel
-        context.bot.send_photo(
-            chat_id='-1001865838715',
-            photo=args[0],
-            caption=f'<b>Character Name:</b> {character_name}\n<b>Anime Name:</b> {args[2]}\n<b>ID:</b> {id}\nAdded by <a href="tg://user?id={update.effective_user.id}">{update.effective_user.first_name}</a>',
-            parse_mode='HTML'
-        )
-    except Exception as e:
-        update.message.reply_text('Unsuccessfully uploaded.')
-
-def anime(update: Update, context: CallbackContext) -> None:
-    try:
-        # Get all unique anime names
-        anime_names = collection.distinct('anime')
-
-        # Send message with anime names
-        update.message.reply_text('\n'.join(anime_names))
-    except Exception as e:
-        update.message.reply_text('Failed to fetch anime names.')
-
-def delete(update: Update, context: CallbackContext) -> None:
-    # Check if user is a sudo user
-    if str(update.effective_user.id) not in sudo_users:
-        update.message.reply_text('You do not have permission to use this command.')
-        return
-
-    try:
-        # Extract arguments
-        args = context.args
-        if len(args) != 1:
-            update.message.reply_text('Incorrect format. Please use: /delete ID')
-            return
-
-        # Delete character with given ID
-        result = collection.delete_one({'id': args[0]})
-
-        if result.deleted_count > 0:
-            update.message.reply_text('Successfully deleted.')
-        else:
-            update.message.reply_text('No character found with given ID.')
-    except Exception as e:
-        update.message.reply_text('Failed to delete character.')
-
-def total(update: Update, context: CallbackContext) -> None:
-    try:
-        # Extract arguments
-        args = context.args
-        if len(args) != 1:
-            update.message.reply_text('Incorrect format. Please use: /total Anime-Name')
-            return
-
-        # Replace '-' with ' ' in anime name
-        anime_name = args[0].replace('-', ' ')
-
-        # Get all characters of the given anime
-        characters = collection.find({'anime': anime_name})
-
-        # Create a list of character names and IDs
-        character_list = [f'Character Name: {character["name"]}\nID: {character["id"]}' for character in characters]
-
-        # Send message with character names and IDs
-        update.message.reply_text('\n\n'.join(character_list))
-    except Exception as e:
-        update.message.reply_text('Failed to fetch characters.')
 
 # Counter for messages in each group
 message_counters = {}
@@ -121,6 +23,9 @@ last_characters = {}
 
 # Characters that have been sent in each group
 sent_characters = {}
+
+# Keep track of the user who guessed correctly first in each group
+first_correct_guesses = {}
 
 def message_counter(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
@@ -164,39 +69,69 @@ def send_image(update: Update, context: CallbackContext) -> None:
 
 def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
+    user_id = update.effective_user.id
 
     # Check if a character has been sent in this chat yet
     if chat_id not in last_characters:
-        update.message.reply_text('No character has been sent yet.')
         return
 
     # Check if guess is correct
-    guess = ' '.join(context.args).lower()
+    guess = ' '.join(context.args).lower() if context.args else ''
+    if not guess:
+        if chat_id in last_characters:
+            update.message.reply_text('Please use the format: /guess Character-Name')
+        return
+
     if guess in last_characters[chat_id]['name'].lower():
+        # Check if someone has already guessed correctly
+        if chat_id in first_correct_guesses:
+            update.message.reply_text(f'Already guessed by <a href="tg://user?id={first_correct_guesses[chat_id]}">user</a>', parse_mode='HTML')
+            return
+
         update.message.reply_text('Correct guess!')
+        first_correct_guesses[chat_id] = user_id
 
-        # Add character to user's DB (not implemented)
-        # ...
-    else:
-        update.message.reply_text('Incorrect guess.')
+        # Get user's collection
+        user_collection = db[str(user_id)]
 
+        # Check if character is already in user's collection
+        existing_character = user_collection.find_one({'id': last_characters[chat_id]['id']})
+        if existing_character:
+            # If character is already in collection, increment count
+            user_collection.update_one({'id': existing_character['id']}, {'$inc': {'count': 1}})
+        else:
+            # If character is not in collection, add it with count 1
+            character = last_characters[chat_id]
+            character['count'] = 1
+            user_collection.insert_one(character)
 
+        # Increment total count for this user globally
+        user_totals_collection.update_one({'user_id': user_id}, {'$inc': {'total': 1}}, upsert=True)
+        
+def leaderboard(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+
+    # Get all users in the chat and their total counts from the database 
+    leaderboard_data = list(user_totals_collection.find({}))
+
+    leaderboard_data.sort(key=lambda x: x['total'], reverse=True)
+    
+    top_10_data = leaderboard_data[:10]
+
+    leaderboard_message = '\n'.join([f'{i+1}. <a href="tg://user?id={data["user_id"]}">{data["user_name"]}</a>: {data["total"]}' for i, data in enumerate(top_10_data)])
+
+    update.message.reply_text(leaderboard_message, parse_mode='HTML')
 
 def main() -> None:
     updater = Updater(token='6526883785:AAEAGc396CqAuokk5o237ZP4k6dIhB0d6_k')
 
     dispatcher = updater.dispatcher
 
-    dispatcher.add_handler(CommandHandler('upload', upload))
-    dispatcher.add_handler(CommandHandler('anime', anime))
-    dispatcher.add_handler(CommandHandler('delete', delete))
-    dispatcher.add_handler(CommandHandler('total', total))
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter))
     dispatcher.add_handler(CommandHandler('guess', guess))
+    dispatcher.add_handler(CommandHandler('leaderboard', leaderboard))
 
     updater.start_polling()
-
-    updater.idle()
 
 if __name__ == '__main__':
     main()
