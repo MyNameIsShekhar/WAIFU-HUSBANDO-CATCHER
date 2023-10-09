@@ -189,48 +189,40 @@ def guess(update: Update, context: CallbackContext) -> None:
     # Check if guess is correct
     guess = ' '.join(context.args).lower() if context.args else ''
     
-    if not guess and chat_id in last_characters:
+    if chat_id in last_characters:
         # If someone has already guessed correctly
         if chat_id in first_correct_guesses:
             update.message.reply_text(f'Already guessed by <a href="tg://user?id={first_correct_guesses[chat_id]}">{update.effective_user.first_name}</a>', parse_mode='HTML')
             return
-        else:
-            update.message.reply_text('Your guess is incorrect.')
-            return
 
-    elif guess and guess in last_characters[chat_id]['name'].lower():
-        # Check if someone has already guessed correctly
-        if chat_id in first_correct_guesses:
-            update.message.reply_text(f'Already guessed by <a href="tg://user?id={first_correct_guesses[chat_id]}">{update.effective_user.first_name}</a>', parse_mode='HTML')
-            return
+        elif guess and guess in last_characters[chat_id]['name'].lower():
+            update.message.reply_text(f'Correct guess! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
+            first_correct_guesses[chat_id] = user_id
 
-        update.message.reply_text(f'Correct guess! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
-        first_correct_guesses[chat_id] = user_id
+            # Get user's collection
+            user_collection = db[str(user_id)]
 
-        # Get user's collection
-        user_collection = db[str(user_id)]
-
-        # Add character to user's collection with count incrementing each time the same character is guessed correctly.
-        existing_character = user_collection.find_one({'id': last_characters[chat_id]['id']})
-        
-        if existing_character:
-            # If character is already in collection, increment count
-            user_collection.update_one({'id': existing_character['id']}, {'$inc': {'count': 1}})
-        else:
-            # If character is not in collection, add it with count 1 and other details like username and first name.
-            character = last_characters[chat_id]
-            character['count'] = 1
+            # Add character to user's collection with count incrementing each time the same character is guessed correctly.
+            existing_character = user_collection.find_one({'id': last_characters[chat_id]['id']})
             
-            username = update.effective_user.username
-            
-            if username:
-                character['username'] = username
+            if existing_character:
+                # If character is already in collection, increment count
+                user_collection.update_one({'id': existing_character['id']}, {'$inc': {'count': 1}})
+            else:
+                # If character is not in collection, add it with count 1 and other details like username and first name.
+                character = last_characters[chat_id]
+                character['count'] = 1
                 
-            character['first_name'] = update.effective_user.first_name
+                username = update.effective_user.username
+                
+                if username:
+                    character['username'] = username
+                    
+                character['first_name'] = update.effective_user.first_name
+                
+        else:
             
-            user_collection.insert_one(character)
-    else:
-        update.message.reply_text('Your guess is incorrect.')
+            update.message.reply_text('Your guess is incorrect.')
 
 def main() -> None:
     updater = Updater(token='6526883785:AAEAGc396CqAuokk5o237ZP4k6dIhB0d6_k')
