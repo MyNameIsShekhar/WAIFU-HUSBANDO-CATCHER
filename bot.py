@@ -132,6 +132,8 @@ def total(update: Update, context: CallbackContext) -> None:
         update.message.reply_text('Failed to fetch characters.')
 
 
+
+
 def message_counter(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
 
@@ -165,6 +167,10 @@ def send_image(update: Update, context: CallbackContext) -> None:
     sent_characters[chat_id].append(character['id'])
     last_characters[chat_id] = character
 
+    # Reset first correct guess when a new character is sent
+    if chat_id in first_correct_guesses:
+        del first_correct_guesses[chat_id]
+
     # Send image with caption
     context.bot.send_photo(
         chat_id=chat_id,
@@ -182,63 +188,54 @@ def guess(update: Update, context: CallbackContext) -> None:
 
     # Check if guess is correct
     guess = ' '.join(context.args).lower() if context.args else ''
-    if not guess:
-        if chat_id in last_characters:
-            update.message.reply_text('Please use the format: /guess Character-Name')
+    
+    if not guess and chat_id in last_characters:
+        update.message.reply_text('Please use the format: /guess Character-Name')
         return
 
-    if guess in last_characters[chat_id]['name'].lower():
+    elif guess and guess in last_characters[chat_id]['name'].lower():
         # Check if someone has already guessed correctly
         if chat_id in first_correct_guesses:
             update.message.reply_text(f'Already guessed by <a href="tg://user?id={first_correct_guesses[chat_id]}">user</a>', parse_mode='HTML')
             return
 
-        update.message.reply_text('Correct guess!')
+        update.message.reply_text(f'Correct guess! {update.effective_user.first_name} guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.')
         first_correct_guesses[chat_id] = user_id
 
         # Get user's collection
         user_collection = db[str(user_id)]
 
-        # Check if character is already in user's collection
+        # Add character to user's collection with count incrementing each time the same character is guessed correctly.
         existing_character = user_collection.find_one({'id': last_characters[chat_id]['id']})
+        
         if existing_character:
             # If character is already in collection, increment count
             user_collection.update_one({'id': existing_character['id']}, {'$inc': {'count': 1}})
         else:
-            # If character is not in collection, add it with count 1
+            # If character is not in collection, add it with count 1 and other details like username and first name.
             character = last_characters[chat_id]
             character['count'] = 1
+            
+            username = update.effective_user.username
+            
+            if username:
+                character['username'] = username
+                
+            character['first_name'] = update.effective_user.first_name
+            
             user_collection.insert_one(character)
-
-        # Increment total count for this user globally
-        user_totals_collection.update_one({'user_id': user_id}, {'$inc': {'total': 1}}, upsert=True)
-        
-def leaderboard(update: Update, context: CallbackContext) -> None:
-    chat_id = update.effective_chat.id
-
-    # Get all users in the chat and their total counts from the database 
-    leaderboard_data = list(user_totals_collection.find({}))
-
-    leaderboard_data.sort(key=lambda x: x['total'], reverse=True)
-    
-    top_10_data = leaderboard_data[:10]
-
-    leaderboard_message = '\n'.join([f'{i+1}. <a href="tg://user?id={data["user_id"]}">{data["user_name"]}</a>: {data["total"]}' for i, data in enumerate(top_10_data)])
-
-    update.message.reply_text(leaderboard_message, parse_mode='HTML')
 
 def main() -> None:
     updater = Updater(token='6526883785:AAEAGc396CqAuokk5o237ZP4k6dIhB0d6_k')
 
     dispatcher = updater.dispatcher
 
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter))
-    dispatcher.add_handler(CommandHandler('guess', guess))
-    dispatcher.add_handler(CommandHandler('leaderboard', leaderboard))
     dispatcher.add_handler(CommandHandler('upload', upload))
     dispatcher.add_handler(CommandHandler('anime', anime))
     dispatcher.add_handler(CommandHandler('delete', delete))
     dispatcher.add_handler(CommandHandler('total', total))
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter))
+    dispatcher.add_handler(CommandHandler('guess', guess))
 
     updater.start_polling()
 
