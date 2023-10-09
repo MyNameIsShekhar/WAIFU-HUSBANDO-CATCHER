@@ -115,6 +115,67 @@ def button(update: Update, context: CallbackContext) -> None:
     # If the selected option is incorrect
     query.answer("You're wrong", show_alert=True)
     group_data[group_id]["user_attempts"][user_id] = True
+    
+def leaderboard(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+
+    # Create an inline keyboard with the "Group" and "Global" buttons
+    keyboard = [
+        [InlineKeyboardButton("Group", callback_data="group"),
+         InlineKeyboardButton("Global", callback_data="global")]
+    ]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Send the message with the inline keyboard
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Choose a leaderboard:", reply_markup=reply_markup)
+
+
+def leaderboard_callback(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    data = query.data
+
+    if data in ["group", "global"]:
+        # Fetch the top 10 users from MongoDB
+        sort_field = "points" if data == "group" else "global_points"
+        top_users = collection.find().sort(sort_field, -1).limit(10)
+
+        # Format the leaderboard message
+        message = f"{data.capitalize()} Leaderboard:\n\n"
+        for i, user in enumerate(top_users, start=1):
+            first_name = user["first_name"]
+            if len(first_name) > 7:
+                first_name = first_name[:7] + "..."
+            username = user.get("username")
+            points = user[sort_field]
+            if username:
+                message += f"{i}. {first_name}: {points} points\n"
+            else:
+                message += f"{i}. {first_name}: {points} points\n"
+
+        # Add the current user's total points to the end of the message
+        current_user_points_doc = collection.find_one({"user_id": query.from_user.id})
+        current_user_points = current_user_points_doc.get(sort_field, 0) if current_user_points_doc else 0
+        message += f"\nYour total {data} points: {current_user_points}"
+
+        # Create an inline keyboard with the "Back" and "Close" buttons
+        keyboard = [
+            [InlineKeyboardButton("Back", callback_data="back"),
+             InlineKeyboardButton("Close", callback_data="close")]
+        ]
+
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        # Edit the original message with the leaderboard and the new inline keyboard
+        query.edit_message_text(text=message, parse_mode='Markdown', reply_markup=reply_markup)
+
+    elif data == "back":
+        # Call the `leaderboard` function to go back to the previous menu
+        leaderboard(update, context)
+
+    elif data == "close":
+        # Delete the message
+        context.bot.delete_message(chat_id=query.message.chat_id, message_id=query.message.message_id)
 
 
 def main() -> None:
@@ -122,9 +183,14 @@ def main() -> None:
 
     dispatcher = updater.dispatcher
 
-    dispatcher.add_handler(MessageHandler(Filters.all & ~Filters.command, count_messages))
+    # Add run_async=True to the MessageHandler
+    dispatcher.add_handler(MessageHandler(Filters.all & ~Filters.command, count_messages, run_async=True))
     
-    dispatcher.add_handler(CallbackQueryHandler(button))
+    # Add run_async=True to the CallbackQueryHandler
+    dispatcher.add_handler(CallbackQueryHandler(button, run_async=True))
+
+    dispatcher.add_handler(CommandHandler('leaderboard', leaderboard, run_async=True))
+    dispatcher.add_handler(CallbackQueryHandler(leaderboard_callback, pattern='^(group|global|back|close)$', run_async=True))
 
     updater.start_polling()
 
