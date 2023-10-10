@@ -298,12 +298,9 @@ def list_characters(update: Update, context: CallbackContext) -> None:
 def handle_callback(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
+    character_list, page = query.data.split()
+    globals()character_list 
 
-    # Call the appropriate function based on the callback data
-    function_name, page = query.data.split()
-    lmao = function_name
-    shuyaa = globals()lmao
-    shuyaa()
 
     
 # Don't forget to add the CallbackQueryHandler to your dispatcher
