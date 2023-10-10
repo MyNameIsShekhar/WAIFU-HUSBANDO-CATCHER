@@ -181,8 +181,8 @@ def send_image(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
 
     # Get all characters
-    all_characters = list(collection.find({}))
-
+    # Change it to this
+    all_characters = [character for character in collection.find({})]
     # Initialize sent characters list for this chat if it doesn't exist
     if chat_id not in sent_characters:
         sent_characters[chat_id] = []
