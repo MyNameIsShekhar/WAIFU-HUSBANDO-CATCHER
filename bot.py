@@ -215,14 +215,18 @@ def guess(update: Update, context: CallbackContext) -> None:
 
     
     # Check if guess is correct
+    guess = ' '.join(context.args).lower() if context.args else ''
     
+           return
+
     if chat_id in last_characters:
         # If someone has already guessed correctly
         if chat_id in first_correct_guesses:
             update.message.reply_text(f'❌️ Already guessed by Someone..So Try Next Time Bruhh')
+            return
             
-    guess = ' '.join(context.args).lower() if context.args else ''
-           return
+            
+    
 
         elif guess and guess in last_characters[chat_id]['name'].lower():
             # Add character to user's collection
@@ -271,6 +275,7 @@ def list_characters(update: Update, context: CallbackContext) -> None:
 
     if not user or 'characters' not in user or not user['characters']:
         update.message.reply_text('You have not guessed any characters correctly yet.')
+        
         return
 
     # Group characters by anime
