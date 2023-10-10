@@ -289,7 +289,7 @@ def main() -> None:
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter))
     dispatcher.add_handler(CommandHandler('guess', guess))
     # Add CommandHandler for /list command to your Updater
-    dispatcher.add_handler(CommandHandler('list', list_characters))
+    dispatcher.add_handler(CommandHandler('list', list))
 
 
 
