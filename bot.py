@@ -213,18 +213,16 @@ def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
 
-    # Check if a character has been sent in this chat yet
-    if chat_id not in last_characters:
-        return
-
+    
     # Check if guess is correct
-    guess = ' '.join(context.args).lower() if context.args else ''
     
     if chat_id in last_characters:
         # If someone has already guessed correctly
         if chat_id in first_correct_guesses:
             update.message.reply_text(f'❌️ Already guessed by Someone..So Try Next Time Bruhh')
-            return
+            
+     guess = ' '.join(context.args).lower() if context.args else ''
+           return
 
         elif guess and guess in last_characters[chat_id]['name'].lower():
             # Add character to user's collection
