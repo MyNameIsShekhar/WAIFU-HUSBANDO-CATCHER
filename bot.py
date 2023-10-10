@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent
@@ -21,7 +22,7 @@ sudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '515064465
 
 # Counter for messages in each group
 message_counters = {}
-
+spam_counters = {}
 # Last sent character in each group
 last_characters = {}
 
@@ -166,16 +167,51 @@ def total(update: Update, context: CallbackContext) -> None:
 
 
 def message_counter(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
     chat_id = update.effective_chat.id
 
-    # Increment counter for this chat
-    if chat_id not in message_counters:
-        message_counters[chat_id] = 0
-    message_counters[chat_id] += 1
+    # Count stickers as well
+    if update.effective_message.sticker:
+        message_type = 'sticker'
+    else:
+        message_type = 'message'
 
-    # Send image after every 20 messages
-    if message_counters[chat_id] % 20 == 0:
+    # Increment counter for this chat and message type
+    if chat_id not in message_counters:
+        message_counters[chat_id] = {}
+    if message_type not in message_counters[chat_id]:
+        message_counters[chat_id][message_type] = 0
+    message_counters[chat_id][message_type] += 1
+
+    # Get character time from database
+    group_settings = db['group_settings'].find_one({'chat_id': chat_id})
+    character_time = group_settings['character_time'] if group_settings else 20
+
+    # Send image after character time messages or stickers
+    if any(count >= character_time for count in message_counters[chat_id].values()):
         send_image(update, context)
+
+def change_time(update: Update, context: CallbackContext) -> None:
+    # Check if user is a group admin
+    admins = [admin.user.id for admin in context.bot.get_chat_administrators(update.effective_chat.id)]
+    if update.effective_user.id not in admins:
+        update.message.reply_text('You do not have permission to use this command.')
+        return
+
+    # Check if argument is given and is a number greater than 100
+    if not context.args or not context.args[0].isdigit() or int(context.args[0]) < 100:
+        update.message.reply_text('Please provide a number greater than 100.')
+        return
+
+    # Update character time in database
+    db['group_settings'].update_one(
+        {'chat_id': update.effective_chat.id},
+        {'$set': {'character_time': int(context.args[0])}},
+        upsert=True
+    )
+
+    update.message.reply_text(f'Character time has been set to {context.args[0]} messages.')
+
 
 def send_image(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
@@ -350,7 +386,8 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('harrem', list_characters))
     # Add CommandHandler for /list command to your Updater
     dispatcher.add_handler(CallbackQueryHandler(handle_callback))
-
+    dispatcher.add_handler(CommandHandler('changetime', change_time))
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter))
 
 
     updater.start_polling()
