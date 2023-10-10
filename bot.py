@@ -1,4 +1,3 @@
-from datetime import datetime, timedelta
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent
@@ -6,6 +5,8 @@ from telegram.ext import InlineQueryHandler,CallbackQueryHandler
 from pymongo import MongoClient, ReturnDocument
 import urllib.request
 import random
+from datetime import datetime, timedelta
+from threading import Lock
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
@@ -16,7 +17,7 @@ collection = db['anime_characters']
 user_totals_collection = db['user_totals']
 user_collection = db["user_collection"]
 
-
+send_lock = Lock()
 # List of sudo users
 sudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651'  ]
 
@@ -213,7 +214,13 @@ def change_time(update: Update, context: CallbackContext) -> None:
     update.message.reply_text(f'Character time has been set to {context.args[0]} messages.')
 
 
+
 def send_image(update: Update, context: CallbackContext) -> None:
+    # Acquire the lock
+    with send_lock:
+        # Your existing send_image code here
+
+    
     chat_id = update.effective_chat.id
 
     # Get all characters
