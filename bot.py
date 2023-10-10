@@ -28,6 +28,18 @@ sent_characters = {}
 first_correct_guesses = {}
 
 
+
+
+def anime(update: Update, context: CallbackContext) -> None:
+    try:
+        # Get all unique anime names
+        anime_names = collection.distinct('anime')
+
+        # Send message with anime names
+        update.message.reply_text('\n'.join(anime_names))
+    except Exception as e:
+        update.message.reply_text('Failed to fetch anime names.')
+
 def upload(update: Update, context: CallbackContext) -> None:
     # Check if user is a sudo user
     if str(update.effective_user.id) not in sudo_users:
@@ -62,30 +74,22 @@ def upload(update: Update, context: CallbackContext) -> None:
             'anime': anime,
             'id': id
         }
-        collection.insert_one(character)
         
-        update.message.reply_text('Successfully uploaded.')
-
         # Send message to channel
-        context.bot.send_photo(
+        message = context.bot.send_photo(
             chat_id='-1001670772912',
             photo=args[0],
             caption=f'<b>Character Name:</b> {character_name}\n<b>Anime Name:</b> {anime}\n<b>ID:</b> {id}\nAdded by <a href="tg://user?id={update.effective_user.id}">{update.effective_user.first_name}</a>',
             parse_mode='HTML'
         )
+
+        # Save message_id to character
+        character['message_id'] = message.message_id
+        collection.insert_one(character)
+
+        update.message.reply_text('Successfully uploaded.')
     except Exception as e:
         update.message.reply_text('Unsuccessfully uploaded.')
-
-
-def anime(update: Update, context: CallbackContext) -> None:
-    try:
-        # Get all unique anime names
-        anime_names = collection.distinct('anime')
-
-        # Send message with anime names
-        update.message.reply_text('\n'.join(anime_names))
-    except Exception as e:
-        update.message.reply_text('Failed to fetch anime names.')
 
 def delete(update: Update, context: CallbackContext) -> None:
     # Check if user is a sudo user
@@ -101,9 +105,11 @@ def delete(update: Update, context: CallbackContext) -> None:
             return
 
         # Delete character with given ID
-        result = collection.delete_one({'id': args[0]})
+        character = collection.find_one_and_delete({'id': args[0]})
 
-        if result.deleted_count > 0:
+        if character:
+            # Delete message from channel
+            context.bot.delete_message(chat_id='-1001670772912', message_id=character['message_id'])
             update.message.reply_text('Successfully deleted.')
         else:
             update.message.reply_text('No character found with given ID.')
@@ -230,8 +236,11 @@ def main() -> None:
 
     dispatcher = updater.dispatcher
 
-    dispatcher.add_handler(CommandHandler('upload', upload))
+    
     dispatcher.add_handler(CommandHandler('anime', anime))
+    
+    dispatcher.add_handler(CommandHandler('upload', upload))
+    
     dispatcher.add_handler(CommandHandler('delete', delete))
     dispatcher.add_handler(CommandHandler('total', total))
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter))
