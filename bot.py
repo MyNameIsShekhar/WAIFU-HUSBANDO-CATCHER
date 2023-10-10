@@ -6,8 +6,8 @@ import random
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://shuyaaaaa12:NvpoBuRp7MVPcAYA@cluster0.q2yycqx.mongodb.net/')
-db = client['Waifusss']
-collection = db['anime_characters']
+db = client['Waifussss']
+collection = db['anime_characterss']
 
 # Get the collection for user totals
 user_totals_collection = db['user_totals']
@@ -196,7 +196,7 @@ def guess(update: Update, context: CallbackContext) -> None:
             return
 
         elif guess and guess in last_characters[chat_id]['name'].lower():
-            update.message.reply_text(f'Correct guess! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
+            update.message.reply_text(f'Congooo ✅️! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
             first_correct_guesses[chat_id] = user_id
 
             # Get user's collection
@@ -222,7 +222,7 @@ def guess(update: Update, context: CallbackContext) -> None:
                 
         else:
             
-            update.message.reply_text('Your guess is incorrect.')
+            update.message.reply_text('❌️ Try Again....')
 
 def main() -> None:
     updater = Updater(token='6526883785:AAEAGc396CqAuokk5o237ZP4k6dIhB0d6_k')
