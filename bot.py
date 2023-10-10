@@ -182,7 +182,7 @@ def send_image(update: Update, context: CallbackContext) -> None:
 
     # Get all characters
     # Change it to this
-    all_characters = [character for character in collection.find({})]
+    all_characters = list(collection.find({}))
     # Initialize sent characters list for this chat if it doesn't exist
     if chat_id not in sent_characters:
         sent_characters[chat_id] = []
@@ -250,21 +250,6 @@ def guess(update: Update, context: CallbackContext) -> None:
             
             update.message.reply_text('❌️ Try Again....')
 
-def collection(update: Update, context: CallbackContext) -> None:
-    user_id = update.effective_user.id
-
-    # Get user document
-    user = user_collection.find_one({'id': user_id})
-
-    if not user or 'characters' not in user or not user['characters']:
-        update.message.reply_text('You have not guessed any characters correctly yet.')
-        return
-
-    # Create a list of character names and IDs
-    shuyaa = [f'Character Name: {character["name"]}\nID: {character["id"]}' for character in user['characters']]
-
-    # Send message with character names and IDs
-    update.message.reply_text('\n\n'.join (shuyaa))
 
 
 # Connect to MongoDB
@@ -289,8 +274,7 @@ def main() -> None:
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter))
     dispatcher.add_handler(CommandHandler('guess', guess))
     # Add CommandHandler for /list command to your Updater
-    dispatcher.add_handler(CommandHandler('collection', collection))
-
+    
 
 
     updater.start_polling()
