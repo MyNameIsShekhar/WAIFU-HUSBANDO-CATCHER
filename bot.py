@@ -208,6 +208,7 @@ def send_image(update: Update, context: CallbackContext) -> None:
         photo=character['img_url'],
         caption="Use /Guess Command And.. Guess This Character Name.."
     )
+
 def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
@@ -217,7 +218,7 @@ def guess(update: Update, context: CallbackContext) -> None:
         return
 
     # Check if guess is correct
-    guess = ' '.join(context.args).title() if context.args else ''
+    guess = ' '.join(context.args).lower() if context.args else ''
     
     if chat_id in last_characters:
         # If someone has already guessed correctly
@@ -225,21 +226,30 @@ def guess(update: Update, context: CallbackContext) -> None:
             update.message.reply_text(f'❌️ Already guessed by Someone..So Try Next Time Bruhh')
             return
 
-        elif guess and guess in last_characters[chat_id]['name'].title():
+        elif guess and guess in last_characters[chat_id]['name'].lower():
             # Add character to user's collection
             user = user_collection.find_one({'id': user_id})
             if user:
                 # Update username if it has changed
-                
-                user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
+                if 'username' in update.effective_user and update.effective_user.username != user['username']:
+                    user_collection.update_one({'id': user_id}, {'$set': {'username': update.effective_user.username}})
+                if 'first_name' in update.effective_user and update.effective_user.first_name != user['first_name']:
+                    user_collection.update_one({'id': user_id}, {'$set': {'username': update.effective_user.username}})
+                # Increment count of character in user's collection
+                character_index = next((index for (index, d) in enumerate(user['characters']) if d["id"] == last_characters[chat_id]["id"]), None)
+                if character_index is not None:
+                    user['characters'][character_index]['count'] += 1
+                    user_collection.update_one({'id': user_id}, {'$set': {'characters': user['characters']}})
+                else:
+                    # Add character to user's collection
+                    last_characters[chat_id]['count'] = 1
+                    user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
             elif hasattr(update.effective_user, 'username'):
                 
-
+                last_characters[chat_id]['count'] = 1
                 user_collection.insert_one({
                     'id': user_id,
                     'username': update.effective_user.username,
-                     'first_name': update.effective_user.first_name,
-                
                     'characters': [last_characters[chat_id]]
                 })
 
@@ -248,10 +258,6 @@ def guess(update: Update, context: CallbackContext) -> None:
         else:
             
             update.message.reply_text('❌️ Try Again....')
-
-
-
-
 
 def list_characters(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
@@ -280,7 +286,8 @@ def list_characters(update: Update, context: CallbackContext) -> None:
         anime_list.append(f'⥱ {anime} ({len(characters)} characters)')
         anime_list.append('⚋' * 15)
         for character in characters:
-            anime_list.append(f'➥ Character Name: {character["name"]}\n   ID: {character["id"]}')
+            count_str = f' ×{character["count"]}' if 'count' in character and character['count'] > 1 else ''
+            anime_list.append(f'➥ Character Name: {character["name"]}{count_str}\n   ID: {character["id"]}')
         anime_list.append('⚋' * 15)
 
     # Create inline keyboard
@@ -292,9 +299,19 @@ def list_characters(update: Update, context: CallbackContext) -> None:
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Send message with animes and characters
-    update.message.reply_text(f"{update.effective_user.first_name}'s Harem\n\nPage {page+1} of {total_pages}\n\n" + '\n'.join(anime_list), reply_markup=reply_markup)
-    
+    # Select a random character to display their picture
+    random_character = random.choice(user['characters'])
+
+    # Send message with a random character's picture and animes and characters as caption
+    context.bot.send_photo(
+        chat_id=update.effective_chat.id,
+        photo=random_character['img_url'],
+        caption=f"{update.effective_user.first_name}'s Harem\n\nPage {page+1} of {total_pages}\n\n" + '\n'.join(anime_list),
+        reply_markup=reply_markup
+    )
+
+
+
 def handle_callback(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
