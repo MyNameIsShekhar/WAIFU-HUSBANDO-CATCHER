@@ -225,7 +225,7 @@ def guess(update: Update, context: CallbackContext) -> None:
             update.message.reply_text('Your guess is incorrect.')
 
 def main() -> None:
-    updater = Updater(token='5823371420:AAERluGPDzcPUjQzGnRe9OoBbECe19_JFXk')
+    updater = Updater(token='6526883785:AAEAGc396CqAuokk5o237ZP4k6dIhB0d6_k')
 
     dispatcher = updater.dispatcher
 
