@@ -213,58 +213,51 @@ def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
 
-    
+    # Check if a character has been sent in this chat yet
+    if chat_id not in last_characters:
+        return
+
+    # If someone has already guessed correctly
+    if chat_id in first_correct_guesses:
+        update.message.reply_text(f'❌️ Already guessed by Someone..So Try Next Time Bruhh')
+        return
+
     # Check if guess is correct
     guess = ' '.join(context.args).lower() if context.args else ''
     
-           return
+    if guess and guess in last_characters[chat_id]['name'].lower():
+        # Set the flag that someone has guessed correctly
+        first_correct_guesses[chat_id] = user_id
 
-    if chat_id in last_characters:
-        # If someone has already guessed correctly
-        if chat_id in first_correct_guesses:
-            update.message.reply_text(f'❌️ Already guessed by Someone..So Try Next Time Bruhh')
-            return
-            
-            
-    
-
-        elif guess and guess in last_characters[chat_id]['name'].lower():
-            # Add character to user's collection
-            user = user_collection.find_one({'id': user_id})
-            if user:
-                # Update username if it has changed
-                if hasattr(update.effective_user, 'username') and update.effective_user.username != user['username']:
-                    user_collection.update_one({'id': user_id}, {'$set': {'username': update.effective_user.username}})
-                if hasattr(update.effective_user, 'first_name') and update.effective_user.first_name != user['first_name']:
-                    user_collection.update_one({'id': user_id}, {'$set': {'first_name': update.effective_user.first_name}})
-                # Increment count of character in user's collection
-                character_index = next((index for (index, d) in enumerate(user['characters']) if d["id"] == last_characters[chat_id]["id"]), None)
-                if character_index is not None:
-                    # Check if 'count' key exists and increment it, otherwise add it
-                    if 'count' in user['characters'][character_index]:
-                        user['characters'][character_index]['count'] += 1
-                    else:
-                        user['characters'][character_index]['count'] = 1
-                    user_collection.update_one({'id': user_id}, {'$set': {'characters': user['characters']}})
+        # Add character to user's collection
+        user = user_collection.find_one({'id': user_id})
+        if user:
+            # Update username if it has changed
+            if hasattr(update.effective_user, 'username') and update.effective_user.username != user['username']:
+                user_collection.update_one({'id': user_id}, {'$set': {'username': update.effective_user.username}})
+            # Increment count of character in user's collection
+            character_index = next((index for (index, d) in enumerate(user['characters']) if d["id"] == last_characters[chat_id]["id"]), None)
+            if character_index is not None:
+                # Check if 'count' key exists and increment it, otherwise add it
+                if 'count' in user['characters'][character_index]:
+                    user['characters'][character_index]['count'] += 1
                 else:
-                    # Add character to user's collection
-                    last_characters[chat_id]['count'] = 1
-                    user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
-            
-            elif hasattr(update.effective_user, 'username'):
-                
+                    user['characters'][character_index]['count'] = 1
+                user_collection.update_one({'id': user_id}, {'$set': {'characters': user['characters']}})
+            else:
+                # Add character to user's collection
                 last_characters[chat_id]['count'] = 1
-                user_collection.insert_one({
-                    'id': user_id,
-                    'username': update.effective_user.username,
-                    'characters': [last_characters[chat_id]]
-                })
+                user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
+        elif hasattr(update.effective_user, 'username'):
+            # Create new user document
+            last_characters[chat_id]['count'] = 1
+            user_collection.insert_one({
+                'id': user_id,
+                'username': update.effective_user.username,
+                'characters': [last_characters[chat_id]]
+            })
 
-            update.message.reply_text(f'Congooo ✅️! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
-            
-        else:
-            
-            update.message.reply_text('❌️ Try Again....')
+        update.message.reply_text(f'Congooo ✅️! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
 
 def list_characters(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
