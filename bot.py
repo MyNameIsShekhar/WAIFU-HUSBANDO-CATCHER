@@ -250,7 +250,7 @@ def guess(update: Update, context: CallbackContext) -> None:
             
             update.message.reply_text('❌️ Try Again....')
 
-def list(update: Update, context: CallbackContext) -> None:
+def collection(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
     # Get user document
@@ -289,7 +289,7 @@ def main() -> None:
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter))
     dispatcher.add_handler(CommandHandler('guess', guess))
     # Add CommandHandler for /list command to your Updater
-    dispatcher.add_handler(CommandHandler('list', list))
+    dispatcher.add_handler(CommandHandler('collection', collection))
 
 
 
