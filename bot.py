@@ -301,8 +301,11 @@ def handle_callback(update: Update, context: CallbackContext) -> None:
 
     # Call the appropriate function based on the callback data
     function_name, page = query.data.split()
-    globals()function_name
+    lmao = function_name
+    shuyaa = globals()lmao
+    shuyaa()
 
+    
 # Don't forget to add the CallbackQueryHandler to your dispatcher
 
 
