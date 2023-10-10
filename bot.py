@@ -13,7 +13,7 @@ collection = db['anime_characters']
 user_totals_collection = db['user_totals']
 
 # List of sudo users
-sudo_users = ['6404226395']
+sudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651'  ]
 
 # Counter for messages in each group
 message_counters = {}
