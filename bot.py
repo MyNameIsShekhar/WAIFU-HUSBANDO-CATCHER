@@ -257,7 +257,11 @@ def guess(update: Update, context: CallbackContext) -> None:
                 'characters': [last_characters[chat_id]]
             })
 
-        update.message.reply_text(f'Congooo ✅️! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
+            update.message.reply_text(f'Congooo ✅️! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
+        else:
+            
+            update.message.reply_text('❌️ Try Again....')
+        
 
 def list_characters(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
