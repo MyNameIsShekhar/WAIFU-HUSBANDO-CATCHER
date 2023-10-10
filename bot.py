@@ -238,7 +238,7 @@ def guess(update: Update, context: CallbackContext) -> None:
                 user_collection.insert_one({
                     'id': user_id,
                     'username': update.effective_user.username,
-                     'first_name': update.effective_user.user_first_name,
+                     'first_name': update.effective_user.first_name,
                 
                     'characters': [last_characters[chat_id]]
                 })
