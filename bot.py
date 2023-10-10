@@ -208,71 +208,6 @@ def send_image(update: Update, context: CallbackContext) -> None:
         photo=character['img_url'],
         caption="Use /Guess Command And.. Guess This Character Name.."
     )
-
-
-# Connect to MongoDB
-
-# Create a new collection for user collections
-
-
-
-def list_characters(update: Update, context: CallbackContext) -> None:
-    user_id = update.effective_user.id
-
-    # Get all characters guessed by the user
-    characters = list(user_collection.find({'user.user_id': user_id}))
-
-    if not characters:
-        update.message.reply_text('Your collection is empty.')
-        return
-
-    # Create a message with all characters and counts
-    message = 'Here are the characters you have guessed:\n\n'
-    for character in characters:
-        message += f"{character['character']['name']} from {character['character']['anime']}\n"
-
-    # Create an inline keyboard with a button that shows the total character picture
-    keyboard = [[InlineKeyboardButton("Show Character Pictures", callback_data='show_pictures')]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    # Send the message with the inline keyboard
-    context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=reply_markup)
-
-def button(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-
-    # CallbackQueries need to be answered
-    query.answer()
-
-    if query.data == 'show_pictures':
-        # Switch to inline mode
-        context.bot.answer_inline_query(
-            inline_query_id=query.id,
-            results=[],
-            switch_pm_text='Show Character Pictures',
-            switch_pm_parameter='show_pictures'
-        )
-
-def inlinequery(update: Update, context: CallbackContext) -> None:
-    user_id = update.effective_user.id
-
-    # Get all characters guessed by the user
-    characters = list(user_collection.find({'user.user_id': user_id}))
-
-    results = []
-    for character in characters:
-        results.append(InlineQueryResultPhoto(
-            id=character['character']['id'],
-            photo_url=character['character']['img_url'],
-            thumb_url=character['character']['img_url'],
-            caption=f"{character['character']['name']} from {character['character']['anime']}",
-            input_message_content=InputTextMessageContent(
-                message_text=f"{character['character']['name']} from {character['character']['anime']}"
-            )
-        ))
-
-    update.inline_query.answer(results)
-
 def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
@@ -282,7 +217,7 @@ def guess(update: Update, context: CallbackContext) -> None:
         return
 
     # Check if guess is correct
-    guess = ' '.join(context.args).lower() if context.args else ''
+    guess = ' '.join(context.args).title() if context.args else ''
     
     if chat_id in last_characters:
         # If someone has already guessed correctly
@@ -290,27 +225,53 @@ def guess(update: Update, context: CallbackContext) -> None:
             update.message.reply_text(f'❌️ Already guessed by Someone..So Try Next Time Bruhh')
             return
 
-        elif guess and guess in last_characters[chat_id]['name'].lower():
-            update.message.reply_text(f'Congooo ✅️! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
-            first_correct_guesses[chat_id] = user_id
-
-            # Prepare the user data and character data
-            user_data = {
-                'user_id': user_id,
-                'first_name': update.effective_user.first_name,
-                'username': update.effective_user.username,
-            }
-            character_data = last_characters[chat_id]
-
-            # Store the user data and character data in the user_collection
-            user_collection.insert_one({
-                'user': user_data,
-                'character': character_data,
-            })
+        elif guess and guess in last_characters[chat_id]['name'].title():
+            # Add character to user's collection
+            user = user_collection.find_one({'id': user_id})
+            if user:
+                # Update username if it has changed
+                if 'username' in update.effective_user and update.effective_user.username != user['username']:
+                    user_collection.update_one({'id': user_id}, {'$set': {'username': update.effective_user.username}})
+                # Add character to user's collection
+                user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
+            elif 'username' in update.effective_user:
+                # Create new user document
+                user_collection.insert_one({
+                    'id': user_id,
+                    'username': update.effective_user.username,
+                     'first_name': update.effective_user.first_name,
                 
+                    'characters': [last_characters[chat_id]]
+                })
+
+            update.message.reply_text(f'Congooo ✅️! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
+            
         else:
             
             update.message.reply_text('❌️ Try Again....')
+
+def list(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
+
+    # Get user document
+    user = user_collection.find_one({'id': user_id})
+
+    if not user or 'characters' not in user or not user['characters']:
+        update.message.reply_text('You have not guessed any characters correctly yet.')
+        return
+
+    # Create a list of character names and IDs
+    character_list = [f'Character Name: {character["name"]}\nID: {character["id"]}' for character in user['characters']]
+
+    # Send message with character names and IDs
+    update.message.reply_text('\n\n'.join(character_list))
+
+
+# Connect to MongoDB
+
+# Create a new collection for user collections
+
+
 
 
 def main() -> None:
@@ -330,11 +291,6 @@ def main() -> None:
     # Add CommandHandler for /list command to your Updater
     dispatcher.add_handler(CommandHandler('list', list_characters))
 
-# Add CallbackQueryHandler for inline keyboard buttons to your Updater
-    dispatcher.add_handler(CallbackQueryHandler(button))
-
-# Add InlineQueryHandler to your Updater
-    dispatcher.add_handler(InlineQueryHandler(inlinequery))
 
 
     updater.start_polling()
