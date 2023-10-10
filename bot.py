@@ -238,12 +238,17 @@ def guess(update: Update, context: CallbackContext) -> None:
                 # Increment count of character in user's collection
                 character_index = next((index for (index, d) in enumerate(user['characters']) if d["id"] == last_characters[chat_id]["id"]), None)
                 if character_index is not None:
-                    user['characters'][character_index]['count'] += 1
+                    # Check if 'count' key exists and increment it, otherwise add it
+                    if 'count' in user['characters'][character_index]:
+                        user['characters'][character_index]['count'] += 1
+                    else:
+                        user['characters'][character_index]['count'] = 1
                     user_collection.update_one({'id': user_id}, {'$set': {'characters': user['characters']}})
                 else:
                     # Add character to user's collection
                     last_characters[chat_id]['count'] = 1
                     user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
+            
             elif hasattr(update.effective_user, 'username'):
                 
                 last_characters[chat_id]['count'] = 1
