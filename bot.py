@@ -232,8 +232,9 @@ def guess(update: Update, context: CallbackContext) -> None:
                 # Update username if it has changed
                 
                 user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
-            elif 'username' in update.effective_user:
-                # Create new user document
+            elif hasattr(update.effective_user, 'username'):
+                
+
                 user_collection.insert_one({
                     'id': user_id,
                     'username': update.effective_user.username,
