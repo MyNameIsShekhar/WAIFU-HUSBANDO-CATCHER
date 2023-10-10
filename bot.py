@@ -1,5 +1,7 @@
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent
+from telegram.ext import InlineQueryHandler
 from pymongo import MongoClient, ReturnDocument
 import urllib.request
 import random
@@ -251,6 +253,73 @@ def guess(update: Update, context: CallbackContext) -> None:
             
             update.message.reply_text('❌️ Try Again....')
 
+
+def list_characters(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
+
+    # Get user's collection
+    user_collection = db[str(user_id)]
+
+    # Get all characters guessed by the user
+    characters = list(user_collection.find({}))
+
+    if not characters:
+        update.message.reply_text('Your collection is empty.')
+        return
+
+    # Create a message with all characters and counts
+    message = 'Here are the characters you have guessed:\n\n'
+    for character in characters:
+        message += f"{character['name']} from {character['anime']} - Guessed {character['count']} times\n"
+
+    # Create an inline keyboard with a button that shows the total character picture
+    keyboard = [[InlineKeyboardButton("Show Character Pictures", callback_data='show_pictures')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Send the message with the inline keyboard
+    context.bot.send_message(chat_id=update.effective_chat.id, text=message, reply_markup=reply_markup)
+
+def button(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+
+    # CallbackQueries need to be answered
+    query.answer()
+
+    if query.data == 'show_pictures':
+        # Switch to inline mode
+        context.bot.answer_inline_query(
+            inline_query_id=query.id,
+            results=[],
+            switch_pm_text='Show Character Pictures',
+            switch_pm_parameter='show_pictures'
+        )
+
+def inlinequery(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
+
+    # Get user's collection
+    user_collection = db[str(user_id)]
+
+    # Get all characters guessed by the user
+    characters = list(user_collection.find({}))
+
+    results = []
+    for character in characters:
+        results.append(InlineQueryResultPhoto(
+            id=character['id'],
+            photo_url=character['img_url'],
+            thumb_url=character['img_url'],
+            caption=f"{character['name']} from {character['anime']} - Guessed {character['count']} times",
+            input_message_content=InputTextMessageContent(
+                message_text=f"{character['name']} from {character['anime']} - Guessed {character['count']} times"
+            )
+        ))
+
+    update.inline_query.answer(results)
+
+
+
+
 def main() -> None:
     updater = Updater(token='6347356084:AAHX7A8aY9fbtgCQ-8R16TRBKkCHtX4bMxA')
 
@@ -265,6 +334,15 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('total', total))
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter))
     dispatcher.add_handler(CommandHandler('guess', guess))
+    # Add CommandHandler for /list command to your Updater
+    dispatcher.add_handler(CommandHandler('list', list_characters))
+
+# Add CallbackQueryHandler for inline keyboard buttons to your Updater
+   dispatcher.add_handler(CallbackQueryHandler(button))
+
+# Add InlineQueryHandler to your Updater
+   dispatcher.add_handler(InlineQueryHandler(inlinequery))
+
 
     updater.start_polling()
 
