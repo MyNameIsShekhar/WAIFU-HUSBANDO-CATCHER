@@ -261,10 +261,10 @@ def collection(update: Update, context: CallbackContext) -> None:
         return
 
     # Create a list of character names and IDs
-    characters = [f'Character Name: {character["name"]}\nID: {character["id"]}' for character in user['characters']]
+    shuyaa = [f'Character Name: {character["name"]}\nID: {character["id"]}' for character in user['characters']]
 
     # Send message with character names and IDs
-    update.message.reply_text('\n\n'.join (characters))
+    update.message.reply_text('\n\n'.join (shuyaa))
 
 
 # Connect to MongoDB
