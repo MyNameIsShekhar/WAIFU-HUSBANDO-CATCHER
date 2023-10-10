@@ -200,24 +200,34 @@ def change_time(update: Update, context: CallbackContext) -> None:
 
 
 def message_counter(update: Update, context: CallbackContext) -> None:
-    chat_id = update.effective_chat.id
+    chat_id = str(update.effective_chat.id)
 
-    # Get message frequency for this chat from the database
-    chat_frequency = user_totals_collection.find_one({'chat_id': str(chat_id)})
-    if chat_frequency and 'message_frequency' in chat_frequency:
-        message_frequency = chat_frequency['message_frequency']
+    # Get message frequency and counter for this chat from the database
+    chat_frequency = user_totals_collection.find_one({'chat_id': chat_id})
+    if chat_frequency:
+        message_frequency = chat_frequency.get('message_frequency', 20)
+        message_counter = chat_frequency.get('message_counter', 0)
     else:
         # Default to 20 messages if not set
         message_frequency = 20
+        message_counter = 0
 
     # Increment counter for this chat
-    if chat_id not in message_counters:
-        message_counters[chat_id] = 0
-    message_counters[chat_id] += 1
+    message_counter += 1
 
     # Send image after every message_frequency messages
-    if message_counters[chat_id] % message_frequency == 0:
+    if message_counter % message_frequency == 0:
         send_image(update, context)
+        # Reset counter for this chat
+        message_counter = 0
+
+    # Update counter in the database
+    user_totals_collection.update_one(
+        {'chat_id': chat_id},
+        {'$set': {'message_counter': message_counter}},
+        upsert=True
+    )
+
 
 def send_image(update: Update, context: CallbackContext) -> None:
     # Acquire the lock
