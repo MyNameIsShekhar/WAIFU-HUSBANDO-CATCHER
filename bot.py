@@ -338,10 +338,10 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('list', list_characters))
 
 # Add CallbackQueryHandler for inline keyboard buttons to your Updater
-   dispatcher.add_handler(CallbackQueryHandler(button))
+    dispatcher.add_handler(CallbackQueryHandler(button))
 
 # Add InlineQueryHandler to your Updater
-   dispatcher.add_handler(InlineQueryHandler(inlinequery))
+    dispatcher.add_handler(InlineQueryHandler(inlinequery))
 
 
     updater.start_polling()
