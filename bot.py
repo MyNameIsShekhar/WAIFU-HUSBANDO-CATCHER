@@ -5,9 +5,9 @@ import urllib.request
 import random
 
 # Connect to MongoDB
-client = MongoClient('mongodb+srv://shuyaaaaa12:NvpoBuRp7MVPcAYA@cluster0.q2yycqx.mongodb.net/')
-db = client['Waifussss']
-collection = db['anime_characterss']
+client = MongoClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
+db = client['Waifus']
+collection = db['anime_characters']
 
 # Get the collection for user totals
 user_totals_collection = db['user_totals']
