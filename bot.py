@@ -54,8 +54,8 @@ def upload(update: Update, context: CallbackContext) -> None:
             return
 
         # Replace '-' with ' ' in character name and convert to lowercase
-        character_name = args[1].replace('-', ' ').lower()
-        anime = args[2].replace('-', ' ').lower()
+        character_name = args[1].replace('-', ' ').title()
+        anime = args[2].replace('-', ' ').title()
 
         # Check if image URL is valid
         try:
@@ -87,7 +87,7 @@ def upload(update: Update, context: CallbackContext) -> None:
         character['message_id'] = message.message_id
         collection.insert_one(character)
 
-        update.message.reply_text('Successfully uploaded.')
+        update.message.reply_text('Done.. Cheack in @listofallchara')
     except Exception as e:
         update.message.reply_text('Unsuccessfully uploaded.')
 
@@ -101,7 +101,7 @@ def delete(update: Update, context: CallbackContext) -> None:
         # Extract arguments
         args = context.args
         if len(args) != 1:
-            update.message.reply_text('Incorrect format. Please use: /delete ID')
+            update.message.reply_text('Incorrect format... Please use: /delete ID')
             return
 
         # Delete character with given ID
@@ -114,7 +114,7 @@ def delete(update: Update, context: CallbackContext) -> None:
         else:
             update.message.reply_text('No character found with given ID.')
     except Exception as e:
-        update.message.reply_text('Failed to delete character.')
+        update.message.reply_text('Failed to delete character...')
 
 def total(update: Update, context: CallbackContext) -> None:
     try:
