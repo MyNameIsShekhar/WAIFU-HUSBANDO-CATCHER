@@ -230,16 +230,14 @@ def guess(update: Update, context: CallbackContext) -> None:
             user = user_collection.find_one({'id': user_id})
             if user:
                 # Update username if it has changed
-                if 'username' in update.effective_user and update.effective_user.username != user['username']:
-                    user_collection.update_one({'id': user_id}, {'$set': {'username': update.effective_user.username}})
-                # Add character to user's collection
+                
                 user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
             elif 'username' in update.effective_user:
                 # Create new user document
                 user_collection.insert_one({
                     'id': user_id,
                     'username': update.effective_user.username,
-                     'first_name': update.effective_user.first_name,
+                     'first_name': update.effective_user.user_first_name,
                 
                     'characters': [last_characters[chat_id]]
                 })
