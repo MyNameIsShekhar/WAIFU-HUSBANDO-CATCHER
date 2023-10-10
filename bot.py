@@ -298,8 +298,11 @@ def list_characters(update: Update, context: CallbackContext) -> None:
 def handle_callback(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
-    character_list, page = query.data.split()
-    globals()character_list 
+    function_name = 'list_characters'
+    function_name, page = query.data.split()
+     
+    
+    your_function = globals()[function_name]
 
 
     
