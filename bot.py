@@ -6,7 +6,6 @@ from pymongo import MongoClient, ReturnDocument
 import urllib.request
 import random
 from datetime import datetime, timedelta
-from threading import Lock
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
@@ -17,7 +16,8 @@ collection = db['anime_characters']
 user_totals_collection = db['user_totals']
 user_collection = db["user_collection"]
 
-send_lock = Lock()
+
+
 # List of sudo users
 sudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651'  ]
 
@@ -221,7 +221,7 @@ def message_counter(update: Update, context: CallbackContext) -> None:
 
 def send_image(update: Update, context: CallbackContext) -> None:
     # Acquire the lock
-    with send_lock:
+    
         # Your existing send_image code here
 
     
