@@ -252,10 +252,23 @@ def guess(update: Update, context: CallbackContext) -> None:
 
 
 
-# Connect to MongoDB
 
-# Create a new collection for user collections
 
+def harrem(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
+
+    # Get user document
+    user = user_collection.find_one({'id': user_id})
+
+    if not user or 'characters' not in user or not user['characters']:
+        update.message.reply_text('You have not guessed any characters correctly yet.')
+        return
+
+    # Create a list of character names and IDs
+    lmao = [f'Character Name: {character["name"]}\nID: {character["id"]}' for character in user['characters']]
+
+    # Send message with character names and IDs
+    update.message.reply_text('\n\n'.join(lmao))
 
 
 
@@ -273,6 +286,8 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('total', total))
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter))
     dispatcher.add_handler(CommandHandler('guess', guess))
+    # Add CommandHandler for /list command to your Updater
+    dispatcher.add_handler(CommandHandler('harrem', harrem))
     # Add CommandHandler for /list command to your Updater
     
 
