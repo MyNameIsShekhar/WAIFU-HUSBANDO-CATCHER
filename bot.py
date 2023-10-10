@@ -231,9 +231,9 @@ def guess(update: Update, context: CallbackContext) -> None:
             user = user_collection.find_one({'id': user_id})
             if user:
                 # Update username if it has changed
-                if hasattr('username' in update.effective_user and update.effective_user.username != user['username']):
+                if hasattr('username' in update.effective_user and update.effective_user.username) != user['username']:
                     user_collection.update_one({'id': user_id}, {'$set': {'username': update.effective_user.username}})
-                if hasattr('first_name' in update.effective_user and update.effective_user.first_name != user['first_name']):
+                if hasattr('first_name' in update.effective_user and update.effective_user.first_name) != user['first_name']:
                     user_collection.update_one({'id': user_id}, {'$set': {'username': update.effective_user.username}})
                 # Increment count of character in user's collection
                 character_index = next((index for (index, d) in enumerate(user['characters']) if d["id"] == last_characters[chat_id]["id"]), None)
