@@ -172,7 +172,7 @@ def message_counter(update: Update, context: CallbackContext) -> None:
     message_counters[chat_id] += 1
 
     # Send image after every 20 messages
-    if message_counters[chat_id] % 10000 == 0:
+    if message_counters[chat_id] % 20 == 0:
         send_image(update, context)
 
 def send_image(update: Update, context: CallbackContext) -> None:
