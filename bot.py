@@ -164,56 +164,60 @@ def total(update: Update, context: CallbackContext) -> None:
     except Exception as e:
         update.message.reply_text('Failed to fetch characters.')
 
-
-
-
-def message_counter(update: Update, context: CallbackContext) -> None:
-    user_id = update.effective_user.id
-    chat_id = update.effective_chat.id
-
-    # Count stickers as well
-    if update.effective_message.sticker:
-        message_type = 'sticker'
-    else:
-        message_type = 'message'
-
-    # Increment counter for this chat and message type
-    if chat_id not in message_counters:
-        message_counters[chat_id] = {}
-    if message_type not in message_counters[chat_id]:
-        message_counters[chat_id][message_type] = 0
-    message_counters[chat_id][message_type] += 1
-
-    # Get character time from database
-    group_settings = db['group_settings'].find_one({'chat_id': chat_id})
-    character_time = group_settings['character_time'] if group_settings else 20
-
-    # Send image after character time messages or stickers
-    if any(count >= character_time for count in message_counters[chat_id].values()):
-        send_image(update, context)
-
 def change_time(update: Update, context: CallbackContext) -> None:
     # Check if user is a group admin
-    admins = [admin.user.id for admin in context.bot.get_chat_administrators(update.effective_chat.id)]
-    if update.effective_user.id not in admins:
+    user = update.effective_user
+    chat = update.effective_chat
+
+    if chat.get_member(user.id).status not in ('administrator', 'creator'):
         update.message.reply_text('You do not have permission to use this command.')
         return
 
-    # Check if argument is given and is a number greater than 100
-    if not context.args or not context.args[0].isdigit() or int(context.args[0]) < 100:
-        update.message.reply_text('Please provide a number greater than 100.')
-        return
+    try:
+        # Extract arguments
+        args = context.args
+        if len(args) != 1:
+            update.message.reply_text('Incorrect format. Please use: /changetime NUMBER')
+            return
 
-    # Update character time in database
-    db['group_settings'].update_one(
-        {'chat_id': update.effective_chat.id},
-        {'$set': {'character_time': int(context.args[0])}},
-        upsert=True
-    )
+        # Check if the provided number is greater than or equal to 100
+        new_frequency = int(args[0])
+        if new_frequency < 100:
+            update.message.reply_text('The message frequency must be greater than or equal to 100.')
+            return
 
-    update.message.reply_text(f'Character time has been set to {context.args[0]} messages.')
+        # Change message frequency for this chat in the database
+        chat_frequency = user_totals_collection.find_one_and_update(
+            {'chat_id': str(chat.id)},
+            {'$set': {'message_frequency': new_frequency}},
+            upsert=True,
+            return_document=ReturnDocument.AFTER
+        )
+
+        update.message.reply_text(f'Successfully changed character appearance frequency to every {new_frequency} messages.')
+    except Exception as e:
+        update.message.reply_text('Failed to change character appearance frequency.')
 
 
+def message_counter(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+
+    # Get message frequency for this chat from the database
+    chat_frequency = user_totals_collection.find_one({'chat_id': str(chat_id)})
+    if chat_frequency and 'message_frequency' in chat_frequency:
+        message_frequency = chat_frequency['message_frequency']
+    else:
+        # Default to 20 messages if not set
+        message_frequency = 20
+
+    # Increment counter for this chat
+    if chat_id not in message_counters:
+        message_counters[chat_id] = 0
+    message_counters[chat_id] += 1
+
+    # Send image after every message_frequency messages
+    if message_counters[chat_id] % message_frequency == 0:
+        send_image(update, context)
 
 def send_image(update: Update, context: CallbackContext) -> None:
     # Acquire the lock
@@ -381,21 +385,22 @@ def main() -> None:
     dispatcher = updater.dispatcher
 
     
-    dispatcher.add_handler(CommandHandler('anime', anime))
+    dispatcher.add_handler(CommandHandler('upload', upload, run_async=True))
     
-    dispatcher.add_handler(CommandHandler('upload', upload))
+    dispatcher.add_handler(CommandHandler('delete', delete, run_async=True))
     
-    dispatcher.add_handler(CommandHandler('delete', delete))
-    dispatcher.add_handler(CommandHandler('total', total))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter))
-    dispatcher.add_handler(CommandHandler('guess', guess))
-    # Add CommandHandler for /list command to your Updater
-    dispatcher.add_handler(CommandHandler('harrem', list_characters))
-    # Add CommandHandler for /list command to your Updater
-    dispatcher.add_handler(CallbackQueryHandler(handle_callback))
-    dispatcher.add_handler(CommandHandler('changetime', change_time))
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter))
+    dispatcher.add_handler(CommandHandler('anime', anime, run_async=True))
+    dispatcher.add_handler(CommandHandler('total', total, run_async=True))
+    dispatcher.add_handler(CommandHandler('changetime', change_time, run_async=True))
 
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter, run_async=True))
+    dispatcher.add_handler(CommandHandler('guess', guess, run_async=True))
+    # Add CommandHandler for /list command to your Updater
+    dispatcher.add_handler(CommandHandler('harrem', list_characters, run_async=True))
+    # Add CommandHandler for /list command to your Updater
+    dispatcher.add_handler(CallbackQueryHandler(handle_callback, run_async=True))
+    dispatcher.add_handler(CommandHandler('changetime', change_time, run_async=True))
+    
 
     updater.start_polling()
 
