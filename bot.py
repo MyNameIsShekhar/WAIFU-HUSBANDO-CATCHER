@@ -41,8 +41,9 @@ def upload(update: Update, context: CallbackContext) -> None:
             update.message.reply_text('Incorrect format. Please use: /upload img_url Character-Name Anime-Name')
             return
 
-        # Replace '-' with ' ' in character name
-        character_name = args[1].replace('-', ' ')
+        # Replace '-' with ' ' in character name and convert to lowercase
+        character_name = args[1].replace('-', ' ').lower()
+        anime = args[2].replace('-', ' ').lower()
 
         # Check if image URL is valid
         try:
@@ -58,7 +59,7 @@ def upload(update: Update, context: CallbackContext) -> None:
         character = {
             'img_url': args[0],
             'name': character_name,
-            'anime': args[2],
+            'anime': anime,
             'id': id
         }
         collection.insert_one(character)
@@ -69,7 +70,7 @@ def upload(update: Update, context: CallbackContext) -> None:
         context.bot.send_photo(
             chat_id='-1001670772912',
             photo=args[0],
-            caption=f'<b>Character Name:</b> {character_name}\n<b>Anime Name:</b> {args[2]}\n<b>ID:</b> {id}\nAdded by <a href="tg://user?id={update.effective_user.id}">{update.effective_user.first_name}</a>',
+            caption=f'<b>Character Name:</b> {character_name}\n<b>Anime Name:</b> {anime}\n<b>ID:</b> {id}\nAdded by <a href="tg://user?id={update.effective_user.id}">{update.effective_user.first_name}</a>',
             parse_mode='HTML'
         )
     except Exception as e:
