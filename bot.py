@@ -1,6 +1,6 @@
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
-from pymongo import MongoClient
+from pymongo import MongoClient, ReturnDocument
 import urllib.request
 import random
 
@@ -30,15 +30,23 @@ first_correct_guesses = {}
 
 
 
-def anime(update: Update, context: CallbackContext) -> None:
-    try:
-        # Get all unique anime names
-        anime_names = collection.distinct('anime')
+def get_next_sequence_number(sequence_name):
+    # Get a handle to the sequence collection
+    sequence_collection = db.sequences
 
-        # Send message with anime names
-        update.message.reply_text('\n'.join(anime_names))
-    except Exception as e:
-        update.message.reply_text('Failed to fetch anime names.')
+    # Use find_one_and_update to atomically increment the sequence number
+    sequence_document = sequence_collection.find_one_and_update(
+        {'_id': sequence_name}, 
+        {'$inc': {'sequence_value': 1}}, 
+        return_document=ReturnDocument.AFTER
+    )
+
+    # If this sequence doesn't exist yet, create it
+    if not sequence_document:
+        sequence_collection.insert_one({'_id': sequence_name, 'sequence_value': 0})
+        return 0
+
+    return sequence_document['sequence_value']
 
 def upload(update: Update, context: CallbackContext) -> None:
     # Check if user is a sudo user
@@ -53,7 +61,7 @@ def upload(update: Update, context: CallbackContext) -> None:
             update.message.reply_text('Incorrect format. Please use: /upload img_url Character-Name Anime-Name')
             return
 
-        # Replace '-' with ' ' in character name and convert to lowercase
+        # Replace '-' with ' ' in character name and convert to title case
         character_name = args[1].replace('-', ' ').title()
         anime = args[2].replace('-', ' ').title()
 
@@ -65,7 +73,7 @@ def upload(update: Update, context: CallbackContext) -> None:
             return
 
         # Generate ID
-        id = str(collection.count_documents({}) + 1).zfill(4)
+        id = str(get_next_sequence_number('character_id')).zfill(4)
 
         # Insert new character
         character = {
@@ -87,7 +95,7 @@ def upload(update: Update, context: CallbackContext) -> None:
         character['message_id'] = message.message_id
         collection.insert_one(character)
 
-        update.message.reply_text('Done.. Cheack in @listofallchara')
+        update.message.reply_text('Successfully uploaded.')
     except Exception as e:
         update.message.reply_text('Unsuccessfully uploaded.')
 
@@ -101,7 +109,7 @@ def delete(update: Update, context: CallbackContext) -> None:
         # Extract arguments
         args = context.args
         if len(args) != 1:
-            update.message.reply_text('Incorrect format... Please use: /delete ID')
+            update.message.reply_text('Incorrect format. Please use: /delete ID')
             return
 
         # Delete character with given ID
@@ -114,7 +122,19 @@ def delete(update: Update, context: CallbackContext) -> None:
         else:
             update.message.reply_text('No character found with given ID.')
     except Exception as e:
-        update.message.reply_text('Failed to delete character...')
+        update.message.reply_text('Failed to delete character.')
+
+
+def anime(update: Update, context: CallbackContext) -> None:
+    try:
+        # Get all unique anime names
+        anime_names = collection.distinct('anime')
+
+        # Send message with anime names
+        update.message.reply_text('\n'.join(anime_names))
+    except Exception as e:
+        update.message.reply_text('Failed to fetch anime names.')
+
 
 def total(update: Update, context: CallbackContext) -> None:
     try:
