@@ -253,8 +253,9 @@ def guess(update: Update, context: CallbackContext) -> None:
 
 
 
-def harrem(update: Update, context: CallbackContext) -> None:
+def list_characters(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
+    page = int(context.args[0]) if context.args else 0
 
     # Get user document
     user = user_collection.find_one({'id': user_id})
@@ -263,12 +264,46 @@ def harrem(update: Update, context: CallbackContext) -> None:
         update.message.reply_text('You have not guessed any characters correctly yet.')
         return
 
-    # Create a list of character names and IDs
-    lmao = [f'Character Name: {character["name"]}\nID: {character["id"]}' for character in user['characters']]
+    # Group characters by anime
+    anime_dict = {}
+    for character in user['characters']:
+        if character['anime'] not in anime_dict:
+            anime_dict[character['anime']] = []
+        anime_dict[character['anime']].append(character)
 
-    # Send message with character names and IDs
-    update.message.reply_text('\n\n'.join(lmao))
+    # Calculate total pages
+    total_pages = -(-len(anime_dict) // 10)  # Equivalent to math.ceil(len(anime_dict) / 10)
 
+    # Create a list of animes and characters
+    anime_list = []
+    for anime, characters in list(anime_dict.items())[page*10:(page+1)*10]:
+        anime_list.append(f'⥱ {anime} ({len(characters)} characters)')
+        anime_list.append('⚋' * 15)
+        for character in characters:
+            anime_list.append(f'➥ Character Name: {character["name"]}\n   ID: {character["id"]}')
+        anime_list.append('⚋' * 15)
+
+    # Create inline keyboard
+    keyboard = [
+        [
+            InlineKeyboardButton("Prev", callback_data=f"list_characters {page-1}"),
+            InlineKeyboardButton("Next", callback_data=f"list_characters {page+1}")
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Send message with animes and characters
+    update.message.reply_text(f"{update.effective_user.first_name}'s Harem\n\nPage {page+1} of {total_pages}\n\n" + '\n'.join(anime_list), reply_markup=reply_markup)
+    
+def handle_callback(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    query.answer()
+
+    # Call the appropriate function based on the callback data
+    function_name, page = query.data.split()
+    globals()function_name
+
+# Don't forget to add the CallbackQueryHandler to your dispatcher
 
 
 def main() -> None:
@@ -286,9 +321,10 @@ def main() -> None:
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter))
     dispatcher.add_handler(CommandHandler('guess', guess))
     # Add CommandHandler for /list command to your Updater
-    dispatcher.add_handler(CommandHandler('harrem', harrem))
+    dispatcher.add_handler(CommandHandler('harrem', list_characters))
     # Add CommandHandler for /list command to your Updater
-    
+    dispatcher.add_handler(CallbackQueryHandler(handle_callback))
+
 
 
     updater.start_polling()
