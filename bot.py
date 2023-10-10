@@ -192,7 +192,7 @@ def guess(update: Update, context: CallbackContext) -> None:
     if chat_id in last_characters:
         # If someone has already guessed correctly
         if chat_id in first_correct_guesses:
-            update.message.reply_text(f'Already guessed by <a href="tg://user?id={first_correct_guesses[chat_id]}">{update.effective_user.first_name}</a>', parse_mode='HTML')
+            update.message.reply_text(f'❌️ Already guessed by Someone..So Try Next Time Bruhh')
             return
 
         elif guess and guess in last_characters[chat_id]['name'].lower():
