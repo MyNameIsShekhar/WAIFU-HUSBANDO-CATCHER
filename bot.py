@@ -335,7 +335,7 @@ def guess(update: Update, context: CallbackContext) -> None:
 
 
 
-def all(update: Update, context: CallbackContext) -> None:
+def harrem(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
     # Get the user document
@@ -410,7 +410,7 @@ def main() -> None:
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter, run_async=True))
     dispatcher.add_handler(CommandHandler('guess', guess, run_async=True))
     # Add CommandHandler for /list command to your Updater
-    dispatcher.add_handler(CommandHandler('harrem', all, run_async=True))
+    dispatcher.add_handler(CommandHandler('harrem', harrem, run_async=True))
     
     # Add inline query handler
     dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
