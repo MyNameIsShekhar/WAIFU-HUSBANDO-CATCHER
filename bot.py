@@ -368,6 +368,8 @@ def harrem(update: Update, context: CallbackContext) -> None:
         reply_markup=reply_markup
     )
 
+
+# Add InlineQueryHandler to the dispatcher
 def inlinequery(update: Update, context: CallbackContext) -> None:
     """Handle the inline query."""
     query = update.inline_query.query
@@ -379,25 +381,27 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
 
         if user:
             # Create a list of InlineQueryResultPhoto for each character
-            results = [
-                InlineQueryResultPhoto(
-                    id=character['id'],
-                    photo_url=character['img_url'],
-                    thumb_url=character['img_url'],
-                    caption=f"Character Name: {character['name']}\nAnime Name: {character['anime']}\nCount: {character.get('count', 0)}",
-                    input_message_content=InputTextMessageContent(
-                        f"Character Name: {character['name']}\nAnime Name: {character['anime']}\nCount: {character.get('count', 0)}"
+            results = []
+            added_characters = set()
+            for character in user['characters']:
+                if character['name'] not in added_characters:
+                    results.append(
+                        InlineQueryResultPhoto(
+                            id=character['id'],
+                            photo_url=character['img_url'],
+                            thumb_url=character['img_url'],
+                            caption=f"Character Name: {character['name']}\nAnime Name: {character['anime']}\nCount: {character.get('count', 0)}",
+                            input_message_content=InputTextMessageContent(
+                                f"Character Name: {character['name']}\nAnime Name: {character['anime']}\nCount: {character.get('count', 0)}"
+                            )
+                        )
                     )
-                )
-                for character in user['characters']
-            ]
+                    added_characters.add(character['name'])
 
             # Answer the inline query
             update.inline_query.answer(results)
         else:
             update.inline_query.answer([])
-
-# Add InlineQueryHandler to the dispatcher
 
 
 def main() -> None:
