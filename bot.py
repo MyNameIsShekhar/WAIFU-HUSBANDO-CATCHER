@@ -373,7 +373,7 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
     # If a user ID is entered, show that user's characters
     if query:
-        user = user_collection.find_one({'id': user_id})
+        user = user_collection.find_one({'id': query})
         if user:
             characters = user['characters']
         else:
