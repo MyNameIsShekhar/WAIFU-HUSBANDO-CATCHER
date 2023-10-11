@@ -336,14 +336,12 @@ def guess(update: Update, context: CallbackContext) -> None:
 
 def list_characters(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
-    page = int(context.args[0]) if context.args else 0
 
     # Get user document
     user = user_collection.find_one({'id': user_id})
 
     if not user or 'characters' not in user or not user['characters']:
         update.message.reply_text('You have not guessed any characters correctly yet.')
-        
         return
 
     # Group characters by anime
@@ -353,12 +351,9 @@ def list_characters(update: Update, context: CallbackContext) -> None:
             anime_dict[character['anime']] = []
         anime_dict[character['anime']].append(character)
 
-    # Calculate total pages
-    total_pages = -(-len(anime_dict) // 10)  # Equivalent to math.ceil(len(anime_dict) / 10)
-
     # Create a list of animes and characters
     anime_list = []
-    for anime, characters in list(anime_dict.items())[page*10:(page+1)*10]:
+    for anime, characters in list(anime_dict.items())[:5]:
         anime_list.append(f'⥱ {anime} ({len(characters)} characters)')
         anime_list.append('⚋' * 15)
         for character in characters:
@@ -369,8 +364,7 @@ def list_characters(update: Update, context: CallbackContext) -> None:
     # Create inline keyboard
     keyboard = [
         [
-            InlineKeyboardButton("Prev", callback_data=f"list_characters {page-1}"),
-            InlineKeyboardButton("Next", callback_data=f"list_characters {page+1}")
+            InlineKeyboardButton("See all waifus", switch_inline_query_current_chat=f"@Guesss_CharacterBot {user_id}")
         ]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -382,20 +376,36 @@ def list_characters(update: Update, context: CallbackContext) -> None:
     context.bot.send_photo(
         chat_id=update.effective_chat.id,
         photo=random_character['img_url'],
-        caption=f"{update.effective_user.first_name}'s Harem\n\nPage {page+1} of {total_pages}\n\n" + '\n'.join(anime_list),
+        caption=f"{update.effective_user.first_name}'s Harem\n\n" + '\n'.join(anime_list),
         reply_markup=reply_markup
     )
 
+def inlinequery(update: Update, context: CallbackContext) -> None:
+    query = update.inline_query.query
 
+    # Check if the query is a user ID
+    if query.startswith('@Guesss_CharacterBot '):
+        user_id = query.split()[1]
 
-def handle_callback(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-    query.answer()
-    function_name = 'list_characters'
-    function_name, page = query.data.split()
-     
-    
-    your_function = globals()[function_name]
+        # Get user document
+        user = user_collection.find_one({'id': user_id})
+
+        if not user or 'characters' not in user or not user['characters']:
+            return
+
+        results = []
+        for character in user['characters']:
+            results.append(InlineQueryResultPhoto(
+                id=character['id'],
+                photo_url=character['img_url'],
+                thumb_url=character['img_url'],
+                caption=f"Character Name: {character['name']}\nAnime Name: {character['anime']}\nID: {character['id']}",
+                input_message_content=InputTextMessageContent(
+                    message_text=f"Character Name: {character['name']}\nAnime Name: {character['anime']}\nID: {character['id']}"
+                )
+            ))
+
+        update.inline_query.answer(results)
 
 
     
@@ -420,9 +430,11 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('guess', guess, run_async=True))
     # Add CommandHandler for /list command to your Updater
     dispatcher.add_handler(CommandHandler('harrem', list_characters, run_async=True))
+    
+    # Add inline query handler
+    dp.add_handler(InlineQueryHandler(inlinequery))
     # Add CommandHandler for /list command to your Updater
-    dispatcher.add_handler(CallbackQueryHandler(handle_callback, run_async=True))
-    dispatcher.add_handler(CommandHandler('changetime', change_time, run_async=True))
+    
     
 
     updater.start_polling()
