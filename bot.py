@@ -369,35 +369,35 @@ def harrem(update: Update, context: CallbackContext) -> None:
     )
 
 def inlinequery(update: Update, context: CallbackContext) -> None:
-    query = update.inline_query.query.strip()
+    """Handle the inline query."""
+    query = update.inline_query.query
 
-    # If a user ID is entered, show that user's characters
-    if query:
-        user = user_collection.find_one({'id': query})
+    # Check if the query is a user id
+    if query.isdigit():
+        # Find the user in the database
+        user = user_collection.find_one({'id': int(query)})
+
         if user:
-            characters = user['characters']
+            # Create a list of InlineQueryResultPhoto for each character
+            results = [
+                InlineQueryResultPhoto(
+                    id=character['id'],
+                    photo_url=character['img_url'],
+                    thumb_url=character['img_url'],
+                    caption=f"Character Name: {character['name']}\nAnime Name: {character['anime']}\nCount: {character['count']}",
+                    input_message_content=InputTextMessageContent(
+                        f"Character Name: {character['name']}\nAnime Name: {character['anime']}\nCount: {character['count']}"
+                    )
+                )
+                for character in user['characters']
+            ]
+
+            # Answer the inline query
+            update.inline_query.answer(results)
         else:
-            return
-    else:
-        return
+            update.inline_query.answer([])
 
-    # Create a list of InlineQueryResultPhoto for each character
-    results = [InlineQueryResultPhoto(
-        id=character['id'],
-        photo_url=character['img_url'],
-        thumb_url=character['img_url'],
-        title=character['name'],
-        description='From ' + character['anime'],
-        input_message_content=InputTextMessageContent(character['name'] + ' from ' + character['anime'])
-    ) for character in characters]
-
-    # Answer the inline query
-    update.inline_query.answer(results)
-
-
-# Add handlers to the dispatcher
-
-# Don't forget to add the CallbackQueryHandler to your dispatcher
+# Add InlineQueryHandler to the dispatcher
 
 
 def main() -> None:
