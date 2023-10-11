@@ -1,6 +1,6 @@
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent, InputMediaPhoto
 from telegram.ext import InlineQueryHandler,CallbackQueryHandler
 from pymongo import MongoClient, ReturnDocument
 import urllib.request
@@ -369,7 +369,6 @@ def harrem(update: Update, context: CallbackContext) -> None:
     )
 
 
-# Add InlineQueryHandler to the dispatcher
 def inlinequery(update: Update, context: CallbackContext) -> None:
     """Handle the inline query."""
     query = update.inline_query.query
@@ -424,7 +423,26 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
         ]
         update.inline_query.answer(results)
 
+def chosen_inline_result(update: Update, context: CallbackContext) -> None:
+    """Handle the chosen inline result."""
+    chosen_result = update.chosen_inline_result
 
+    # Find the character in the database
+    character = collection.find_one({'id': chosen_result.result_id})
+
+    if character:
+        # Send image message with caption
+        context.bot.send_photo(
+            chat_id=chosen_result.from_user.id,
+            photo=InputMediaPhoto(
+                media=character['img_url'],
+                caption=f"Character Name: {character['name']}\nAnime Name: {character['anime']}"
+            )
+        )
+
+# Add InlineQueryHandler and ChosenInlineResultHandler to the dispatcher
+
+# Add InlineQueryHandler to the dispatcher
 def main() -> None:
     updater = Updater(token='6347356084:AAHX7A8aY9fbtgCQ-8R16TRBKkCHtX4bMxA')
 
@@ -447,7 +465,8 @@ def main() -> None:
     # Add inline query handler
     dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
     # Add CommandHandler for /list command to your Updater
-    
+    dispatcher.add_handler(ChosenInlineResultHandler(chosen_inline_result))
+
     
 
     updater.start_polling()
