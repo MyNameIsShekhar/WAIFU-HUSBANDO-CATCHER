@@ -372,7 +372,7 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
     """Handle the inline query."""
     
     
-            
+    query = update.inline_query.query     
 
     # Check if the query is a user id
     if query.isdigit():
