@@ -399,7 +399,7 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                         
                         
                          )
-                    )
+                    
                     added_characters.add(character['name'])
 
             # Answer the inline query
@@ -416,7 +416,7 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                 thumb_url=character['img_url'],
                 caption=f"Character Name: {character['name']}\nAnime Name: {character['anime']}",
                 
-                )
+                
             )
             for character in all_characters
         ]
