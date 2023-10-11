@@ -370,7 +370,7 @@ def harrem(update: Update, context: CallbackContext) -> None:
 
 def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query.strip()
-    user_id = update.effective_user.id
+
     # If a user ID is entered, show that user's characters
     if query:
         user = user_collection.find_one({'id': query})
@@ -378,9 +378,8 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
             characters = user['characters']
         else:
             return
-    # If no user ID is entered, show all characters from the upload characters database
     else:
-        characters = list(collection.find({}))
+        return
 
     # Create a list of InlineQueryResultPhoto for each character
     results = [InlineQueryResultPhoto(
@@ -394,6 +393,7 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
 
     # Answer the inline query
     update.inline_query.answer(results)
+
 
 # Add handlers to the dispatcher
 
