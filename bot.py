@@ -391,7 +391,7 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                     # Find all users who have this character
                     users_with_character = list(user_collection.find({'characters.id': character['id']}))
                     # Create a list of mentions for each user
-                    mentions = [f'<a href="tg://user?id={user["id"]}">{user["first_name"]}</a>' for user in users_with_character]
+                    mentions = [f'<a href="tg://user?id={user["id"]}">{user["username"]}</a>' for user in users_with_character]
 
                     results.append(
                         InlineQueryResultPhoto(
