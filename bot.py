@@ -1,7 +1,7 @@
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent, InputMediaPhoto
-from telegram.ext import InlineQueryHandler,CallbackQueryHandler
+from telegram.ext import InlineQueryHandler,CallbackQueryHandle, ChosenInlineResultHandler
 from pymongo import MongoClient, ReturnDocument
 import urllib.request
 import random
