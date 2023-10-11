@@ -384,9 +384,9 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                     id=character['id'],
                     photo_url=character['img_url'],
                     thumb_url=character['img_url'],
-                    caption=f"Character Name: {character['name']}\nAnime Name: {character['anime']}\nCount: {character['count']}",
+                    caption=f"Character Name: {character['name']}\nAnime Name: {character['anime']}\nCount: {character.get('count', 0)}",
                     input_message_content=InputTextMessageContent(
-                        f"Character Name: {character['name']}\nAnime Name: {character['anime']}\nCount: {character['count']}"
+                        f"Character Name: {character['name']}\nAnime Name: {character['anime']}\nCount: {character.get('count', 0)}"
                     )
                 )
                 for character in user['characters']
