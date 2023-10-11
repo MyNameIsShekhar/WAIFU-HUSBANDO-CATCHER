@@ -6,6 +6,7 @@ from pymongo import MongoClient, ReturnDocument
 import urllib.request
 import random
 from datetime import datetime, timedelta
+from threading import Lock
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
@@ -21,6 +22,9 @@ user_collection = db["user_collection"]
 # List of sudo users
 sudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651'  ]
 
+
+# Create a dictionary of locks
+locks = {}
 # Counter for messages in each group
 message_counters = {}
 spam_counters = {}
@@ -199,34 +203,43 @@ def change_time(update: Update, context: CallbackContext) -> None:
         update.message.reply_text('Failed to change character appearance frequency.')
 
 
+
 def message_counter(update: Update, context: CallbackContext) -> None:
     chat_id = str(update.effective_chat.id)
 
-    # Get message frequency and counter for this chat from the database
-    chat_frequency = user_totals_collection.find_one({'chat_id': chat_id})
-    if chat_frequency:
-        message_frequency = chat_frequency.get('message_frequency', 20)
-        message_counter = chat_frequency.get('message_counter', 0)
-    else:
-        # Default to 20 messages if not set
-        message_frequency = 20
-        message_counter = 0
+    # Get or create a lock for this chat
+    if chat_id not in locks:
+        locks[chat_id] = Lock()
+    lock = locks[chat_id]
 
-    # Increment counter for this chat
-    message_counter += 1
+    # Use the lock to ensure that only one instance of this function can run at a time for this chat
+    with lock:
+        # Get message frequency and counter for this chat from the database
+        chat_frequency = user_totals_collection.find_one({'chat_id': chat_id})
+        if chat_frequency:
+            message_frequency = chat_frequency.get('message_frequency', 20)
+            message_counter = chat_frequency.get('message_counter', 0)
+        else:
+            # Default to 20 messages if not set
+            message_frequency = 20
+            message_counter = 0
 
-    # Send image after every message_frequency messages
-    if message_counter % message_frequency == 0:
-        send_image(update, context)
-        # Reset counter for this chat
-        message_counter = 0
+        # Increment counter for this chat
+        message_counter += 1
 
-    # Update counter in the database
-    user_totals_collection.update_one(
-        {'chat_id': chat_id},
-        {'$set': {'message_counter': message_counter}},
-        upsert=True
-    )
+        # Send image after every message_frequency messages
+        if message_counter % message_frequency == 0:
+            send_image(update, context)
+            # Reset counter for this chat
+            message_counter = 0
+
+        # Update counter in the database
+        user_totals_collection.update_one(
+            {'chat_id': chat_id},
+            {'$set': {'message_counter': message_counter}},
+            upsert=True
+        )
+
 
 
 def send_image(update: Update, context: CallbackContext) -> None:
