@@ -385,14 +385,19 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
             added_characters = set()
             for character in user['characters']:
                 if character['name'] not in added_characters:
+                    # Count how many characters from the same anime the user has guessed
+                    anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
+                    # Count total characters from the same anime
+                    total_anime_characters = collection.count_documents({'anime': character['anime']})
+
                     results.append(
                         InlineQueryResultPhoto(
                             id=character['id'],
                             photo_url=character['img_url'],
                             thumb_url=character['img_url'],
-                            caption=f"Character Name: {character['name']}\nAnime Name: {character['anime']}\nCount: {character.get('count', 0)}",
+                            caption=f"Character Name: {character['name']} ×{character.get('count', 0)}\nAnime Name: {character['anime']} ({anime_characters_guessed}/{total_anime_characters})",
                             input_message_content=InputTextMessageContent(
-                                f"Character Name: {character['name']}\nAnime Name: {character['anime']}\nCount: {character.get('count', 0)}"
+                                f"Character Name: {character['name']} ×{character.get('count', 0)}\nAnime Name: {character['anime']} ({anime_characters_guessed}/{total_anime_characters})"
                             )
                         )
                     )
@@ -402,6 +407,10 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
             update.inline_query.answer(results)
         else:
             update.inline_query.answer([])
+    else:
+        # If no id is given, show total characters from upload database
+        total_characters = collection.count_documents({})
+        update.inline_query.answer([InlineQueryResultArticle(id='1', title='Total Characters', input_message_content=InputTextMessageContent(f'Total Characters: {total_characters}'))])
 
 
 def main() -> None:
