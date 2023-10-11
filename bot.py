@@ -373,27 +373,58 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
     """Handle the inline query."""
     query = update.inline_query.query
 
-    # Assuming the query is the user ID
-    user_id = query
+    # Check if the query is a user id
+    if query.isdigit():
+        # Find the user in the database
+        user = user_collection.find_one({'id': int(query)})
 
-    # Find the user in the database
-    user = user_collection.find_one({'id': user_id})
+        if user:
+            # Create a list of InlineQueryResultPhoto for each character
+            results = []
+            added_characters = set()
+            for character in user['characters']:
+                if character['name'] not in added_characters:
+                    # Count how many characters from the same anime the user has guessed
+                    anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
+                    # Count total characters from the same anime
+                    total_anime_characters = collection.count_documents({'anime': character['anime']})
 
-    if not user:
-        return
+                    results.append(
+                        InlineQueryResultPhoto(
+                            id=character['id'],
+                            photo_url=character['img_url'],
+                            thumb_url=character['img_url'],
+                            caption=f"Character Name: {character['name']} ×{character.get('count', 0)}\nAnime Name: {character['anime']} ({anime_characters_guessed}/{total_anime_characters})",
+                           )
+                        
+                        
+                         )
+                    )
+                    added_characters.add(character['name'])
 
-    results = []
-    for character in user['characters']:
-        results.append(
-            InputMediaPhoto(
-                media=character['img_url'],
-                caption=f'{character["name"]} from {character["anime"]}',
+            # Answer the inline query
+            update.inline_query.answer(results)
+        else:
+            update.inline_query.answer([])
+    else:
+        # If no id is given, show all characters from upload database
+        all_characters = list(collection.find({}))
+        results = [
+            InlineQueryResultPhoto(
+                id=character['id'],
+                photo_url=character['img_url'],
+                thumb_url=character['img_url'],
+                caption=f"Character Name: {character['name']}\nAnime Name: {character['anime']}",
+                
+                )
             )
-        )
+            for character in all_characters
+        ]
+        update.inline_query.answer(results)
 
-    # Send media group to the chat
-    context.bot.send_media_group(chat_id=update.effective_chat.id, media=results)
 
+
+# Add InlineQueryHandler and ChosenInlineResultHandler to the dispatcher
 
 # Add InlineQueryHandler to the dispatcher
 def main() -> None:
