@@ -340,26 +340,29 @@ def all(update: Update, context: CallbackContext) -> None:
 
     # Get the user document
     user = user_collection.find_one({'id': user_id})
-    if not user:
+    if not user or not user['characters']:
         update.message.reply_text('You have not guessed any characters yet.')
         return
+
+    # Get a random character from the user's collection
+    character = random.choice(user['characters'])
 
     # Get the last 5 characters
     last_characters = user['characters'][-5:]
 
     # Create the caption
     caption = 'Your latest characters:\n\n'
-    for character in last_characters:
-        caption += f'{character["name"]} from {character["anime"]}\n'
+    for char in last_characters:
+        caption += f'{char["name"]} from {char["anime"]}\n'
 
     # Add the inline keyboard button
     keyboard = [[InlineKeyboardButton('See all waifus (' + str(len(user['characters'])) + ')', switch_inline_query_current_chat='')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Send the profile picture with the caption and inline keyboard button
+    # Send the character's image with the caption and inline keyboard button
     context.bot.send_photo(
         chat_id=user_id,
-        photo=update.effective_user.get_profile_photos().photos[0][0].file_id,
+        photo=character['img_url'],
         caption=caption,
         reply_markup=reply_markup
     )
