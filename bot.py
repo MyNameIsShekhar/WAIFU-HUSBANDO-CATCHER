@@ -371,12 +371,7 @@ def harrem(update: Update, context: CallbackContext) -> None:
 def inlinequery(update: Update, context: CallbackContext) -> None:
     """Handle the inline query."""
     
-    query = update.inline_query.query
-    if query:
-        matching_characters = list(collection.find({'name': {'$regex': query, '$options': 'i'}}))
-        results = []
-        for character in matching_characters:
-            
+    
             
 
     # Check if the query is a user id
