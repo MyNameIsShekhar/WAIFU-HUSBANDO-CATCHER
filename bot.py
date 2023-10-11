@@ -380,7 +380,7 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
             
 
     # Check if the query is a user id
-    elif query.isdigit():
+    if query.isdigit():
         # Find the user in the database
         user = user_collection.find_one({'id': int(query)})
 
