@@ -398,7 +398,7 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                             id=character['id'],
                             photo_url=character['img_url'],
                             thumb_url=character['img_url'],
-                            caption=f"🔥 <b>Character Name:</b> {character['name']} ×{character.get('count', 0)}\n📺 <b>Anime Name:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n👥 <b>Owned by:</b> {', '.join(mentions)}",
+                            caption=f"🔥 <b>Character Name:</b> {character['name']} ×{character.get('count', 0)}\n📺 <b>Anime Name:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n👥 <b> From:</b> {', '.join(mentions)'s Harem}", parse_mode='HTML'
                             
                         )
                     )
