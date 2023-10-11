@@ -388,12 +388,17 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                     # Count total characters from the same anime
                     total_anime_characters = collection.count_documents({'anime': character['anime']})
 
+                    # Find all users who have this character
+                    users_with_character = list(user_collection.find({'characters.id': character['id']}))
+                    # Create a list of mentions for each user
+                    mentions = [f'<a href="tg://user?id={user["id"]}">{user["username"]}</a>' for user in users_with_character]
+
                     results.append(
                         InlineQueryResultPhoto(
                             id=character['id'],
                             photo_url=character['img_url'],
                             thumb_url=character['img_url'],
-                            caption=f"Character Name: {character['name']} ×{character.get('count', 0)}\nAnime Name: {character['anime']} ({anime_characters_guessed}/{total_anime_characters})",
+                            caption=f"🔥 <b>Character Name:</b> {character['name']} ×{character.get('count', 0)}\n📺 <b>Anime Name:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n👥 <b>Owned by:</b> {', '.join(mentions)}",
                             
                         )
                     )
@@ -404,8 +409,8 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
         else:
             update.inline_query.answer([])
     else:
-        # If a name is given, search for characters with that name in the database
-        matching_characters = list(collection.find({'name': {'$regex': query, '$options': 'i'}}))
+        # If no id is given, show all characters from upload database
+        all_characters = list(collection.find({}))
         results = [
             InlineQueryResultPhoto(
                 id=character['id'],
@@ -414,9 +419,10 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                 caption=f"Character Name: {character['name']}\nAnime Name: {character['anime']}",
                 
             )
-            for character in matching_characters
+            for character in all_characters
         ]
         update.inline_query.answer(results)
+
 
 # Add InlineQueryHandler and ChosenInlineResultHandler to the dispatcher
 
