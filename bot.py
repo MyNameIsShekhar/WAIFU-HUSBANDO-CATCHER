@@ -391,15 +391,15 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                     # Find all users who have this character
                     users_with_character = list(user_collection.find({'characters.id': character['id']}))
                     # Create a list of mentions for each user
-                    mentions = [f'<a href="tg://user?id={user["id"]}">{user["username"]}</a>' for user in users_with_character]
+                    mentions = [f'<a href="tg://user?id={user["id"]}">{user["first_name"]}</a>' for user in users_with_character]
 
                     results.append(
                         InlineQueryResultPhoto(
                             id=character['id'],
                             photo_url=character['img_url'],
                             thumb_url=character['img_url'],
-                            caption=f"🔥 <b>Character Name:</b> {character['name']} ×{character.get('count', 0)}\n📺 <b>Anime Name:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n👥 <b> From:</b> {', '.join(mentions)'s Harem}", parse_mode='HTML'
-                            
+                            caption=f"🔥 <b>Character Name:</b> {character['name']} ×{character.get('count', 0)}\n📺 <b>Anime Name:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n👥 <b>Owned by:</b> {', '.join(mentions)}",
+                            parse_mode='HTML'
                         )
                     )
                     added_characters.add(character['name'])
@@ -417,12 +417,11 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                 photo_url=character['img_url'],
                 thumb_url=character['img_url'],
                 caption=f"Character Name: {character['name']}\nAnime Name: {character['anime']}",
-                
+                parse_mode='HTML'
             )
             for character in all_characters
         ]
         update.inline_query.answer(results)
-
 
 # Add InlineQueryHandler and ChosenInlineResultHandler to the dispatcher
 
