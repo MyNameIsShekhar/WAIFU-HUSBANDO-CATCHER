@@ -432,7 +432,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('harrem', list_characters, run_async=True))
     
     # Add inline query handler
-    dp.add_handler(InlineQueryHandler(inlinequery, run_async=True))
+    dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
     # Add CommandHandler for /list command to your Updater
     
     
