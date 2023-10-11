@@ -408,9 +408,21 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
         else:
             update.inline_query.answer([])
     else:
-        # If no id is given, show total characters from upload database
-        total_characters = collection.count_documents({})
-        update.inline_query.answer([InlineQueryResultArticle(id='1', title='Total Characters', input_message_content=InputTextMessageContent(f'Total Characters: {total_characters}'))])
+        # If no id is given, show all characters from upload database
+        all_characters = list(collection.find({}))
+        results = [
+            InlineQueryResultPhoto(
+                id=character['id'],
+                photo_url=character['img_url'],
+                thumb_url=character['img_url'],
+                caption=f"Character Name: {character['name']}\nAnime Name: {character['anime']}",
+                input_message_content=InputTextMessageContent(
+                    f"Character Name: {character['name']}\nAnime Name: {character['anime']}"
+                )
+            )
+            for character in all_characters
+        ]
+        update.inline_query.answer(results)
 
 
 def main() -> None:
