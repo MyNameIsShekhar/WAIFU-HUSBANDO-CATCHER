@@ -334,81 +334,59 @@ def guess(update: Update, context: CallbackContext) -> None:
 
 
 
-def list_characters(update: Update, context: CallbackContext) -> None:
+
+def all(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
-    # Get user document
+    # Get the user document
     user = user_collection.find_one({'id': user_id})
-
-    if not user or 'characters' not in user or not user['characters']:
-        update.message.reply_text('You have not guessed any characters correctly yet.')
+    if not user:
+        update.message.reply_text('You have not guessed any characters yet.')
         return
 
-    # Group characters by anime
-    anime_dict = {}
-    for character in user['characters']:
-        if character['anime'] not in anime_dict:
-            anime_dict[character['anime']] = []
-        anime_dict[character['anime']].append(character)
+    # Get the last 5 characters
+    last_characters = user['characters'][-5:]
 
-    # Create a list of animes and characters
-    anime_list = []
-    for anime, characters in list(anime_dict.items())[:5]:
-        anime_list.append(f'⥱ {anime} ({len(characters)} characters)')
-        anime_list.append('⚋' * 15)
-        for character in characters:
-            count_str = f' ×{character["count"]}' if 'count' in character and character['count'] > 1 else ''
-            anime_list.append(f'➥ Character Name: {character["name"]}{count_str}\n   ID: {character["id"]}')
-        anime_list.append('⚋' * 15)
+    # Create the caption
+    caption = 'Your latest characters:\n\n'
+    for character in last_characters:
+        caption += f'{character["name"]} from {character["anime"]}\n'
 
-    # Create inline keyboard
-    keyboard = [
-        [
-            InlineKeyboardButton("See all waifus", switch_inline_query_current_chat=f"@Guesss_CharacterBot {user_id}")
-        ]
-    ]
+    # Add the inline keyboard button
+    keyboard = [[InlineKeyboardButton('See all waifus (' + str(len(user['characters'])) + ')', switch_inline_query_current_chat='')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Select a random character to display their picture
-    random_character = random.choice(user['characters'])
-
-    # Send message with a random character's picture and animes and characters as caption
+    # Send the profile picture with the caption and inline keyboard button
     context.bot.send_photo(
-        chat_id=update.effective_chat.id,
-        photo=random_character['img_url'],
-        caption=f"{update.effective_user.first_name}'s Harem\n\n" + '\n'.join(anime_list),
+        chat_id=user_id,
+        photo=update.effective_user.get_profile_photos().photos[0][0].file_id,
+        caption=caption,
         reply_markup=reply_markup
     )
 
 def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
 
-    # Check if the query is a user ID
-    if query.startswith('@Guesss_CharacterBot '):
-        user_id = query.split()[1]
+    # Get the user document
+    user = user_collection.find_one({'id': update.effective_user.id})
+    if not user:
+        return
 
-        # Get user document
-        user = user_collection.find_one({'id': user_id})
+    # Create a list of InlineQueryResultPhoto for each character
+    results = [InlineQueryResultPhoto(
+        id=character['id'],
+        photo_url=character['img_url'],
+        thumb_url=character['img_url'],
+        title=character['name'],
+        description='From ' + character['anime'],
+        input_message_content=InputTextMessageContent(character['name'] + ' from ' + character['anime'])
+    ) for character in user['characters']]
 
-        if not user or 'characters' not in user or not user['characters']:
-            return
+    # Answer the inline query
+    update.inline_query.answer(results)
 
-        results = []
-        for character in user['characters']:
-            results.append(InlineQueryResultPhoto(
-                id=character['id'],
-                photo_url=character['img_url'],
-                thumb_url=character['img_url'],
-                caption=f"Character Name: {character['name']}\nAnime Name: {character['anime']}\nID: {character['id']}",
-                input_message_content=InputTextMessageContent(
-                    message_text=f"Character Name: {character['name']}\nAnime Name: {character['anime']}\nID: {character['id']}"
-                )
-            ))
+# Add handlers to the dispatcher
 
-        update.inline_query.answer(results)
-
-
-    
 # Don't forget to add the CallbackQueryHandler to your dispatcher
 
 
@@ -429,7 +407,7 @@ def main() -> None:
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter, run_async=True))
     dispatcher.add_handler(CommandHandler('guess', guess, run_async=True))
     # Add CommandHandler for /list command to your Updater
-    dispatcher.add_handler(CommandHandler('harrem', list_characters, run_async=True))
+    dispatcher.add_handler(CommandHandler('harrem', all, run_async=True))
     
     # Add inline query handler
     dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
