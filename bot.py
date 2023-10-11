@@ -335,6 +335,7 @@ def guess(update: Update, context: CallbackContext) -> None:
 
 
 
+
 def harrem(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
@@ -356,12 +357,12 @@ def harrem(update: Update, context: CallbackContext) -> None:
         caption += f'{char["name"]} from {char["anime"]}\n'
 
     # Add the inline keyboard button
-    keyboard = [[InlineKeyboardButton('See all waifus (' + str(len(user['characters'])) + ')', switch_inline_query_current_chat='')]]
+    keyboard = [[InlineKeyboardButton('See all waifus (' + str(len(user['characters'])) + ')', switch_inline_query_current_chat=str(user_id))]]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     # Send the character's image with the caption and inline keyboard button
     context.bot.send_photo(
-        chat_id=user_id,
+        chat_id=update.effective_chat.id,  # Send in the group where the command was issued
         photo=character['img_url'],
         caption=caption,
         reply_markup=reply_markup
@@ -370,8 +371,11 @@ def harrem(update: Update, context: CallbackContext) -> None:
 def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
 
+    # Extract user ID from query
+    user_id = query.strip()
+
     # Get the user document
-    user = user_collection.find_one({'id': update.effective_user.id})
+    user = user_collection.find_one({'id': user_id})
     if not user:
         return
 
