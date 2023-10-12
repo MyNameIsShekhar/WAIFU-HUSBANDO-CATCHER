@@ -9,7 +9,7 @@ from telegraph import Telegraph, upload_file
 
 
 shuyaa = Telegraph()
-telegraph = shuyaa.create_account(short_name-'shigeoooTheSuperman')
+telegraph = shuyaa.create_account(short_name='shigeoooTheSuperman')
 
 # Connect to MongoDB
 client = AsyncIOMotorClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
