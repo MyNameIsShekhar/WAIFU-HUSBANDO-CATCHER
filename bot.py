@@ -138,7 +138,7 @@ async def anime(update: Update, context: CallbackContext) -> None:
 
 async def main():
     # Create the Updater and pass it your bot's token.
-    updater = Updater("6631256463:AAE3tEPAr2m8vIE8mwGD238AKWwYuvqeOJQ", use_context=True)
+    updater = Updater("6347356084:AAHX7A8aY9fbtgCQ-8R16TRBKkCHtX4bMxA", use_context=True)
 
     # Get the dispatcher to register handlers
     dp = updater.dispatcher
