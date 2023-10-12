@@ -3,6 +3,10 @@ import urllib.request
 from motor.motor_asyncio import AsyncIOMotorClient
 from pymongo import ReturnDocument
 from aiogram import Bot, types, Dispatcher, executor
+from aiogram.utils import executor
+import aiohttp 
+
+
 
 # Connect to MongoDB
 client = AsyncIOMotorClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
@@ -40,7 +44,17 @@ async def get_next_sequence_number(sequence_name):
 
     return sequence_document['sequence_value']
 
-@dp.message_handler(commands=['upload'])
+
+async def upload_to_fileio(file):
+    async with aiohttp.ClientSession() as session:
+        async with session.post('https://file.io', data={'file': file}) as resp:
+            response = await resp.json()
+            if response['success']:
+                return response['link']
+            else:
+                raise Exception('Failed to upload image.')
+
+@dp.message_handler(commands=['upload'], content_types=types.ContentTypes.PHOTO)
 async def upload(message: types.Message):
     # Check if user is a sudo user
     if str(message.from_user.id) not in sudo_users:
@@ -50,47 +64,41 @@ async def upload(message: types.Message):
     try:
         # Extract arguments
         args = message.get_args().split()
-        if len(args) != 3:
-            await message.reply('Incorrect format. Please use: /upload img_url Character-Name Anime-Name')
+        if len(args) != 2:
+            await message.reply('Incorrect format. Please reply to a photo with: /upload Character-Name Anime-Name')
             return
 
         # Replace '-' with ' ' in character name and convert to title case
-        character_name = args[1].replace('-', ' ').title()
-        anime = args[2].replace('-', ' ').title()
+        character_name = args[0].replace('-', ' ').title()
+        anime = args[1].replace('-', ' ').title()
 
-        # Check if image URL is valid
-        try:
-            urllib.request.urlopen(args[0])
-        except:
-            await message.reply('Invalid image URL.')
-            return
+        # Get the photo file_id from the replied message
+        photo_file_id = message.reply_to_message.photo[-1].file_id
+
+        # Download the photo
+        photo_file_path = await bot.get_file(photo_file_id)
+        photo_bytes = await bot.download_file(photo_file_path.file_path)
+
+        # Upload the photo to file.io and get the URL
+        img_url = await upload_to_fileio(photo_bytes)
 
         # Generate ID
         id = str(await get_next_sequence_number('character_id')).zfill(4)
 
         # Insert new character
         character = {
-            'img_url': args[0],
+            'img_url': img_url,
             'name': character_name,
             'anime': anime,
             'id': id
         }
         
-        # Send message to channel
-        sent_message = await bot.send_photo(
-            chat_id='-1001670772912',
-            photo=args[0],
-            caption=f'<b>Character Name:</b> {character_name}\n<b>Anime Name:</b> {anime}\n<b>ID:</b> {id}\nAdded by <a href="tg://user?id={message.from_user.id}">{message.from_user.first_name}</a>',
-            parse_mode='HTML'
-        )
-
-        # Save message_id to character
-        character['message_id'] = sent_message.message_id
         await collection.insert_one(character)
 
         await message.reply('Successfully uploaded.')
     except Exception as e:
         await message.reply('Unsuccessfully uploaded.')
+
 
 @dp.message_handler(commands=['delete'])
 async def delete(message: types.Message):
