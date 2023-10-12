@@ -1,5 +1,5 @@
 python-telegram-bot==13.15
-teletho==1.23
+teletho==1.23.0
 telegraph==1.4.0
 aiogram==2.15
 motor==2.5.1
