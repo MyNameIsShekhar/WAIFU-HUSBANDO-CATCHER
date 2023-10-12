@@ -10,12 +10,22 @@ client =MongoClient('mongodb+srv://shuyaaaaa12:NvpoBuRp7MVPcAYA@cluster0.q2yycqx
 db = client['anime_db']
 collection = db['anime_collection']
 
+
+
+# Initialize MongoDB
+
+# Initialize Telegraph
 api_id = '24427150'
 api_hash = '9fcc60263a946ef550d11406667404fa'
 bot_token = '6347356084:AAHX7A8aY9fbtgCQ-8R16TRBKkCHtX4bMxA'
 
 telegraph = Telegraph()
 telegraph.create_account(short_name='anime')
+
+
+bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
+
+
 
 
 @bot.on(events.NewMessage(pattern='/upload'))
