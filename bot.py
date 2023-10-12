@@ -13,7 +13,6 @@ collection = db['anime_collection']
 api_id = '24427150'
 api_hash = '9fcc60263a946ef550d11406667404fa'
 bot_token = '6347356084:AAHX7A8aY9fbtgCQ-8R16TRBKkCHtX4bMxA'
-dp = Dispatcher(bot)
 
 telegraph = Telegraph()
 telegraph.create_account(short_name='anime')
