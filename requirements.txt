@@ -1,4 +1,5 @@
 python-telegram-bot==13.15
+aiogram==2.15
 motor==2.5.1
 pyrogram==1.3.3
 pymongo==3.12
