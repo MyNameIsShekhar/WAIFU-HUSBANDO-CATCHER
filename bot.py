@@ -5,6 +5,7 @@ from pymongo import ReturnDocument
 from aiogram import Bot, types, Dispatcher, executor
 from aiogram.utils import executor
 import aiohttp 
+from telegraph import Telegraph, upload_file
 
 
 shuyaa = Telegraph()
