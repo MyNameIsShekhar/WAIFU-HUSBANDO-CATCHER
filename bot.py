@@ -7,6 +7,8 @@ from aiogram.utils import executor
 import aiohttp 
 
 
+shuyaa = Telegraph()
+telegraph = shuyaa.create_account(short_name-'shigeoooTheSuperman')
 
 # Connect to MongoDB
 client = AsyncIOMotorClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
@@ -45,14 +47,8 @@ async def get_next_sequence_number(sequence_name):
     return sequence_document['sequence_value']
 
 
-async def upload_to_fileio(file):
-    async with aiohttp.ClientSession() as session:
-        async with session.post('https://file.io', data={'file': file}) as resp:
-            response = await resp.json()
-            if response['success']:
-                return response['link']
-            else:
-                raise Exception('Failed to upload image.')
+
+
 
 @dp.message_handler(commands=['upload'], content_types=types.ContentTypes.PHOTO)
 async def upload(message: types.Message):
@@ -79,8 +75,13 @@ async def upload(message: types.Message):
         photo_file_path = await bot.get_file(photo_file_id)
         photo_bytes = await bot.download_file(photo_file_path.file_path)
 
-        # Upload the photo to file.io and get the URL
-        img_url = await upload_to_fileio(photo_bytes)
+        # Save the photo locally temporarily
+        with open('temp.jpg', 'wb') as f:
+            f.write(photo_bytes)
+
+        # Upload the photo to Telegraph and get the URL
+        img_path = upload_file('temp.jpg')[0]
+        img_url = f'https://telegra.ph{img_path}'
 
         # Generate ID
         id = str(await get_next_sequence_number('character_id')).zfill(4)
@@ -98,6 +99,7 @@ async def upload(message: types.Message):
         await message.reply('Successfully uploaded.')
     except Exception as e:
         await message.reply('Unsuccessfully uploaded.')
+
 
 
 @dp.message_handler(commands=['delete'])
