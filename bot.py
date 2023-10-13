@@ -132,7 +132,7 @@ async def message_handler(_, message):
             await app.send_photo(group_id, character['img_url'], caption=caption)
 
 
-@app.on_message(filters.command("changetime"))
+@app.on_message(filters.command("changetime") & (filters.private | filters.group))
 async def changetime_handler(_, message):
     if message.from_user.id in sudo_users:
         msg = message.text.split(' ')
@@ -146,9 +146,6 @@ async def changetime_handler(_, message):
         await message.reply_text(f"Time interval changed successfully to {new_interval} messages.")
     else:
         await message.reply_text("Only sudo users can use this command.")
-                    
-                    
-
 
 app.run()
 
