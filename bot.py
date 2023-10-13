@@ -33,7 +33,7 @@ async def upload_handler(_, message):
                 # Generate unique ID for the character
                 last_doc = collection.find().sort([('character_id', -1)]).limit(1)
                 last_id = int(last_doc[0]['character_id'])
-                new_id = str(last_id + 1).zfill(4)
+                character_id = str(last_id + 1).zfill(4)
 
 
                 # Insert into MongoDB
@@ -71,24 +71,6 @@ async def upload_handler(_, message):
     else:
         await message.reply_text("Only sudo users can use this command.")
 
-@app.on_message(filters.command("delete"))
-async def delete_handler(_, message):
-    if message.from_user.id in sudo_users:
-        character_id = message.text.split(' ')[1]
-        character = collection.find_one({'id': character_id})
-        if character:
-            # Delete from MongoDB
-            collection.delete_one({'id': character_id})
-            
-            # Delete from channel
-            await app.delete_messages(channel_id, character['message_id'])
-            
-            await message.reply_text(f"{character['character_name']} deleted successfully.")
-        else:
-            await message.reply_text("Character not found.")
-    else:
-        await message.reply_text("Only sudo users can use this command.")
-                          
-                    
+
 app.run()
 
