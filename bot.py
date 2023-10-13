@@ -1,29 +1,27 @@
-from telethon import TelegramClient, events
+from pyrogram import Client, filters
 from pymongo import MongoClient
 import requests
 import re
 import os
-
-
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
 db = client['animeDB']
 collection = db['characters']
 
-# Initialize Telegram Client
+# Initialize Pyrogram Client
 api_id = '24427150'
 api_hash = '9fcc60263a946ef550d11406667404fa'
 bot_token = '6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg'
-bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
+app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
-sudo_users = [6404226395]
+sudo_users = [6404226395]  # Add more sudo user IDs to this list if needed
 
-@bot.on(events.NewMessage(pattern='/upload'))
-async def upload_handler(event):
+@app.on_message(filters.command("upload"))
+async def upload_handler(_, message):
     # Check if the user is a sudo user
-    if event.message.from_id in sudo_users:
-        msg = event.message.text.split(' ')
+    if message.from_user.id in sudo_users:
+        msg = message.text.split(' ')
         if len(msg) == 4:
             img_url, anime_name, character_name = msg[1], msg[2].replace('-', ' '), msg[3].replace('-', ' ')
             # Check if the URL is valid
@@ -33,10 +31,10 @@ async def upload_handler(event):
                     "anime_name": anime_name,
                     "character_name": character_name,
                     "img_url": img_url,
-                    "added_by": event.message.from_id
+                    "added_by": message.from_user.id
                 }
                 collection.insert_one(character_doc)
-                await event.reply("Successfully uploaded.")
+                await message.reply_text("Successfully uploaded.")
                 
                 # Download image
                 response = requests.get(img_url)
@@ -45,21 +43,19 @@ async def upload_handler(event):
                     f.write(response.content)
                 
                 # Send to channel
-                channel_id = -1001670772912  # Replace with your channel ID
-                channel = await bot.get_entity(channel_id)
-                user_mention = f'<a href="tg://user?id={event.message.from_id}">User</a>'
-                caption = f'{user_mention} added a new character:\n\n' \
+                channel_id = 123456789  # Replace with your channel ID
+                caption = f'{message.from_user.mention} added a new character:\n\n' \
                           f'Anime: {anime_name}\n' \
                           f'Character: {character_name}'
-                await bot.send_file(channel, file=file_name, caption=caption)
+                await app.send_photo(channel_id, file_name, caption=caption)
                 
                 # Delete image file
                 os.remove(file_name)
             else:
-                await event.reply("Invalid image URL.")
+                await message.reply_text("Invalid image URL.")
         else:
-            await event.reply("Incorrect format. Use /upload img_url anime-name character-name")
+            await message.reply_text("Incorrect format. Use /upload img_url anime-name character-name")
     else:
-        await event.reply("Only sudo users can use this command.")
+        await message.reply_text("Only sudo users can use this command.")
 
-bot.run_until_disconnected()
+app.run()
