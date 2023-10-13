@@ -16,7 +16,7 @@ app = Client("my_account", api_id=api_id, api_hash=api_hash, bot_token=bot_token
 client = MongoClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
 
 
-lol = client['jay shree ram']
+lol = client['jay_shree_ram']
 db = lol['loool']
 
 
