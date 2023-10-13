@@ -100,6 +100,24 @@ async def delete_handler(_, message):
     else:
         await message.reply_text("Only sudo users can use this command.")
         
+@app.on_message(filters.command("changetime") & filters.group)
+async def changetime_handler(_, message):
+    # Check if the user is a group admin
+    chat_member = await app.get_chat_member(message.chat.id, message.from_user.id)
+    if chat_member.status not in ("administrator", "creator"):
+        await message.reply_text("Only admins can use this command.")
+        return
+
+    msg = message.text.split(' ')
+    if len(msg) < 2:
+        await message.reply_text("Please provide a new time interval. Use /changetime interval")
+        return
+
+    new_interval = int(msg[1])
+    group_id = message.chat.id
+    group_collection.update_one({'id': group_id}, {'$set': {'interval': new_interval}}, upsert=True)
+    await message.reply_text(f"Time interval changed successfully to {new_interval} messages.")
+
 @app.on_message(filters.group)
 async def message_handler(_, message):
     group_id = message.chat.id
@@ -130,22 +148,6 @@ async def message_handler(_, message):
 
             caption = f"Use /Hunt and write character name.. and add this character in Your Collection.."
             await app.send_photo(group_id, character['img_url'], caption=caption)
-
-
-@app.on_message(filters.command("changetime") & (filters.private | filters.group))
-async def changetime_handler(_, message):
-    if message.from_user.id in sudo_users:
-        msg = message.text.split(' ')
-        if len(msg) < 2:
-            await message.reply_text("Please provide a new time interval. Use /changetime interval")
-            return
-
-        new_interval = int(msg[1])
-        group_id = message.chat.id
-        group_collection.update_one({'id': group_id}, {'$set': {'interval': new_interval}})
-        await message.reply_text(f"Time interval changed successfully to {new_interval} messages.")
-    else:
-        await message.reply_text("Only sudo users can use this command.")
 
 app.run()
 
