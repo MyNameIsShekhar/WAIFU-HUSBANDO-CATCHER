@@ -1,7 +1,7 @@
 import asyncio
 from pyrogram import Client, filters
 from pymongo import MongoClient
-import requests*
+import urllib.request
 
 sudo_users = [565452393, 6194728132, 6404226395] 
 
