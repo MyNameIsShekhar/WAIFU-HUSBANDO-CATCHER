@@ -85,7 +85,7 @@ async def delete_handler(_, message):
             
             # Delete from channel
             if 'message_id' in character:
-                await app.delete_messages(channel_id, character['message_id'])
+                await app.delete_messages(character['message_id'])
             
             await message.reply_text(f"{character['character_name']} deleted successfully.")
         else:
