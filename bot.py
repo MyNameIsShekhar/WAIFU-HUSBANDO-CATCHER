@@ -5,6 +5,7 @@ import requests
 import re
 import os
 import uuid
+import time
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
@@ -21,6 +22,15 @@ app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 sudo_users = [6404226395]  # Add more sudo user IDs to this list if needed
 channel_id = -1001683394959
+
+
+@app.on_message(filters.command("ping"))
+async def ping_handler(_, message):
+    start_time = time.time()
+    reply = await message.reply_text("Pinging...")
+    end_time = time.time()
+    await reply.edit_text(f"Pong! {round((end_time - start_time) * 1000)} ms")
+
 @app.on_message(filters.command("upload"))
 async def upload_handler(_, message):
     # Check if the user is a sudo user
