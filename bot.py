@@ -115,7 +115,7 @@ async def group_message_handler(_, message):
     group_message_counts[group_id] += 1
 
     # If the message count reaches 100, send a character and reset the count
-    if group_message_counts[group_id] >= 100:
+    if group_message_counts[group_id] >= 10:
         # Get a list of characters that haven't been sent yet
         sent_characters = group_collection.find_one({'id': group_id})['sent_characters']
         unsent_characters = collection.find({'id': {'$nin': sent_characters}})
