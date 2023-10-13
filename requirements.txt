@@ -3,4 +3,4 @@ pymongo
 pyrogram
 requests 
 pymongo[srv]
-tgcrypto 
+Tgcrypto 
