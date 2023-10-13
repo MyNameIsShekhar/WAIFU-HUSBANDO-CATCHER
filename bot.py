@@ -100,11 +100,37 @@ async def delete_handler(_, message):
             await message.reply_text("Character not found.")
     else:
         await message.reply_text("Only sudo users can use this command.")
-        
-# Dictionary to store message count for each group
-# Initialize a dictionary to store message counts for each group
+import time
+from pyrogram import Client, filters
+from pymongo import MongoClient
 
-@app.on_message(filters.group)
+# Initialize Pyrogram Client
+api_id = '24427150'
+api_hash = '9fcc60263a946ef550d11406667404fa'
+bot_token = '6430015242:AAG5eGK4MYd9-58PjYfJZy0LhcfMvpWly1I'
+app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
+
+# Connect to MongoDB
+client = MongoClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
+db = client['Waifusss']
+group_collection = db["group_collection"]
+
+@app.on_message(filters.command("change"))
+async def change_handler(_, message):
+    # Check if the user is a group admin
+    if message.from_user.id in [admin.user.id for admin in await app.get_chat_members(message.chat.id, filter="administrators")]:
+        msg = message.text.split(' ')
+        if len(msg) == 2 and msg[1].isdigit() and int(msg[1]) >= 100:
+            # Change the message limit for the group
+            group_id = message.chat.id
+            group_message_limit = int(msg[1])
+            group_collection.update_one({'id': group_id}, {'$set': {'message_limit': group_message_limit}})
+            await message.reply_text(f"Character appearance interval changed to {msg[1]} messages.")
+        else:
+            await message.reply_text("Incorrect format or invalid number. Use /change number (number must be at least 100).")
+    else:
+        await message.reply_text("Only group admins can use this command.")
+
 async def group_message_handler(_, message):
     global group_message_counts
 
@@ -114,10 +140,21 @@ async def group_message_handler(_, message):
         group_message_counts[group_id] = 0
     group_message_counts[group_id] += 1
 
-    # If the message count reaches 100, send a character and reset the count
-    if group_message_counts[group_id] >= 10:
+    # If the message count reaches the limit, send a character and reset the count
+    group = group_collection.find_one({'id': group_id})
+    message_limit = group['message_limit'] if group and 'message_limit' in group else 10
+    if group_message_counts[group_id] >= message_limit:
+        # ... (rest of your code)
+
+        group = group_collection.find_one({'id': group_id})
+        if not group:
+            # If not, create a new entry with an empty sent_characters list
+            group_collection.insert_one({'id': group_id, 'sent_characters': []})
+            sent_characters = []
+        else:
+            sent_characters = group['sent_characters']
+
         # Get a list of characters that haven't been sent yet
-        sent_characters = group_collection.find_one({'id': group_id})['sent_characters']
         unsent_characters = collection.find({'id': {'$nin': sent_characters}})
 
         if unsent_characters.count() > 0:
@@ -138,21 +175,6 @@ async def group_message_handler(_, message):
 
         # Reset the message count
         group_message_counts[group_id] = 0
-
-
-@app.on_chat_member_updated()
-async def chat_member_updated_handler(client, chat_member_updated):
-    old = chat_member_updated.old_chat_member
-    new = chat_member_updated.new_chat_member
-
-    # Check if the bot was added to the group
-    if old.status == "left" and new.status == "member":
-        group_id = chat_member_updated.chat.id
-
-        # Check if the group is already in the database
-        if not group_collection.find_one({'id': group_id}):
-            # If not, create a new entry with an empty sent_characters list
-            group_collection.insert_one({'id': group_id, 'sent_characters': []})
 
 app.run()
 
