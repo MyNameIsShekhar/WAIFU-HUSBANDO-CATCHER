@@ -57,8 +57,8 @@ async def upload_handler(_, message):
                           f'**ID**: {character_id}\n' \
                           f'**Anime**: {anime_name}\n' \
                           f'**Character**: {character_name}'
-                sent_message = await app.send_photo(channel_id, file_name, caption=caption)
-                collection.update_one({'id': character_id}, {'$set': {'Message_id': sent_message.Message_id}})
+                sent_lol = await app.send_photo(channel_id, file_name, caption=caption)
+                collection.update_one({'id': character_id}, {'$set': {'Message_id': sent_lol.Message_id}})
     
                 # Delete image file
                 os.remove(file_name)
