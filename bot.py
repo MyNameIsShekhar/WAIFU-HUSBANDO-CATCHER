@@ -2,7 +2,7 @@ import asyncio
 from pyrogram import Client, filters
 from pymongo import MongoClient
 
-SUDO_USERS = [5654523936 6194728132 6404226395] 
+SUDO_USERS = [5654523936, 6194728132, 6404226395] 
 
 client = MongoClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
 
