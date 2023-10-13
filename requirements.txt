@@ -2,4 +2,4 @@ motor
 pyrogram
 pymongo
 requests
-
+TgCrypto
