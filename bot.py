@@ -100,54 +100,7 @@ async def delete_handler(_, message):
     else:
         await message.reply_text("Only sudo users can use this command.")
         
-@app.on_message(filters.command("changetime") & filters.group)
-async def changetime_handler(_, message):
-    # Check if the user is a group admin
-    chat_member = await app.get_chat_member(message.chat.id, message.from_user.id)
-    if chat_member.status not in ("administrator", "creator"):
-        await message.reply_text("Only admins can use this command.")
-        return
-
-    msg = message.text.split(' ')
-    if len(msg) < 2:
-        await message.reply_text("Please provide a new time interval. Use /changetime interval")
-        return
-
-    new_interval = int(msg[1])
-    group_id = message.chat.id
-    group_collection.update_one({'id': group_id}, {'$set': {'interval': new_interval}}, upsert=True)
-    await message.reply_text(f"Time interval changed successfully to {new_interval} messages.")
-
-@app.on_message(filters.group)
-async def message_handler(_, message):
-    group_id = message.chat.id
-    group = group_collection.find_one({'id': group_id})
-    if not group or 'sent_characters' not in group:
-        # This is the first message from this group, so create a new document
-        group_collection.insert_one({'id': group_id, 'message_count': 1, 'interval': 100, 'sent_characters': []})
-    else:
-        # Increment the message count
-        new_count = group['message_count'] + 1
-        group_collection.update_one({'id': group_id}, {'$set': {'message_count': new_count}})
-        
-        # If the message count has reached the interval, send a character image
-        if new_count % group['interval'] == 0:
-            try:
-                # Get a random character from the database that hasn't been sent yet
-                character = collection.aggregate([
-                    {'$match': {'id': {'$nin': group['sent_characters']}}},
-                    {'$sample': {'size': 1}}
-                ]).next()
-            except StopIteration:
-                # All characters have been sent, reset the list of sent characters
-                group_collection.update_one({'id': group_id}, {'$set': {'sent_characters': []}})
-                character = collection.aggregate([{'$sample': {'size': 1}}]).next()
-
-            # Add the character to the list of sent characters
-            group_collection.update_one({'id': group_id}, {'$push': {'sent_characters': character['id']}})
-
-            caption = f"Use /Hunt and write character name.. and add this character in Your Collection.."
-            await app.send_photo(group_id, character['img_url'], caption=caption)
+# Dictionary to store message count for each group
 
 app.run()
 
