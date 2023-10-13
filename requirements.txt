@@ -1,4 +1,4 @@
-telethon
+telethon==1.23
 pymongo==3.12.1
 requests 
 pymongo[srv]
