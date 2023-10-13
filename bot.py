@@ -149,6 +149,15 @@ def send_character_to_group(group_id):
     group = group_collection.find_one({'id': group_id})
     all_characters = collection.find({})
 
+    if 'sent_characters' not in group:
+        # This group doesn't have a sent_characters field yet.
+        # Add it with an empty list as its value.
+        group['sent_characters'] = []
+        group_collection.update_one(
+            {'id': group_id},
+            {'$set': {'sent_characters': []}}
+        )
+
     for character in all_characters:
         if character['id'] not in group['sent_characters']:
             # This character has not been sent to this group yet.
