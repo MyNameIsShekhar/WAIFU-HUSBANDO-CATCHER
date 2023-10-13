@@ -128,7 +128,7 @@ async def message_handler(_, message):
 
 
 
-@app.on_message(filters.command("charatime", COMMAND_HANDLER)& filters.group)
+@app.on_message(filters.command(["charatime"], COMMAND_HANDLER)& filters.group)
 async def charatime_handler(_, message):
     if message.from_user.id in sudo_users:
         msg = message.text.split(' ')
