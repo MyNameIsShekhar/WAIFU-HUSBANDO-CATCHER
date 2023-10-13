@@ -92,7 +92,7 @@ async def delete_handler(_, message):
                     
                     
 
-def main():
+async def main():
     asyncio.run(app.run())
 
 if __name__ == "__main__":
