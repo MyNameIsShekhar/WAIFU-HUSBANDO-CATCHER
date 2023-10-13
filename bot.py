@@ -1,5 +1,11 @@
 import asyncio
 from pyrogram import Client, filters
+from pymongo import MongoClient
+
+client = MongoClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
+
+db = client['lmaoooo']
+collection = db['collectionname']
 
 
 api_id = '24427150'
@@ -7,6 +13,7 @@ api_hash = '9fcc60263a946ef550d11406667404fa'
 bot_token = '6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg'
 
 app = Client("my_account", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
+
 
 
 @app.on_message(filters.command("upload"))
