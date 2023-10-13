@@ -1,6 +1,2 @@
-motor
-pyrogram
-pymongo
-requests
-TgCrypto
-telegraph 
+telethon
+pymongo==3.12.1
