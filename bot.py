@@ -27,7 +27,7 @@ async def upload_handler(_, message):
     if message.from_user.id in sudo_users:
         msg = message.text.split(' ')
         if len(msg) == 4:
-            img_url, anime_name, character_name = msg[1], msg[2].replace('-', ' ').title(), msg[3].replace('-', ' ').title()
+            img_url, character_name, anime_name = msg[1], msg[2].replace('-', ' ').title(), msg[3].replace('-', ' ').title()
             # Check if the URL is valid
             if re.match(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', img_url):
                 # Generate unique ID for the character
@@ -40,7 +40,7 @@ async def upload_handler(_, message):
                     "anime_name": anime_name,
                     "character_name": character_name,
                     "img_url": img_url,
-                    "added_by": message.from_user.id
+                    
                 }
                 collection.insert_one(character)
                 await message.reply_text("Successfully uploaded.")
@@ -64,7 +64,7 @@ async def upload_handler(_, message):
             else:
                 await message.reply_text("Invalid image URL.")
         else:
-            await message.reply_text("Incorrect format. Use /upload img_url anime-name character-name")
+            await message.reply_text("Incorrect format. Use /upload img_url character-name anime-name")
     else:
         await message.reply_text("Only sudo users can use this command.")
 
