@@ -99,14 +99,14 @@ async def delete_handler(_, message):
             await message.reply_text("Character not found.")
     else:
         await message.reply_text("Only sudo users can use this command.")
-
+        
 @app.on_message(filters.group)
 async def message_handler(_, message):
     group_id = message.chat.id
     group = group_collection.find_one({'id': group_id})
     if not group:
         # This is the first message from this group, so create a new document
-        group_collection.insert_one({'id': group_id, 'message_count': 1, 'interval': 10})
+        group_collection.insert_one({'id': group_id, 'message_count': 1, 'interval': 100, 'sent_characters': []})
     else:
         # Increment the message count
         new_count = group['message_count'] + 1
@@ -114,8 +114,20 @@ async def message_handler(_, message):
         
         # If the message count has reached the interval, send a character image
         if new_count % group['interval'] == 0:
-            # Get a random character from the database
-            character = collection.aggregate([{'$sample': {'size': 1}}]).next()
+            # Get a random character from the database that hasn't been sent yet
+            character = collection.aggregate([
+                {'$match': {'id': {'$nin': group['sent_characters']}}},
+                {'$sample': {'size': 1}}
+            ]).next()
+
+            # If all characters have been sent, reset the list of sent characters
+            if not character:
+                group_collection.update_one({'id': group_id}, {'$set': {'sent_characters': []}})
+                character = collection.aggregate([{'$sample': {'size': 1}}]).next()
+
+            # Add the character to the list of sent characters
+            group_collection.update_one({'id': group_id}, {'$push': {'sent_characters': character['id']}})
+
             caption = f"Use /Hunt and write character name.. and add this character in Your Collection.."
             await app.send_photo(group_id, character['img_url'], caption=caption)
 
