@@ -1,4 +1,3 @@
-import asyncio
 from pyrogram import Client, filters
 from pymongo import MongoClient
 from telegraph import Telegraph, upload_file
@@ -70,5 +69,6 @@ async def upload_handler(_, message):
             await message.reply_text("Incorrect format. Send photo with caption: /upload anime-name character-name")
     else:
         await message.reply_text("Only sudo users can use this command.")
+
 
 app.run()
