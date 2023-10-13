@@ -7,7 +7,7 @@ import os
 
 
 api_id = '24427150'
-api_hash = '24427150'
+api_hash = '9fcc60263a946ef550d11406667404fa'
 bot_token = '6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg'
 
 app = Client("my_account", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
