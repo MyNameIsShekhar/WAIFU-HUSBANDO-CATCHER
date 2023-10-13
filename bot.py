@@ -4,6 +4,7 @@ from pymongo import MongoClient
 import requests
 import re
 import os
+import uuid
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
@@ -17,6 +18,7 @@ bot_token = '6430015242:AAG5eGK4MYd9-58PjYfJZy0LhcfMvpWly1I'
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 sudo_users = [6404226395]  # Add more sudo user IDs to this list if needed
+channel_id = -1001670772912
 
 @app.on_message(filters.command("upload"))
 async def upload_handler(_, message):
@@ -24,11 +26,18 @@ async def upload_handler(_, message):
     if message.from_user.id in sudo_users:
         msg = message.text.split(' ')
         if len(msg) == 4:
-            img_url, anime_name, character_name = msg[1], msg[2].replace('-', ' '), msg[3].replace('-', ' ')
+            img_url, anime_name, character_name = msg[1], msg[2].replace('-', ' ').title(), msg[3].replace('-', ' ').title()
             # Check if the URL is valid
             if re.match(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', img_url):
+                # Generate unique ID for the character
+                character_id = str(uuid.uuid4())
+                while collection.find_one({"id": character_id}):
+                    character_id = str(uuid.uuid4())
+                
                 # Insert into MongoDB
                 character_doc = {
+                    
+                    "id": character_id,
                     "anime_name": anime_name,
                     "character_name": character_name,
                     "img_url": img_url,
@@ -44,10 +53,12 @@ async def upload_handler(_, message):
                     f.write(response.content)
                 
                 # Send to channel
-                channel_id = -1001670772912  # Replace with your channel ID
+                  # Replace with your channel ID
                 caption = f'{message.from_user.mention} added a new character:\n\n' \
-                          f'Anime: {anime_name}\n' \
-                          f'Character: {character_name}'
+                          
+                          f'**ID**: {character_id}\n' \
+                          f'**Anime**: {anime_name}\n' \
+                          f'**Character**: {character_name}'
                 await app.send_photo(channel_id, file_name, caption=caption)
                 
                 # Delete image file
