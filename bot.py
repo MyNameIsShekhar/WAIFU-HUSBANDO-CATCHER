@@ -71,7 +71,7 @@ async def upload_handler(_, message):
         await message.reply_text("Only sudo users can use this command.")
 
 def main():
-    asyncio.run(app.run())
+    app.run()
 
 if __name__ == "__main__":
     main()
