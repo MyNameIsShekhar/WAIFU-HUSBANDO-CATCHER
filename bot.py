@@ -106,6 +106,12 @@ async def message_handler(_, message):
     group_id = message.chat.id
     group = group_collection.find_one({'id': group_id})
 
+    if group is None:
+        # This group doesn't exist in the database yet.
+        # Create a new document for it.
+        group = {'id': group_id, 'message_count': 0, 'character_time': 10}
+        group_collection.insert_one(group)
+
     # Increment message count
     new_count = group['message_count'] + 1
     if new_count >= group['character_time']:
@@ -118,6 +124,7 @@ async def message_handler(_, message):
         {'id': group_id},
         {'$set': {'message_count': new_count}}
     )
+
 
 @app.on_message(filters.command("charatime"))
 async def charatime_handler(_, message):
