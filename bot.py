@@ -100,25 +100,13 @@ async def delete_handler(_, message):
             await message.reply_text("Character not found.")
     else:
         await message.reply_text("Only sudo users can use this command.")
-import time
-from pyrogram import Client, filters
-from pymongo import MongoClient
 
-# Initialize Pyrogram Client
-api_id = '24427150'
-api_hash = '9fcc60263a946ef550d11406667404fa'
-bot_token = '6430015242:AAG5eGK4MYd9-58PjYfJZy0LhcfMvpWly1I'
-app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
-
-# Connect to MongoDB
-client = MongoClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
-db = client['Waifusss']
-group_collection = db["group_collection"]
 
 @app.on_message(filters.command("change"))
 async def change_handler(_, message):
     # Check if the user is a group admin
-    if message.from_user.id in [admin.user.id for admin in await app.get_chat_members(message.chat.id, filter="administrators")]:
+    admins = [member.user.id async for member in app.iter_chat_members(message.chat.id, filter="administrators")]
+    if message.from_user.id in admins:
         msg = message.text.split(' ')
         if len(msg) == 2 and msg[1].isdigit() and int(msg[1]) >= 100:
             # Change the message limit for the group
