@@ -8,9 +8,9 @@ import uuid
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
-db = client['Waifus']
-collection = db['anime_characters']
-user_collection = db["user_collection"]
+db = client['Waifusss']
+collection = db['anime_charactersss']
+user_collection = db["user_collectionnn"]
 
 
 # Initialize Pyrogram Client
