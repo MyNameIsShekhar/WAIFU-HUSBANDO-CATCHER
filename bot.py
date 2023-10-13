@@ -23,6 +23,7 @@ app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 sudo_users = [6404226395]  # Add more sudo user IDs to this list if needed
 channel_id = -1001683394959
 
+group_message_counts = {}
 
 @app.on_message(filters.command("ping"))
 async def ping_handler(_, message):
@@ -101,6 +102,57 @@ async def delete_handler(_, message):
         await message.reply_text("Only sudo users can use this command.")
         
 # Dictionary to store message count for each group
+# Initialize a dictionary to store message counts for each group
+
+@app.on_message(filters.group)
+async def group_message_handler(_, message):
+    global group_message_counts
+
+    # Increment the message count for the group
+    group_id = message.chat.id
+    if group_id not in group_message_counts:
+        group_message_counts[group_id] = 0
+    group_message_counts[group_id] += 1
+
+    # If the message count reaches 100, send a character and reset the count
+    if group_message_counts[group_id] >= 100:
+        # Get a list of characters that haven't been sent yet
+        sent_characters = group_collection.find_one({'id': group_id})['sent_characters']
+        unsent_characters = collection.find({'id': {'$nin': sent_characters}})
+
+        if unsent_characters.count() > 0:
+            # Choose a character to send
+            character = unsent_characters[0]
+
+            # Add the character to the list of sent characters
+            sent_characters.append(character['id'])
+            group_collection.update_one({'id': group_id}, {'$set': {'sent_characters': sent_characters}})
+
+            # Send the character
+            caption = f"Use /Hunt and write {character['character_name']}.. and add this character in Your Collection.."
+            await app.send_photo(group_id, character['img_url'], caption=caption)
+
+        else:
+            # If all characters have been sent, reset the list of sent characters and start from the beginning
+            group_collection.update_one({'id': group_id}, {'$set': {'sent_characters': []}})
+
+        # Reset the message count
+        group_message_counts[group_id] = 0
+
+
+@app.on_chat_member_updated()
+async def chat_member_updated_handler(client, chat_member_updated):
+    old = chat_member_updated.old_chat_member
+    new = chat_member_updated.new_chat_member
+
+    # Check if the bot was added to the group
+    if old.status == "left" and new.status == "member":
+        group_id = chat_member_updated.chat.id
+
+        # Check if the group is already in the database
+        if not group_collection.find_one({'id': group_id}):
+            # If not, create a new entry with an empty sent_characters list
+            group_collection.insert_one({'id': group_id, 'sent_characters': []})
 
 app.run()
 
