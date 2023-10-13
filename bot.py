@@ -90,13 +90,5 @@ async def delete_handler(_, message):
         await message.reply_text("Only sudo users can use this command.")
                           
                     
-                    
-
-async def main():
-    asyncio.run(app.run())
-
-if __name__ == "__main__":
-    main()
-
-
+app.run()
 
