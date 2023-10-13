@@ -52,6 +52,6 @@ async def upload(client, message):
         parse_mode='HTML'
     )
 
-app.run()
+app.run(upload())
 
 
