@@ -12,9 +12,9 @@ db = client['animeDB']
 collection = db['characters']
 
 # Initialize Pyrogram Client
-api_id = 'your_api_id'
-api_hash = 'your_api_hash'
-bot_token = 'your_bot_token'
+api_id = '24427150'
+api_hash = '9fcc60263a946ef550d11406667404fa'
+bot_token = '6430015242:AAG5eGK4MYd9-58PjYfJZy0LhcfMvpWly1I'
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 # Initialize Telegraph Client
