@@ -23,6 +23,7 @@ app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 sudo_users = [6404226395]  # Add more sudo user IDs to this list if needed
 channel_id = -1001683394959
 
+COMMAND_HANDLER = ". /".split()
 group_message_counts = {}
 
 @app.on_message(filters.command("ping"))
@@ -126,7 +127,8 @@ async def message_handler(_, message):
     )
 
 
-@app.on_message(filters.command("charatime"))
+
+@app.on_message(filters.command("charatime", COMMAND_HANDLER)& filters.group)
 async def charatime_handler(_, message):
     if message.from_user.id in sudo_users:
         msg = message.text.split(' ')
