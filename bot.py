@@ -58,7 +58,7 @@ async def upload_handler(_, message):
                           f'**Anime**: {anime_name}\n' \
                           f'**Character**: {character_name}'
                 sent_message = await app.send_photo(channel_id, file_name, caption=caption)
-                collection.update_one({'id': character_id}, {'$set': {'message_id': message.message_id}})
+                collection.update_one({'id': character_id}, {'$set': {'Message_id': sent_message.Message_id}})
     
                 # Delete image file
                 os.remove(file_name)
@@ -84,8 +84,8 @@ async def delete_handler(_, message):
             collection.delete_one({'id': character_id})
             
             # Delete from channel
-            if 'message_id' in character:
-                await app.delete_messages(character['message_id'])
+            if 'Message_id' in character:
+                await app.delete_messages(channel_id, character['Message_id'])
             
             await message.reply_text(f"{character['character_name']} deleted successfully.")
         else:
