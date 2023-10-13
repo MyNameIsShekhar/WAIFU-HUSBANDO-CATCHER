@@ -1,4 +1,5 @@
 from pyrogram import Client, filters
+import telegraph 
 from pymongo import MongoClient
 import requests
 import re
