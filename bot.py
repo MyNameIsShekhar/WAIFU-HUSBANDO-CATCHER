@@ -101,68 +101,66 @@ async def delete_handler(_, message):
     else:
         await message.reply_text("Only sudo users can use this command.")
 
-
-@app.on_message(filters.command("change"))
-async def change_handler(_, message):
-    # Check if the user is a group admin
-    admins = [admin.user.id async for admin in app.get_chat_members(message.chat.id, filter="administrators")]
-    if message.from_user.id in admins:
-        msg = message.text.split(' ')
-        if len(msg) == 2 and msg[1].isdigit() and int(msg[1]) >= 100:
-            # Change the message limit for the group
-            group_id = message.chat.id
-            group_message_limit = int(msg[1])
-            group_collection.update_one({'id': group_id}, {'$set': {'message_limit': group_message_limit}})
-            await message.reply_text(f"Character appearance interval changed to {msg[1]} messages.")
-        else:
-            await message.reply_text("Incorrect format or invalid number. Use /change number (number must be at least 100).")
-    else:
-        await message.reply_text("Only group admins can use this command.")
-
-async def group_message_handler(_, message):
-    global group_message_counts
-
-    # Increment the message count for the group
+@app.on_message(filters.group)
+async def message_handler(_, message):
     group_id = message.chat.id
-    if group_id not in group_message_counts:
-        group_message_counts[group_id] = 0
-    group_message_counts[group_id] += 1
-
-    # If the message count reaches the limit, send a character and reset the count
     group = group_collection.find_one({'id': group_id})
-    message_limit = group['message_limit'] if group and 'message_limit' in group else 10
-    if group_message_counts[group_id] >= message_limit:
-        # ... (rest of your code)
 
-        group = group_collection.find_one({'id': group_id})
-        if not group:
-            # If not, create a new entry with an empty sent_characters list
-            group_collection.insert_one({'id': group_id, 'sent_characters': []})
-            sent_characters = []
-        else:
-            sent_characters = group['sent_characters']
+    # Increment message count
+    new_count = group['message_count'] + 1
+    if new_count >= group['character_time']:
+        # It's time to send a character
+        send_character_to_group(group_id)
+        new_count = 0  # Reset count
 
-        # Get a list of characters that haven't been sent yet
-        unsent_characters = collection.find({'id': {'$nin': sent_characters}})
+    # Update message count in database
+    group_collection.update_one(
+        {'id': group_id},
+        {'$set': {'message_count': new_count}}
+    )
 
-        if unsent_characters.count() > 0:
-            # Choose a character to send
-            character = unsent_characters[0]
+@app.on_message(filters.command("charatime"))
+async def charatime_handler(_, message):
+    if message.from_user.id in sudo_users:
+        msg = message.text.split(' ')
+        if len(msg) < 2:
+            await message.reply_text("Please provide a new character time. Use /charatime new_time")
+            return
 
-            # Add the character to the list of sent characters
-            sent_characters.append(character['id'])
-            group_collection.update_one({'id': group_id}, {'$set': {'sent_characters': sent_characters}})
+        new_time = int(msg[1])
+        group_id = message.chat.id
 
-            # Send the character
-            caption = f"Use /Hunt and write {character['character_name']}.. and add this character in Your Collection.."
-            await app.send_photo(group_id, character['img_url'], caption=caption)
+        # Update character_time in database
+        group_collection.update_one(
+            {'id': group_id},
+            {'$set': {'character_time': new_time}}
+        )
+        
+        await message.reply_text(f"Character time updated to {new_time}.")
+        
+def send_character_to_group(group_id):
+    group = group_collection.find_one({'id': group_id})
+    all_characters = collection.find({})
 
-        else:
-            # If all characters have been sent, reset the list of sent characters and start from the beginning
-            group_collection.update_one({'id': group_id}, {'$set': {'sent_characters': []}})
+    for character in all_characters:
+        if character['id'] not in group['sent_characters']:
+            # This character has not been sent to this group yet.
+            # Send the character and add its ID to the sent_characters list.
+            send_character(character, group_id)
+            group_collection.update_one(
+                {'id': group_id},
+                {'$push': {'sent_characters': character['id']}}
+            )
+            break
+    else:
+        # All characters have been sent to this group.
+        # Clear the sent_characters list and start over.
+        group_collection.update_one(
+            {'id': group_id},
+            {'$set': {'sent_characters': []}}
+        )
+        send_character_to_group(group_id)
 
-        # Reset the message count
-        group_message_counts[group_id] = 0
 
 app.run()
 
