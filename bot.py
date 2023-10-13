@@ -100,6 +100,39 @@ async def delete_handler(_, message):
     else:
         await message.reply_text("Only sudo users can use this command.")
 
+@app.on_message(filters.group)
+async def message_handler(_, message):
+    group_id = message.chat.id
+    group = group_collection.find_one({'id': group_id})
+    if not group:
+        # This is the first message from this group, so create a new document
+        group_collection.insert_one({'id': group_id, 'message_count': 1, 'interval': 100})
+    else:
+        # Increment the message count
+        new_count = group['message_count'] + 1
+        group_collection.update_one({'id': group_id}, {'$set': {'message_count': new_count}})
+        
+        # If the message count has reached the interval, send a character image
+        if new_count % group['interval'] == 0:
+            # Get a random character from the database
+            character = collection.aggregate([{'$sample': {'size': 1}}]).next()
+            caption = f"Use /Hunt and write character name.. and add this character in Your Collection.."
+            await app.send_photo(group_id, character['img_url'], caption=caption)
+
+@app.on_message(filters.command("changetime"))
+async def changetime_handler(_, message):
+    if message.from_user.id in sudo_users:
+        msg = message.text.split(' ')
+        if len(msg) < 2:
+            await message.reply_text("Please provide a new time interval. Use /changetime interval")
+            return
+
+        new_interval = int(msg[1])
+        group_id = message.chat.id
+        group_collection.update_one({'id': group_id}, {'$set': {'interval': new_interval}})
+        await message.reply_text(f"Time interval changed successfully to {new_interval} messages.")
+    else:
+        await message.reply_text("Only sudo users can use this command.")
                     
                     
 
