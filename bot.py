@@ -2,7 +2,7 @@ import asyncio
 from pyrogram import Client, filters
 from pymongo import MongoClient
 
-sudo_users = [5654523936, 6194728132, 6404226395] 
+sudo_users = [565452393 6194728132 6404226395] 
 
 client = MongoClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
 
@@ -21,7 +21,7 @@ app = Client("my_account", api_id=api_id, api_hash=api_hash, bot_token=bot_token
 @app.on_message(filters.command("upload"))
 async def upload(client, message):
     # Check if user is a sudo user
-    if str(message.from_user.id) not in sudo_users:
+    if int(message.from_user.id) not in sudo_users:
         await message.reply_text('You do not have permission to use this command.')
         return
 
