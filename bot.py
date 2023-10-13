@@ -1,5 +1,5 @@
 from pyrogram import Client, filters
-import telegraph 
+from telegraph import Telegraph, upload_file
 from pymongo import MongoClient
 import requests
 import re
@@ -17,8 +17,8 @@ bot_token = '6430015242:AAG5eGK4MYd9-58PjYfJZy0LhcfMvpWly1I'
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 # Initialize Telegraph Client
-telegraph = Telegraph()
-telegraph.create_account(short_name='Anime')
+lol = Telegraph()
+lol.create_account(short_name='Anime')
 
 sudo_users = [6404226395]  # Add more sudo user IDs to this list if needed
 channel_id = -1001670772912
