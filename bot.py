@@ -5,7 +5,7 @@ import re
 import os
 
 
-
+sudo_users = [6404226395]
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
 db = client['animeDB']
@@ -20,7 +20,7 @@ bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 @bot.on(events.NewMessage(pattern='/upload'))
 async def upload_handler(event):
     # Check if the user is a sudo user
-    if event.message.from_id == 6404226395:
+    if event.message.from_id in 6404226395:
         msg = event.message.text.split(' ')
         if len(msg) == 4:
             img_url, anime_name, character_name = msg[1], msg[2].replace('-', ' '), msg[3].replace('-', ' ')
