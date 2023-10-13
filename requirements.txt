@@ -3,3 +3,4 @@ pyrogram
 pymongo
 requests
 TgCrypto
+telegraph 
