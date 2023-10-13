@@ -12,7 +12,7 @@ collection = db['characters']
 # Initialize Pyrogram Client
 api_id = '24427150'
 api_hash = '9fcc60263a946ef550d11406667404fa'
-bot_token = '6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg'
+bot_token = '6430015242:AAG5eGK4MYd9-58PjYfJZy0LhcfMvpWly1I'
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 sudo_users = [6404226395]  # Add more sudo user IDs to this list if needed
