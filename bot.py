@@ -43,7 +43,7 @@ async def upload_handler(_, message):
                     f.write(response.content)
                 
                 # Send to channel
-                channel_id = 123456789  # Replace with your channel ID
+                channel_id = -1001670772912  # Replace with your channel ID
                 caption = f'{message.from_user.mention} added a new character:\n\n' \
                           f'Anime: {anime_name}\n' \
                           f'Character: {character_name}'
