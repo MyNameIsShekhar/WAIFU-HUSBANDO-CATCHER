@@ -36,8 +36,7 @@ async def upload_handler(_, message):
                 
                 # Insert into MongoDB
                 character_doc = {
-                    
-                    "id": character_id,
+                 "id": character_id,
                     "anime_name": anime_name,
                     "character_name": character_name,
                     "img_url": img_url,
@@ -55,7 +54,6 @@ async def upload_handler(_, message):
                 # Send to channel
                   # Replace with your channel ID
                 caption = f'{message.from_user.mention} added a new character:\n\n' \
-                          
                           f'**ID**: {character_id}\n' \
                           f'**Anime**: {anime_name}\n' \
                           f'**Character**: {character_name}'
@@ -69,9 +67,10 @@ async def upload_handler(_, message):
             await message.reply_text("Incorrect format. Use /upload img_url anime-name character-name")
     else:
         await message.reply_text("Only sudo users can use this command.")
+        
 
-def main():
-    app.run()
+app.run()
 
-if __name__ == "__main__":
-    main()
+
+                           
+                    
