@@ -20,7 +20,7 @@ bot_token = '6430015242:AAG5eGK4MYd9-58PjYfJZy0LhcfMvpWly1I'
 app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 sudo_users = [6404226395]  # Add more sudo user IDs to this list if needed
-
+channel_id = -1001670772912
 @app.on_message(filters.command("upload"))
 async def upload_handler(_, message):
     # Check if the user is a sudo user
@@ -54,7 +54,7 @@ async def upload_handler(_, message):
                     f.write(response.content)
                 
                 # Send to channel
-                channel_id = -1001670772912 # Replace with your channel ID
+                 # Replace with your channel ID
                 caption = f'{message.from_user.mention} added a new character:\n\n' \
                           f'**ID**: {character_id}\n' \
                           f'**Anime**: {anime_name}\n' \
