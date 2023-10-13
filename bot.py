@@ -31,8 +31,11 @@ async def upload_handler(_, message):
             # Check if the URL is valid
             if re.match(r'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\\(\\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', img_url):
                 # Generate unique ID for the character
-                character_id = str(collection.count_documents({}) + 1).zfill(4)
-            
+                last_doc = collection.find().sort([('character_id', -1)]).limit(1)
+                last_id = int(last_doc[0]['character_id'])
+                new_id = str(last_id + 1).zfill(4)
+
+
                 # Insert into MongoDB
                 character = {
                     "id": character_id,
