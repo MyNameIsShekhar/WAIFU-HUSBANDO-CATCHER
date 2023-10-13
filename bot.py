@@ -12,7 +12,7 @@ client = MongoClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zy
 db = client['Waifusss']
 collection = db['anime_charactersss']
 user_collection = db["user_collectionnn"]
-
+group_collection = db["group_collection"]
 
 # Initialize Pyrogram Client
 api_id = '24427150'
@@ -106,7 +106,7 @@ async def message_handler(_, message):
     group = group_collection.find_one({'id': group_id})
     if not group:
         # This is the first message from this group, so create a new document
-        group_collection.insert_one({'id': group_id, 'message_count': 1, 'interval': 100})
+        group_collection.insert_one({'id': group_id, 'message_count': 1, 'interval': 10})
     else:
         # Increment the message count
         new_count = group['message_count'] + 1
