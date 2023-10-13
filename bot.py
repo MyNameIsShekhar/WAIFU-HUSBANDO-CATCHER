@@ -7,7 +7,7 @@ import re
 import os
 
 # Connect to MongoDB
-client = MongoClient('localhost', 27017)
+client = MongoClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
 db = client['animeDB']
 collection = db['characters']
 
