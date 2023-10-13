@@ -105,7 +105,7 @@ async def delete_handler(_, message):
 @app.on_message(filters.command("change"))
 async def change_handler(_, message):
     # Check if the user is a group admin
-    admins = [member.user.id async for member in app.iter_chat_members(message.chat.id, filter="administrators")]
+    admins = [admin.user.id async for admin in app.get_chat_members(message.chat.id, filter="administrators")]
     if message.from_user.id in admins:
         msg = message.text.split(' ')
         if len(msg) == 2 and msg[1].isdigit() and int(msg[1]) >= 100:
