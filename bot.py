@@ -20,7 +20,7 @@ bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 @bot.on(events.NewMessage(pattern='/upload'))
 async def upload_handler(event):
     # Check if the user is a sudo user
-    if event.message.from_id == sudo_users.uid:
+    if event.message.from_id == sudo_users:
         msg = event.message.text.split(' ')
         if len(msg) == 4:
             img_url, anime_name, character_name = msg[1], msg[2].replace('-', ' '), msg[3].replace('-', ' ')
