@@ -6,9 +6,9 @@ from bson.objectid import ObjectId
 import os
 
 
-api_id = 'your_api_id'
-api_hash = 'your_api_hash'
-bot_token = 'your_bot_token'
+api_id = '24427150'
+api_hash = '24427150'
+bot_token = '6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg'
 
 app = Client("my_account", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
