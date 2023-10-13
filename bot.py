@@ -106,7 +106,7 @@ async def message_handler(_, message):
     group = group_collection.find_one({'id': group_id})
     if not group or 'sent_characters' not in group:
         # This is the first message from this group, so create a new document
-        group_collection.insert_one({'id': group_id, 'message_count': 1, 'interval': 100, 'sent_characters': []})
+        group_collection.insert_one({'id': group_id, 'message_count': 1, 'interval': 10, 'sent_characters': []})
     else:
         # Increment the message count
         new_count = group['message_count'] + 1
