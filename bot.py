@@ -131,36 +131,7 @@ async def new_time(message: types.Message):
 
 
 
-@dp.message_handler(commands=['collect'])
-async def collect(message: types.Message):
-    group_id = message.chat.id
-    user_id = message.from_user.id
-    user_first_name = message.from_user.first_name
-    # Get the character name from the message
-    _, character_name = message.text.split(' ')
-    character_name = character_name.lower()
-    # Fetch a character from the database that matches the name
-    character_doc = await collection.find_one({'character_name': re.compile(character_name, re.IGNORECASE)})
-    if character_doc:
-        # Check if this is the last character sent in the group
-        if last_character_sent.get(group_id) == character_doc['_id']:
-            # Fetch the user's document from the database
-            user_doc = await user_collection.find_one({'_id': user_id})
-            if user_doc:
-                # Check if the user's first name has changed
-                if user_doc.get('first_name') != user_first_name:
-                    # Update the user's first name in the database
-                    await user_collection.update_one({'_id': user_id}, {'$set': {'first_name': user_first_name}})
-               
-            else:
-                # Create a new document for the user in the database
-                await user_collection.insert_one({'_id': user_id, 'first_name': user_first_name, 'collected_characters': []})
-            # Add the character to the user's collection in the database
-            await user_collection.update_one({'_id': user_id}, {'$push': {'collected_characters': character_doc['_id']}}, upsert=True)
-            await message.reply(f"Congrats! {character_name} is now in your collection.")
-            # Update the last character sent in this group to prevent others from collecting it
-            last_character_sent[group_id] = None
-        
+
 @dp.message_handler(content_types=types.ContentTypes.ANY)
 async def send_image(message: types.Message):
     group_id = message.chat.id
