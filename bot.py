@@ -53,8 +53,8 @@ async def upload(message: types.Message):
     if message.from_user.id in SUDO_USER_ID:
         try:
             _, img_url, character_name, anime_name = message.text.split(' ')
-            character_name = character_name.replace('-', ' ')title()
-            anime_name = anime_name.replace('-', ' ')title()
+            character_name = character_name.replace('-', ' ').title()
+            anime_name = anime_name.replace('-', ' '). title()
             # Validate the URL
             if not await is_url_valid(img_url):
                 await message.reply("Invalid URL")
