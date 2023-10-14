@@ -3,6 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import re
 import aiohttp
 import asyncio
+from aiogram import executor
 
 bot = Bot(token='6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg')
 dp = Dispatcher(bot)
@@ -64,7 +65,7 @@ async def upload(message: types.Message):
         await message.reply("You are not authorized to use this command.")
 
 async def main():
-    from aiogram import executor
+    
     executor.start_polling(dp)
 
 if __name__ == '__main__':
