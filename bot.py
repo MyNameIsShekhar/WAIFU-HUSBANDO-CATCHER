@@ -31,13 +31,14 @@ async def is_url_valid(url):
         return False
 
 
+
 @dp.message_handler(commands=['ping'])
 async def ping(message: types.Message):
     start = datetime.now()
-    await message.reply("Pong!")
+    sent_message = await message.reply("Pong!")
     end = datetime.now()
-    elapsed = (end - start).total_seconds()
-    await message.reply(f"Message speed: {elapsed} seconds")
+    elapsed_ms = (end - start).total_seconds() * 1000  # convert to milliseconds
+    await sent_message.edit_text(f"Pong! Message speed: {elapsed_ms} milliseconds")
 
 @dp.message_handler(commands=['upload'])
 async def upload(message: types.Message):
