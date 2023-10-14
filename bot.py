@@ -135,8 +135,7 @@ async def new_time(message: types.Message):
 async def collect(message: types.Message):
     group_id = message.chat.id
     user_id = message.from_user.id
-    username = message.from.user.username
-    first_name = message.from_user.first_name 
+    
     # Get the character name from the message
     _, character_name = message.text.split(' ', 1)
     character_name = character_name.lower()
@@ -146,7 +145,7 @@ async def collect(message: types.Message):
         # Check if this is the last character sent in the group
         if last_character_sent.get(group_id) == character_doc['_id']:
             # Add the character to the user's collection in the database
-            await user_collection.update_one({'_id': user_id, 'username': username, 'first_name': first_name}, {'$push': {'collected_characters': character_doc['_id']}}, upsert=True)
+            await user_collection.update_one({'_id': user_id}, {'$push': {'collected_characters': character_doc['_id']}}, upsert=True)
             await message.reply(f"Congrats! {character_name} is now in your collection.")
             # Update the last character sent in this group to prevent others from collecting it
             last_character_sent[group_id] = None
