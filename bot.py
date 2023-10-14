@@ -136,34 +136,43 @@ async def collect(message: types.Message):
     user_id = message.from_user.id
     user_first_name = message.from_user.first_name
     # Get the character name from the message
-    _, character_name = message.text.split(' ')
+    _, character_name = message.text.split(' ', 1)
     character_name = character_name.lower()
     # Fetch a character from the database that matches the name
     character_doc = await collection.find_one({'character_name': re.compile(character_name, re.IGNORECASE)})
-    
-
     if character_doc:
-        # Fetch the user's document from the database
-        user_doc = await user_collection.find_one({'_id': user_id})
-        if user_doc:
-            # Check if the user's first name has changed
-            if user_doc.get('first_name') != user_first_name:
-                # Update the user's first name in the database
-                await user_collection.update_one({'_id': user_id}, {'$set': {'first_name': user_first_name}})
-               
+        # Check if this is the last character sent in the group
+        if last_character_sent.get(group_id) == character_doc['_id']:
+            # Fetch the user's document from the database
+            user_doc = await user_collection.find_one({'_id': user_id})
+            if user_doc:
+                # Check if the user's first name has changed
+                if user_doc.get('first_name') != user_first_name:
+                    # Update the user's first name in the database
+                    await user_collection.update_one({'_id': user_id}, {'$set': {'first_name': user_first_name}})
+                # Check if the user has already collected this character
+                if character_doc['_id'] in user_doc.get('collected_characters', []):
+                    await message.reply("You have already collected this character.")
+                    return
+            else:
+                # Create a new document for the user in the database
+                await user_collection.insert_one({'_id': user_id, 'first_name': user_first_name, 'collected_characters': []})
+            # Add the character to the user's collection in the database
+            await user_collection.update_one({'_id': user_id}, {'$push': {'collected_characters': character_doc['_id']}}, upsert=True)
+            await message.reply(f"Congrats! {character_name} is now in your collection.")
+            # Update the last character sent in this group to prevent others from collecting it
+            last_character_sent[group_id] = None
         else:
-            # Create a new document for the user in the database
-            await user_collection.insert_one({'_id': user_id, 'first_name': user_first_name, 'collected_characters': []})
-        # Add the character to the user's collection in the database
-        await user_collection.update_one({'_id': user_id}, {'$push': {'collected_characters': character_doc['_id']}}, upsert=True)
-        await message.reply(f"✅️ ! {character_name} is now in your collection.")
-        # Update the last character sent in this group to prevent others from collecting it
-        
-        last_character_sent[group_id] = None
-        
+            if last_character_sent.get(group_id):
+                collector = await user_collection.find_one({'collected_characters': last_character_sent[group_id]})
+                if collector:
+                    collector_name = collector['first_name']
+                    await message.reply(f"This character has already been collected by {collector_name}.")
+            else:
+                await message.reply("There's no new character to collect at this moment.")
     else:
-        await message.reply("❌️ Lmao Bruhh..Try again..")
-        
+        await message.reply("Character not found.")
+
     
            
            
