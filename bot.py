@@ -4,6 +4,7 @@ import re
 import aiohttp
 from aiogram import executor
 import asyncio
+from datetime import datetime
 
 bot =Bot('6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs')
 dp = Dispatcher(bot)
@@ -28,6 +29,15 @@ async def is_url_valid(url):
                 return response.status == 200
     except Exception:
         return False
+
+
+@dp.message_handler(commands=['ping'])
+async def ping(message: types.Message):
+    start = datetime.now()
+    await message.reply("Pong!")
+    end = datetime.now()
+    elapsed = (end - start).total_seconds()
+    await message.reply(f"Message speed: {elapsed} seconds")
 
 @dp.message_handler(commands=['upload'])
 async def upload(message: types.Message):
