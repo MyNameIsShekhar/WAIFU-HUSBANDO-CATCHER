@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 import re
 import aiohttp
 import asyncio
-from aiogram import executor
+
 
 TOKEN="6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg"
 dp = Dispatcher()
