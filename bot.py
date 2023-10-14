@@ -150,10 +150,7 @@ async def collect(message: types.Message):
                 if user_doc.get('first_name') != user_first_name:
                     # Update the user's first name in the database
                     await user_collection.update_one({'_id': user_id}, {'$set': {'first_name': user_first_name}})
-                # Check if the user has already collected this character
-                if character_doc['_id'] in user_doc.get('collected_characters', []):
-                    await message.reply("You have already collected this character.")
-                    return
+                
             else:
                 # Create a new document for the user in the database
                 await user_collection.insert_one({'_id': user_id, 'first_name': user_first_name, 'collected_characters': []})
