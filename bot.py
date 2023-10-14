@@ -1,5 +1,8 @@
 from aiogram import Bot, Dispatcher, types
 from motor.motor_asyncio import AsyncIOMotorClient
+from telegram import Update, BotCommand
+from telegram.ext import Updater, CommandHandler, CallbackContext
+from motor.motor_asyncio import AsyncIOMotorClient
 import re
 import aiohttp
 from aiogram import executor
@@ -132,24 +135,29 @@ async def handle_all_messages(message: types.Message):
                     caption=f"Collect the character with /collect {character['character_name']}"
                 )
 
-@dp.message_handler(commands=['changetime'])
-async def change_time(message: types.Message):
+def changetime(update: Update, context: CallbackContext) -> None:
     # Check if the user is an admin or the creator of the group
-    member = await bot.get_chat_member(message.chat.id, message.from_user.id)
-    if member.status in (types.ChatMemberStatus.ADMINISTRATOR, types.ChatMemberStatus.CREATOR):
+    chat_member = update.effective_chat.get_member(update.effective_user.id)
+    if chat_member.status in ('administrator', 'creator'):
         try:
-            _, time_interval = message.text.split(' ')
-            time_interval = int(time_interval)
+            time_interval = int(context.args[0])
             if time_interval < 100:
-                await message.reply("Time interval cannot be less than 100.")
+                update.message.reply_text("Time interval cannot be less than 100.")
                 return
-            # Change the time interval for the group
-            group_settings[message.chat.id]['time_interval'] = time_interval
-            await message.reply(f"Time interval changed to {time_interval}.")
+            # Change the time interval for the group in the database
+            group_collection.update_one({'_id': update.effective_chat.id}, {'$set': {'time_interval': time_interval}})
+            update.message.reply_text(f"Time interval changed to {time_interval}.")
         except Exception as e:
-            await message.reply(f"Error: {str(e)}")
+            update.message.reply_text(f"Error: {str(e)}")
     else:
-        await message.reply("You are not authorized to use this command.")
+        update.message.reply_text("You are not authorized to use this command.")
+
+updater = (token='6430015242:AAG5eGK4MYd9-58PjYfJZy0LhcfMvpWly1I')
+
+updater.dispatcher.add_handler(CommandHandler('changetime', changetime))
+
+updater.start_polling()
+updater.idle()
 
 
 executor.start_polling(dp)
