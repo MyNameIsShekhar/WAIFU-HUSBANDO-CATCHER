@@ -4,7 +4,7 @@ import re
 import aiohttp
 import asyncio
 
-bot = Bot(token='YOUR_BOT_TOKEN')
+bot = Bot(token='6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg')
 dp = Dispatcher(bot)
 
 client = AsyncIOMotorClient('mongodb://localhost:27017/')
