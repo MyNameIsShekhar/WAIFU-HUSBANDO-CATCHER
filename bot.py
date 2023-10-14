@@ -105,10 +105,8 @@ async def delete(message: types.Message):
     else:
         await message.reply("You are not authorized to use this command.")
 
-
 @dp.message_handler(commands=['new_time'])
 async def new_time(message: types.Message):
-    global group_settings
     group_id = message.chat.id
     # Check if the user is a group administrator
     member = await bot.get_chat_member(group_id, message.from_user.id)
@@ -121,10 +119,6 @@ async def new_time(message: types.Message):
         if new_time < 100:
             await message.reply("Time cannot be less than 100.")
             return
-        # Update the time in the group settings
-        if group_id not in group_settings:
-            group_settings[group_id] = {'message_count': 0}
-        group_settings[group_id]['time'] = new_time
         # Save the new time to the database
         await group_collection.update_one({'_id': group_id}, {'$set': {'time': new_time}}, upsert=True)
         await message.reply(f"Successfully changed the character appearance time to {new_time}.")
@@ -133,35 +127,30 @@ async def new_time(message: types.Message):
 
 @dp.message_handler(content_types=types.ContentTypes.ANY)
 async def send_image(message: types.Message):
-    global group_settings
     group_id = message.chat.id
-    if group_id not in group_settings:
-        # Load the settings from the database
-        doc = await group_collection.find_one({'_id': group_id})
-        if doc is None:
-            # Use default settings if no settings are found in the database
-            group_settings[group_id] = {'message_count': 0, 'time': 10}
-        else:
-            group_settings[group_id] = {'message_count': 0, 'time': 10}
-    group_settings[group_id]['message_count'] += 1
-    if group_settings[group_id]['message_count'] >= group_settings[group_id]['time']:
-        group_settings[group_id]['message_count'] = 0
+    # Load the settings from the database
+    doc = await group_collection.find_one({'_id': group_id})
+    if doc is None:
+        # Use default settings if no settings are found in the database
+        doc = {'message_count': 0, 'time': 10}
+    doc['message_count'] += 1
+    if doc['message_count'] >= doc['time']:
+        doc['message_count'] = 0
         # Fetch a random character from the database
         count = await collection.count_documents({})
         random_index = randint(0, count - 1)
-        doc = await collection.find().skip(random_index).limit(1).to_list(length=1)
-        if doc:
-            doc = doc[0]
+        character_doc = await collection.find().skip(random_index).limit(1).to_list(length=1)
+        if character_doc:
+            character_doc = character_doc[0]
             # Send the image to the group
             await bot.send_photo(
                 group_id,
-                doc['img_url'],
+                character_doc['img_url'],
                 caption=f"/collect this Character..And Add In Your Collection..",
                 
             )
-
-
-
-
+    # Save the updated settings to the database
+    await group_collection.update_one({'_id': group_id}, {'$set': doc}, upsert=True)
 
 executor.start_polling(dp)
+
