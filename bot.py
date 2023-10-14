@@ -1,16 +1,12 @@
-from aiogram import Bot, Dispatcher, Router, types
-from aiogram.enums import ParseMode
-from aiogram.filters import CommandStart
-from aiogram.types import Message
-from aiogram.utils.markdown import hbold
+from aiogram import Bot, Dispatcher, types
 from motor.motor_asyncio import AsyncIOMotorClient
 import re
 import aiohttp
+from aiogram import executor
 import asyncio
 
-
-TOKEN="6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg"
-dp = Dispatcher()
+bot = Bot(token='6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg')
+dp = Dispatcher(bot)
 
 client = AsyncIOMotorClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
 db = client['anime_db']
@@ -18,7 +14,6 @@ collection = db['anime_collection']
 
 CHANNEL_ID = -1001683394959
 SUDO_USER_ID = [6404226395]
-
 async def generate_id():
     for i in range(1, 10000):
         id = str(i).zfill(4)
@@ -68,13 +63,10 @@ async def upload(message: types.Message):
     else:
         await message.reply("You are not authorized to use this command.")
 
-async def main() -> None:
-    # Initialize Bot instance with a default parse mode which will be passed to all API calls
-    bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
-    # And the run events dispatching
-    await dp.start_polling(bot)
+async def main():
     
-if __name__ == "__main__":
-    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
-    asyncio.run(main())
+    executor.start_polling(dp)
 
+if __name__ == '__main__':
+    
+    asyncio.run(main())
