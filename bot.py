@@ -138,7 +138,7 @@ async def group_message_handler(_, message):
         if character:
             # Download image
             response = requests.get(character['img_url'])
-            file_name = os.path.join('/tmp', 'image.jpg')
+            file_name = os.path.join('image.jpg')
             with open(file_name, 'wb') as f:
                 f.write(response.content)
 
