@@ -7,11 +7,12 @@ import asyncio
 bot = Bot(token='6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg')
 dp = Dispatcher(bot)
 
-client = AsyncIOMotorClient('mongodb://localhost:27017/')
+client = AsyncIOMotorClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
 db = client['anime_db']
 collection = db['anime_collection']
 
 CHANNEL_ID = -1001683394959
+SUDO_USER_ID = [6404226395]
 
 async def generate_id():
     for i in range(1, 10000):
