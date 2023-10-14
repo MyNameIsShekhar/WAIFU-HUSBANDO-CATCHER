@@ -140,9 +140,9 @@ async def send_image(message: types.Message):
         doc = await group_collection.find_one({'_id': group_id})
         if doc is None:
             # Use default settings if no settings are found in the database
-            group_settings[group_id] = {'message_count': 0, 'time': 100}
+            group_settings[group_id] = {'message_count': 0, 'time': 10}
         else:
-            group_settings[group_id] = {'message_count': 0, 'time': 100}
+            group_settings[group_id] = {'message_count': 0, 'time': 10}
     group_settings[group_id]['message_count'] += 1
     if group_settings[group_id]['message_count'] >= group_settings[group_id]['time']:
         group_settings[group_id]['message_count'] = 0
@@ -156,8 +156,8 @@ async def send_image(message: types.Message):
             await bot.send_photo(
                 group_id,
                 doc['img_url'],
-                caption=f"/collect the Character\n\n<b>ID:</b> {doc['_id']}\n<b>Anime Name:</b> {doc['anime_name']}\n<b>Character Name:</b> {doc['character_name']}",
-                parse_mode='HTML'
+                caption=f"/collect this Character..And Add In Your Collection..",
+                
             )
 
 
