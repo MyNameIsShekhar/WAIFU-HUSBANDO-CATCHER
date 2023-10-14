@@ -128,57 +128,52 @@ async def message_handler(_, message):
 
 
 
-@app.on_message(filters.command(["charatime"], COMMAND_HANDLER)& filters.group)
-async def charatime_handler(_, message):
-    if message.from_user.id in sudo_users:
+@app.on_message(filters.command("changetime"))
+async def changetime_handler(_, message):
+    # Check if the user is a group admin
+    admins = [admin.user.id for admin in await app.get_chat_members(message.chat.id, filter="administrators")]
+    if message.from_user.id in admins:
         msg = message.text.split(' ')
         if len(msg) < 2:
-            await message.reply_text("Please provide a new character time. Use /charatime new_time")
+            await message.reply_text("Please provide a new time. Use /changetime new_time")
             return
 
         new_time = int(msg[1])
-        group_id = message.chat.id
-
-        # Update character_time in database
-        group_collection.update_one(
-            {'id': group_id},
-            {'$set': {'character_time': new_time}}
-        )
-        
-        await message.reply_text(f"Character time updated to {new_time}.")
-        
-def send_character_to_group(group_id):
-    group = group_collection.find_one({'id': group_id})
-    all_characters = collection.find({})
-
-    if 'sent_characters' not in group:
-        # This group doesn't have a sent_characters field yet.
-        # Add it with an empty list as its value.
-        group['sent_characters'] = []
-        group_collection.update_one(
-            {'id': group_id},
-            {'$set': {'sent_characters': []}}
-        )
-
-    for character in all_characters:
-        if character['id'] not in group['sent_characters']:
-            # This character has not been sent to this group yet.
-            # Send the character and add its ID to the sent_characters list.
-            send_character(character, group_id)
-            group_collection.update_one(
-                {'id': group_id},
-                {'$push': {'sent_characters': character['id']}}
-            )
-            break
+        # Save new time to MongoDB
+        group_collection.update_one({'id': message.chat.id}, {"$set": {'time': new_time}}, upsert=True)
+        await message.reply_text(f"Time changed successfully to {new_time} messages.")
     else:
-        # All characters have been sent to this group.
-        # Clear the sent_characters list and start over.
-        group_collection.update_one(
-            {'id': group_id},
-            {'$set': {'sent_characters': []}}
-        )
-        send_character_to_group(group_id)
+        await message.reply_text("Only group administrators can use this command.")
 
+@app.on_message(filters.group)
+async def group_message_handler(_, message):
+    group = group_collection.find_one({'id': message.chat.id})
+    if not group:
+        # If the group is not in the database, add it with a default time of 100 messages
+        group_collection.insert_one({'id': message.chat.id, 'time': 100, 'count': 0})
+        group = group_collection.find_one({'id': message.chat.id})
+
+    # Decrement the message count
+    group_collection.update_one({'id': message.chat.id}, {"$inc": {'count': -1}})
+    
+    if group['count'] <= 0:
+        character = collection.find_one()
+        if character:
+            # Download image
+            response = requests.get(character['img_url'])
+            file_name = os.path.join('/tmp', 'image.jpg')
+            with open(file_name, 'wb') as f:
+                f.write(response.content)
+
+            # Send to group
+            caption = "Collect The Character"
+            await app.send_photo(message.chat.id, file_name, caption=caption)
+
+            # Delete image file
+            os.remove(file_name)
+
+            # Reset message count
+            group_collection.update_one({'id': message.chat.id}, {"$set": {'count': group['time']}})
 
 app.run()
 
