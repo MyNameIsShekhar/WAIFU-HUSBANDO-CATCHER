@@ -108,29 +108,6 @@ async def delete(message: types.Message):
 
 
 
-@dp.message_handler(content_types=types.ContentType.ANY)
-async def handle_all_messages(message: types.Message):
-    # Check if the message is from a group
-    if message.chat.type in (types.ChatType.GROUP, types.ChatType.SUPERGROUP):
-        group_id = message.chat.id
-        # Initialize the group settings if they don't exist
-        if group_id not in group_settings:
-            group_settings[group_id] = {'message_count': 0, 'time_interval': 100}
-        # Increment the message count
-        group_settings[group_id]['message_count'] += 1
-        # If the message count reaches the time interval, send a character
-        if group_settings[group_id]['message_count'] >= group_settings[group_id]['time_interval']:
-            # Reset the message count
-            group_settings[group_id]['message_count'] = 0
-            # Get a random character from the database
-            character = await collection.aggregate([{'$sample': {'size': 1}}]).to_list(length=1)
-            character = character[0] if character else None
-            if character:
-                await bot.send_photo(
-                    group_id,
-                    character['img_url'],
-                    caption=f"Collect the character with /collect {character['character_name']}"
-                )
 
 
 executor.start_polling(dp)
