@@ -133,6 +133,14 @@ async def send_image(message: types.Message):
     if doc is None:
         # Use default settings if no settings are found in the database
         doc = {'message_count': 0, 'time': 10}
+    else:
+        # Check if 'time' key exists in the doc, if not set a default time
+        if 'time' not in doc:
+            doc['time'] = 10
+        # Check if 'message_count' key exists in the doc, if not set it to 0
+        if 'message_count' not in doc:
+            doc['message_count'] = 0
+
     doc['message_count'] += 1
     if doc['message_count'] >= doc['time']:
         # Reset the message count and save it to the database immediately
@@ -156,4 +164,3 @@ async def send_image(message: types.Message):
         await group_collection.update_one({'_id': group_id}, {'$set': {'message_count': doc['message_count']}}, upsert=True)
 
 executor.start_polling(dp)
-
