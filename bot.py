@@ -63,10 +63,4 @@ async def upload(message: types.Message):
     else:
         await message.reply("You are not authorized to use this command.")
 
-async def main():
-    
-    executor.start_polling(dp)
-
-if __name__ == '__main__':
-    
-    asyncio.run(main())
+executor.start_polling(dp)
