@@ -75,7 +75,7 @@ async def upload(message: types.Message):
             sent_message = await bot.send_photo(
                 CHANNEL_ID,
                 img_url,
-                caption=f"<b>ID:</b> {id}\n<b>Anime Name:</b> {anime_name}\n<b>Character Name:</b> {character_name}",
+                caption=f"<b>ID:</b> {id}\n<b>Character Name:</b> {character_name}\n<b>Anime Name:</b> {anime_name}",
                 parse_mode='HTML'
             )
             # Save the message ID to the database
