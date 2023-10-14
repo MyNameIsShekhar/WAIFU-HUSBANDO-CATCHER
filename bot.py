@@ -16,7 +16,7 @@ db = client['anime_db']
 collection = db['anime_collection']
 group_collection = db['group_collection']
 # Create a new collection for user data
-user_collection = db['user_collectionn']
+user_collection = db['user_collectionnn']
 
 # Store the ID of the last character sent in each group
 last_character_sent = {}
@@ -129,7 +129,38 @@ async def new_time(message: types.Message):
     except Exception as e:
         await message.reply(f"Error: {str(e)}")
 
+@dp.message_handler(commands=['collect'])
+async def collect(message: types.Message):
+    group_id = message.chat.id
+    # Extract the character name from the message
+    _, character_name = message.text.split(' ', 1)
+    character_name = character_name.strip().lower()
 
+    # Check if the last character sent in this group matches the collected character
+    if last_character_sent.get(group_id) and last_character_sent[group_id].lower() == character_name:
+        # Check if the character is already collected
+        user_doc = await user_collection.find_one({'_id': message.from_user.id})
+        if user_doc and character_name in user_doc.get('collected_characters', {}).keys():
+            # If the character is already collected by this user, increment the count
+            await user_collection.update_one(
+                {'_id': message.from_user.id, 'collected_characters.character_name': character_name},
+                {'$inc': {'collected_characters.$.count': 1}}
+            )
+            await message.reply(f"Wow, {message.from_user.first_name}! You've collected {character_name.title()} again. Now you have {user_doc['collected_characters'][character_name]['count'] + 1} of them.")
+        else:
+            # Add the character to the user's collection with a count of 1
+            await user_collection.update_one(
+                {'_id': message.from_user.id},
+                {'$set': {'collected_characters.character_name': {'count': 1, 'first_collector': message.from_user.first_name}}},
+                upsert=True
+            )
+            await message.reply(f"Wow, {message.from_user.first_name}! You're correct. {character_name.title()} is now in your collection.")
+        
+        # Update last_character_sent to prevent further collections until a new character appears
+        last_character_sent[group_id] = None
+    else:
+        await message.reply("Sorry, that's not the correct character.")
+ 
 
 
 @dp.message_handler(content_types=types.ContentTypes.ANY)
