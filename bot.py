@@ -5,7 +5,7 @@ import aiohttp
 from aiogram import executor
 import asyncio
 
-bot = Bot(token='6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg')
+bot =Bot('6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs')
 dp = Dispatcher(bot)
 
 client = AsyncIOMotorClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
@@ -13,7 +13,7 @@ db = client['anime_db']
 collection = db['anime_collection']
 
 CHANNEL_ID = -1001683394959
-SUDO_USER_ID = [6404226395]
+SUDO_USER_ID = ['6404226395']
 async def generate_id():
     for i in range(1, 10000):
         id = str(i).zfill(4)
@@ -31,7 +31,7 @@ async def is_url_valid(url):
 
 @dp.message_handler(commands=['upload'])
 async def upload(message: types.Message):
-    if message.from_user.id == SUDO_USER_ID:
+    if int(message.from_user.id) == SUDO_USER_ID:
         try:
             _, img_url, anime_name, character_name = message.text.split(' ')
             anime_name = anime_name.replace('-', ' ')
