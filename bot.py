@@ -152,7 +152,7 @@ def changetime(update: Update, context: CallbackContext) -> None:
     else:
         update.message.reply_text("You are not authorized to use this command.")
 
-updater = Updater(token='6430015242:AAG5eGK4MYd9-58PjYfJZy0LhcfMvpWly1I')
+updater = Updater(token='6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs')
 
 updater.dispatcher.add_handler(CommandHandler('changetime', changetime))
 
