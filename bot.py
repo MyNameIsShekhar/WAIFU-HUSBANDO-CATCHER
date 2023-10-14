@@ -147,7 +147,8 @@ async def group_message_handler(_, message):
             await app.send_photo(message.chat.id, file_name, caption=caption)
 
             # Delete image file
-            os.remove(file_name)
+            if os.path.exists(file_name):
+                os.remove(file_name)
 
             # Reset message count
             group_collection.update_one({'id': message.chat.id}, {"$set": {'count': group['time']}})
