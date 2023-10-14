@@ -1,6 +1,6 @@
 import asyncio
 from pyrogram import Client, filters, enums
-from pyrogram.types
+from pyrogram import types
 from pymongo import MongoClient
 import requests
 import re
