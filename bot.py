@@ -164,7 +164,9 @@ async def collect(message: types.Message):
         
            
            
-        
+
+
+
 @dp.message_handler(content_types=types.ContentTypes.ANY)
 async def send_image(message: types.Message):
     group_id = message.chat.id
@@ -211,5 +213,6 @@ async def send_image(message: types.Message):
     else:
         # If no image was sent, save the updated message count to the database
         await group_collection.update_one({'_id': group_id}, {'$set': {'message_count': doc['message_count']}}, upsert=True)
+
 
 executor.start_polling(dp)
