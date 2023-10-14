@@ -158,7 +158,7 @@ async def collect(message: types.Message):
             else:
                 await message.reply("There's no new character to collect at this moment.")
     else:
-        await message.reply("Character not found.")
+        await message.reply("Lol..Try Again")
 
 @dp.message_handler(content_types=types.ContentTypes.ANY)
 async def send_image(message: types.Message):
