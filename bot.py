@@ -104,6 +104,45 @@ async def delete(message: types.Message):
     else:
         await message.reply("You are not authorized to use this command.")
 
+@dp.message_handler(commands=['set_frequency'])
+async def set_frequency(message: types.Message):
+    if message.chat.type != 'private':  # Ensure this command is used in a group
+        user = await bot.get_chat_member(message.chat.id, message.from_user.id)
+        if user.status not in ('administrator', 'creator'):  # Check user permissions
+            await message.reply("You must be an administrator to use this command.")
+            return
+        try:
+            _, frequency = message.text.split(' ')
+            frequency = int(frequency)
+            if frequency < 1:
+                raise ValueError
+            # Update the group settings
+            group_settings[message.chat.id] = frequency
+            await message.reply("Successfully changed the frequency.")
+        except ValueError:
+            await message.reply("Invalid frequency. Please enter a positive integer.")
+from aiogram import types
+
+async def on_any_message(message: types.Message):
+    # Check if the message is sent in a group
+    if message.chat.type != 'private':
+        # Increment the message count for the group
+        group_settings[message.chat.id] = group_settings.get(message.chat.id, 0) + 1
+        # Check if the message count has reached the frequency
+        if group_settings[message.chat.id] >= 100:
+            # Reset the message count
+            group_settings[message.chat.id] = 0
+            # Spawn a character
+            doc = await collection.find_one()  # Fetch a character from the database
+            if doc is not None:
+                await bot.send_photo(
+                    message.chat.id,
+                    doc['img_url'],
+                    caption=f"<b>ID:</b> {doc['_id']}\n<b>Anime Name:</b> {doc['anime_name']}\n<b>Character Name:</b> {doc['character_name']}",
+                    parse_mode='HTML'
+                )
+
+dp.register_message_handler(on_any_message)
 
 
 
