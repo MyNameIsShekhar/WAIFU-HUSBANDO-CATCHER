@@ -1,5 +1,6 @@
 import asyncio
 from pyrogram import Client, filters, enums
+from pyrogram.types import ChatMemberStatus
 from pymongo import MongoClient
 import requests
 import re
@@ -103,15 +104,15 @@ async def delete_handler(_, message):
         await message.reply_text("Only sudo users can use this command.")
 
 
+
 @app.on_message(filters.command("changetime"))
 async def changetime_handler(_, message):
     # Check if the user is a group admin
-    administrators = []
-    async for m in app.get_chat_members(message.chat.id,  filter=enums.ChatMembersFilter.ADMINISTRATORS):
-        administrators.append(m)
-        
-    
-    if message.from_user.id in administrators:
+    admins = []
+    async for member in app.iter_chat_members(message.chat.id):
+        if member.status in (ChatMemberStatus.ADMINISTRATOR, ChatMemberStatus.CREATOR):
+            admins.append(member.user.id)
+    if message.from_user.id in admins:
         msg = message.text.split(' ')
         if len(msg) < 2:
             await message.reply_text("Please provide a new time. Use /changetime new_time")
