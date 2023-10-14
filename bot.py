@@ -150,7 +150,7 @@ async def group_message_handler(_, message):
     group = group_collection.find_one({'id': message.chat.id})
     if not group:
         # If the group is not in the database, add it with a default time of 100 messages
-        group_collection.insert_one({'id': message.chat.id, 'time': 100, 'count': 0})
+        group_collection.insert_one({'id': message.chat.id, 'time': 10, 'count': 0})
         group = group_collection.find_one({'id': message.chat.id})
 
     # Decrement the message count
