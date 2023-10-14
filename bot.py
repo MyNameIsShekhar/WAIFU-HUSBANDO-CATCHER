@@ -125,6 +125,46 @@ async def new_time(message: types.Message):
     except Exception as e:
         await message.reply(f"Error: {str(e)}")
 
+
+
+@dp.message_handler(commands=['collect'])
+async def collect(message: types.Message):
+    group_id = message.chat.id
+    user_id = message.from_user.id
+    user_first_name = message.from_user.first_name
+    # Get the character name from the message
+    _, character_name = message.text.split(' ')
+    character_name = character_name.lower()
+    # Fetch a character from the database that matches the name
+    character_doc = await collection.find_one({'character_name': re.compile(character_name, re.IGNORECASE)})
+    
+
+    if character_doc:
+        # Fetch the user's document from the database
+        user_doc = await user_collection.find_one({'_id': user_id})
+        if user_doc:
+            # Check if the user's first name has changed
+            if user_doc.get('first_name') != user_first_name:
+                # Update the user's first name in the database
+                await user_collection.update_one({'_id': user_id}, {'$set': {'first_name': user_first_name}})
+               
+        else:
+            # Create a new document for the user in the database
+            await user_collection.insert_one({'_id': user_id, 'first_name': user_first_name, 'collected_characters': []})
+        # Add the character to the user's collection in the database
+        await user_collection.update_one({'_id': user_id}, {'$push': {'collected_characters': character_doc['_id']}}, upsert=True)
+        await message.reply(f"✅️ ! {character_name} is now in your collection.")
+        # Update the last character sent in this group to prevent others from collecting it
+        
+        
+    else:
+        await message.reply("❌️ Lmao Bruhh..Try again..")
+        
+    last_character_sent[group_id] = None
+        
+           
+           
+        
 @dp.message_handler(content_types=types.ContentTypes.ANY)
 async def send_image(message: types.Message):
     group_id = message.chat.id
@@ -140,9 +180,6 @@ async def send_image(message: types.Message):
         # Check if 'message_count' key exists in the doc, if not set it to 0
         if 'message_count' not in doc:
             doc['message_count'] = 0
-        # Check if 'sent_images' key exists in the doc, if not set it to an empty list
-        if 'sent_images' not in doc:
-            doc['sent_images'] = []
 
     doc['message_count'] += 1
     if doc['message_count'] >= doc['time']:
@@ -150,8 +187,10 @@ async def send_image(message: types.Message):
         doc['message_count'] = 0
         await group_collection.update_one({'_id': group_id}, {'$set': {'message_count': doc['message_count']}}, upsert=True)
         
-        # Fetch a character from the database that hasn't been sent yet
-        character_doc = await collection.find({'_id': {'$nin': doc['sent_images']}}).to_list(length=None)
+        # Fetch a random character from the database that hasn't been sent yet
+        count = await collection.count_documents({})
+        random_index = randint(0, count - 1)
+        character_doc = await collection.find().skip(random_index).limit(1).to_list(length=1)
         
         # If all images have been sent, start from the beginning
         if not character_doc:
@@ -160,11 +199,9 @@ async def send_image(message: types.Message):
 
         character_doc = character_doc[0]
         
-        # Add the image to the list of sent images and save it to the database immediately
-        doc['sent_images'].append(character_doc['_id'])
-        await group_collection.update_one({'_id': group_id}, {'$set': {'sent_images': doc['sent_images']}}, upsert=True)
+        # Send the image to the group and update last_character_sent for this group
+        last_character_sent[group_id] = character_doc['_id']
         
-        # Send the image to the group
         await bot.send_photo(
             group_id,
             character_doc['img_url'],
