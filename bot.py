@@ -43,13 +43,14 @@ async def ping(message: types.Message):
     elapsed_ms = (end - start) * 1000  # convert to milliseconds
     await sent_message.edit_text(f"Pong! Message speed: {int(elapsed_ms)} milliseconds")
 
+
 @dp.message_handler(commands=['upload'])
 async def upload(message: types.Message):
-    if int(message.from_user.id) in SUDO_USER_ID:
+    if message.from_user.id == SUDO_USER_ID:
         try:
             _, img_url, anime_name, character_name = message.text.split(' ')
-            anime_name = anime_name.replace('-', ' ')
             character_name = character_name.replace('-', ' ')
+            anime_name = anime_name.replace('-', ' ')
             # Validate the URL
             if not await is_url_valid(img_url):
                 await message.reply("Invalid URL")
@@ -67,11 +68,14 @@ async def upload(message: types.Message):
             await collection.insert_one(doc)
             await message.reply("Successfully uploaded")
             # Send the information to the channel
-            await bot.send_photo(
+            sent_message = await bot.send_photo(
                 CHANNEL_ID,
                 img_url,
-                caption=f"**ID:** {id}\n**Anime Name:** {anime_name}\n**Character Name:** {character_name}"
+                caption=f"<b>ID:</b> {id}\n<b>Anime Name:</b> {anime_name}\n<b>Character Name:</b> {character_name}",
+                parse_mode='HTML'
             )
+            # Save the message ID to the database
+            await collection.update_one({'_id': id}, {'$set': {'channel_message_id': sent_message.message_id}})
         except Exception as e:
             await message.reply(f"Error: {str(e)}")
     else:
