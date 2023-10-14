@@ -16,7 +16,7 @@ db = client['anime_db']
 collection = db['anime_collection']
 group_collection = db['group_collection']
 # Create a new collection for user data
-user_collection = db['user_collection']
+user_collection = db['user_collectionn']
 
 # Store the ID of the last character sent in each group
 last_character_sent = {}
