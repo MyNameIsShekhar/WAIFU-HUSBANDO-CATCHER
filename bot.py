@@ -5,8 +5,8 @@ import aiohttp
 import asyncio
 from aiogram import executor
 
-bot = Bot(token='6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg')
-dp = Dispatcher(bot)
+TOKEN="6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg"
+dp = Dispatcher()
 
 client = AsyncIOMotorClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
 db = client['anime_db']
@@ -64,10 +64,13 @@ async def upload(message: types.Message):
     else:
         await message.reply("You are not authorized to use this command.")
 
-async def main():
+async def main() -> None:
+    # Initialize Bot instance with a default parse mode which will be passed to all API calls
+    bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
+    # And the run events dispatching
+    await dp.start_polling(bot)
     
-    executor.start_polling(dp)
-
-if __name__ == '__main__':
-    
+if __name__ == "__main__":
+    logging.basicConfig(level=logging.INFO, stream=sys.stdout)
     asyncio.run(main())
+
