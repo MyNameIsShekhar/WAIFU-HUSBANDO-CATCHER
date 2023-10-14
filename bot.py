@@ -135,7 +135,7 @@ async def new_time(message: types.Message):
 async def collect(message: types.Message):
     group_id = message.chat.id
     user_id = message.from_user.id
-    
+    user_first_name = message.from_user.first_name
     # Get the character name from the message
     _, character_name = message.text.split(' ', 1)
     character_name = character_name.lower()
@@ -144,6 +144,20 @@ async def collect(message: types.Message):
     if character_doc:
         # Check if this is the last character sent in the group
         if last_character_sent.get(group_id) == character_doc['_id']:
+            # Fetch the user's document from the database
+            user_doc = await user_collection.find_one({'_id': user_id})
+            if user_doc:
+                # Check if the user's first name has changed
+                if user_doc.get('first_name') != user_first_name:
+                    # Update the user's first name in the database
+                    await user_collection.update_one({'_id': user_id}, {'$set': {'first_name': user_first_name}})
+                # Check if the user has already collected this character
+                if character_doc['_id'] in user_doc.get('collected_characters', []):
+                    await message.reply("You have already collected this character.")
+                    return
+            else:
+                # Create a new document for the user in the database
+                await user_collection.insert_one({'_id': user_id, 'first_name': user_first_name, 'collected_characters': []})
             # Add the character to the user's collection in the database
             await user_collection.update_one({'_id': user_id}, {'$push': {'collected_characters': character_doc['_id']}}, upsert=True)
             await message.reply(f"Congrats! {character_name} is now in your collection.")
@@ -153,12 +167,12 @@ async def collect(message: types.Message):
             if last_character_sent.get(group_id):
                 collector = await user_collection.find_one({'collected_characters': last_character_sent[group_id]})
                 if collector:
-                    collector_name = collector['_id']
+                    collector_name = collector['first_name']
                     await message.reply(f"This character has already been collected by {collector_name}.")
             else:
                 await message.reply("There's no new character to collect at this moment.")
     else:
-        await message.reply("Lol..Try Again")
+        await message.reply("Character not found.")
 
 @dp.message_handler(content_types=types.ContentTypes.ANY)
 async def send_image(message: types.Message):
