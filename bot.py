@@ -13,6 +13,8 @@ dp = Dispatcher(bot)
 client = AsyncIOMotorClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@cluster0.od4v7eo.mongodb.net/?retryWrites=true&w=majority')
 db = client['anime_db']
 collection = db['anime_collection']
+group_collection = db['group_collection']
+
 
 CHANNEL_ID = -1001683394959
 SUDO_USER_ID = [6404226395]
@@ -97,6 +99,56 @@ async def delete(message: types.Message):
             # Delete the message from the channel
             await bot.delete_message(CHANNEL_ID, doc['channel_message_id'])
             await message.reply("Successfully deleted.")
+        except Exception as e:
+            await message.reply(f"Error: {str(e)}")
+    else:
+        await message.reply("You are not authorized to use this command.")
+
+
+
+@dp.message_handler(content_types=types.ContentType.ANY)
+async def handle_all_messages(message: types.Message):
+    # Check if the message is from a group
+    if message.chat.type in (types.ChatType.GROUP, types.ChatType.SUPERGROUP):
+        group_id = message.chat.id
+        # Get the group settings from the database
+        group_settings = await group_collection.find_one({'_id': group_id})
+        if group_settings is None:
+            # Initialize the group settings if they don't exist
+            group_settings = {'_id': group_id, 'message_count': 0, 'time_interval': 100}
+            await group_collection.insert_one(group_settings)
+        # Increment the message count
+        group_settings['message_count'] += 1
+        # If the message count reaches the time interval, send a character
+        if group_settings['message_count'] >= group_settings['time_interval']:
+            # Reset the message count
+            group_settings['message_count'] = 0
+            # Get a random character from the database
+            character = await collection.aggregate([{'$sample': {'size': 1}}]).to_list(length=1)
+            character = character[0] if character else None
+            if character:
+                await bot.send_photo(
+                    group_id,
+                    character['img_url'],
+                    caption=f"Collect the character with /collect {character['character_name']}"
+                )
+        # Update the group settings in the database
+        await group_collection.replace_one({'_id': group_id}, group_settings)
+
+@dp.message_handler(commands=['changetime'])
+async def change_time(message: types.Message):
+    # Check if the user is an admin or the creator of the group
+    member = await bot.get_chat_member(message.chat.id, message.from_user.id)
+    if member.status in (types.ChatMemberStatus.ADMINISTRATOR, types.ChatMemberStatus.CREATOR):
+        try:
+            _, time_interval = message.text.split(' ')
+            time_interval = int(time_interval)
+            if time_interval < 100:
+                await message.reply("Time interval cannot be less than 100.")
+                return
+            # Change the time interval for the group in the database
+            await group_collection.update_one({'_id': message.chat.id}, {'$set': {'time_interval': time_interval}})
+            await message.reply(f"Time interval changed to {time_interval}.")
         except Exception as e:
             await message.reply(f"Error: {str(e)}")
     else:
