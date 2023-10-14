@@ -159,12 +159,12 @@ async def collect(message: types.Message):
         await message.reply(f"✅️ ! {character_name} is now in your collection.")
         # Update the last character sent in this group to prevent others from collecting it
         
+        last_character_sent[group_id] = None
         
     else:
         await message.reply("❌️ Lmao Bruhh..Try again..")
         
-    last_character_sent[group_id] = None
-        
+    
            
            
 
