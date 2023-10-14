@@ -108,7 +108,7 @@ async def changetime_handler(_, message):
     # Check if the user is a group admin
     administrators = []
     async for m in app.get_chat_members(message.chat.id,  filter=enums.ChatMembersFilter.ADMINISTRATORS):
-        administrators.append(member.user.id)
+        administrators.append(m)
         
     
     if message.from_user.id in administrators:
