@@ -137,7 +137,7 @@ async def collect(message: types.Message):
     user_id = message.from_user.id
     user_first_name = message.from_user.first_name
     # Get the character name from the message
-    _, character_name = message.text.split(' ', 1)
+    _, character_name = message.text.split(' ')
     character_name = character_name.lower()
     # Fetch a character from the database that matches the name
     character_doc = await collection.find_one({'character_name': re.compile(character_name, re.IGNORECASE)})
