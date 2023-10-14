@@ -103,11 +103,12 @@ async def delete_handler(_, message):
         await message.reply_text("Only sudo users can use this command.")
 
 
-
 @app.on_message(filters.command("changetime"))
 async def changetime_handler(_, message):
     # Check if the user is a group admin
-    admins = [admin.user.id for admin in await app.get_chat_members(message.chat.id, filter="administrators")]
+    admins = []
+    async for admin in app.get_chat_members(message.chat.id, filter="administrators"):
+        admins.append(admin.user.id)
     if message.from_user.id in admins:
         msg = message.text.split(' ')
         if len(msg) < 2:
