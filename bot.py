@@ -52,7 +52,7 @@ async def ping(message: types.Message):
 async def upload(message: types.Message):
     if message.from_user.id in SUDO_USER_ID:
         try:
-            _, img_url, anime_name, character_name = message.text.split(' ')
+            _, img_url, character_name, anime_name = message.text.split(' ')
             character_name = character_name.replace('-', ' ')
             anime_name = anime_name.replace('-', ' ')
             # Validate the URL
