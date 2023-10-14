@@ -115,7 +115,7 @@ async def handle_all_messages(message: types.Message):
         group_settings = await group_collection.find_one({'_id': group_id})
         if group_settings is None:
             # Initialize the group settings if they don't exist
-            group_settings = {'_id': group_id, 'message_count': 0, 'time_interval': 100}
+            group_settings = {'_id': group_id, 'message_count': 0, 'time_interval': 10}
             await group_collection.insert_one(group_settings)
         # Increment the message count
         group_settings['message_count'] += 1
@@ -130,7 +130,7 @@ async def handle_all_messages(message: types.Message):
                 await bot.send_photo(
                     group_id,
                     character['img_url'],
-                    caption=f"Collect the character with /collect {character['character_name']}"
+                    caption=f"Collect the character with /collect [Character Name]"
                 )
         # Update the group settings in the database
         await group_collection.replace_one({'_id': group_id}, group_settings)
