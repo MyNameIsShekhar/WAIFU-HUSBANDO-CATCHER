@@ -142,7 +142,7 @@ async def send_image(message: types.Message):
             # Use default settings if no settings are found in the database
             group_settings[group_id] = {'message_count': 0, 'time': 100}
         else:
-            group_settings[group_id] = {'message_count': 0, 'time': doc['time']}
+            group_settings[group_id] = {'message_count': 0, 'time': 100}
     group_settings[group_id]['message_count'] += 1
     if group_settings[group_id]['message_count'] >= group_settings[group_id]['time']:
         group_settings[group_id]['message_count'] = 0
