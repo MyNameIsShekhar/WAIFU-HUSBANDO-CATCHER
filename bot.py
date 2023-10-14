@@ -81,4 +81,25 @@ async def upload(message: types.Message):
     else:
         await message.reply("You are not authorized to use this command.")
 
+@dp.message_handler(commands=['delete'])
+async def delete(message: types.Message):
+    if message.from_user.id == SUDO_USER_ID:
+        try:
+            _, id = message.text.split(' ')
+            # Find the character in the database
+            doc = await collection.find_one({'_id': id})
+            if doc is None:
+                await message.reply("Character not found.")
+                return
+            # Delete the character from the database
+            await collection.delete_one({'_id': id})
+            # Delete the message from the channel
+            await bot.delete_message(CHANNEL_ID, doc['channel_message_id'])
+            await message.reply("Successfully deleted.")
+        except Exception as e:
+            await message.reply(f"Error: {str(e)}")
+    else:
+        await message.reply("You are not authorized to use this command.")
+
+
 executor.start_polling(dp)
