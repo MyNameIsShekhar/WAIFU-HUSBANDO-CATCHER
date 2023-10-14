@@ -15,6 +15,9 @@ client = AsyncIOMotorClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@clust
 db = client['anime_db']
 collection = db['anime_collection']
 group_collection = db['group_collection']
+user_collection = db['user_collectionn']
+
+last_character_sent = {}# Store the ID of the last character sent in each group
 
 group_settings = {}  # Store the settings for each group
 CHANNEL_ID = -1001683394959
