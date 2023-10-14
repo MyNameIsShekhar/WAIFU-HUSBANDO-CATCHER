@@ -102,30 +102,6 @@ async def delete_handler(_, message):
     else:
         await message.reply_text("Only sudo users can use this command.")
 
-@app.on_message(filters.group)
-async def message_handler(_, message):
-    group_id = message.chat.id
-    group = group_collection.find_one({'id': group_id})
-
-    if group is None:
-        # This group doesn't exist in the database yet.
-        # Create a new document for it.
-        group = {'id': group_id, 'message_count': 0, 'character_time': 10}
-        group_collection.insert_one(group)
-
-    # Increment message count
-    new_count = group['message_count'] + 1
-    if new_count >= group['character_time']:
-        # It's time to send a character
-        send_character_to_group(group_id)
-        new_count = 0  # Reset count
-
-    # Update message count in database
-    group_collection.update_one(
-        {'id': group_id},
-        {'$set': {'message_count': new_count}}
-    )
-
 
 
 @app.on_message(filters.command("changetime"))
