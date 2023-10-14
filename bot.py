@@ -163,17 +163,7 @@ async def collect(message: types.Message):
             await message.reply(f"Congrats! {character_name} is now in your collection.")
             # Update the last character sent in this group to prevent others from collecting it
             last_character_sent[group_id] = None
-        else:
-            if last_character_sent.get(group_id):
-                collector = await user_collection.find_one({'collected_characters': last_character_sent[group_id]})
-                if collector:
-                    collector_name = collector['first_name']
-                    await message.reply(f"This character has already been collected by {collector_name}.")
-            else:
-                await message.reply("There's no new character to collect at this moment.")
-    else:
-        await message.reply("Character not found.")
-
+        
 @dp.message_handler(content_types=types.ContentTypes.ANY)
 async def send_image(message: types.Message):
     group_id = message.chat.id
