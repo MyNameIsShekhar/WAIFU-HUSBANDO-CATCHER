@@ -106,10 +106,12 @@ async def delete_handler(_, message):
 @app.on_message(filters.command("changetime"))
 async def changetime_handler(_, message):
     # Check if the user is a group admin
-    admins = []
-    async for admin in app.get_chat_members(message.chat.id, filter="administrators"):
-        admins.append(admin.user.id)
-    if message.from_user.id in admins:
+    administrators = []
+    async for m in app.get_chat_members(chat_id, filter=enums.ChatMembersFilter.ADMINISTRATORS):
+        administrators.append(admin.user.id)
+        
+    
+    if message.from_user.id in administrators:
         msg = message.text.split(' ')
         if len(msg) < 2:
             await message.reply_text("Please provide a new time. Use /changetime new_time")
