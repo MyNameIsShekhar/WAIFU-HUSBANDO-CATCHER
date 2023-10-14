@@ -1,8 +1,5 @@
 from aiogram import Bot, Dispatcher, types
 from motor.motor_asyncio import AsyncIOMotorClient
-from telegram import Update, BotCommand
-from telegram.ext import Updater, CommandHandler, CallbackContext
-from motor.motor_asyncio import AsyncIOMotorClient
 import re
 import aiohttp
 from aiogram import executor
@@ -134,30 +131,6 @@ async def handle_all_messages(message: types.Message):
                     character['img_url'],
                     caption=f"Collect the character with /collect {character['character_name']}"
                 )
-
-def changetime(update: Update, context: CallbackContext) -> None:
-    # Check if the user is an admin or the creator of the group
-    chat_member = update.effective_chat.get_member(update.effective_user.id)
-    if chat_member.status in ('administrator', 'creator'):
-        try:
-            time_interval = int(context.args[0])
-            if time_interval < 100:
-                update.message.reply_text("Time interval cannot be less than 100.")
-                return
-            # Change the time interval for the group in the database
-            group_collection.update_one({'_id': update.effective_chat.id}, {'$set': {'time_interval': time_interval}})
-            update.message.reply_text(f"Time interval changed to {time_interval}.")
-        except Exception as e:
-            update.message.reply_text(f"Error: {str(e)}")
-    else:
-        update.message.reply_text("You are not authorized to use this command.")
-
-updater = Updater(token='6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs')
-
-updater.dispatcher.add_handler(CommandHandler('changetime', changetime))
-
-updater.start_polling()
-updater.idle()
 
 
 executor.start_polling(dp)
