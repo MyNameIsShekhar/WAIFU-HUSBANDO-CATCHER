@@ -16,6 +16,7 @@ collection = db['anime_collection']
 
 CHANNEL_ID = -1001683394959
 SUDO_USER_ID = [6404226395]
+
 async def generate_id():
     for i in range(1, 10000):
         id = str(i).zfill(4)
@@ -83,7 +84,7 @@ async def upload(message: types.Message):
 
 @dp.message_handler(commands=['delete'])
 async def delete(message: types.Message):
-    if message.from_user.id == SUDO_USER_ID:
+    if message.from_user.id in SUDO_USER_ID:
         try:
             _, id = message.text.split(' ')
             # Find the character in the database
