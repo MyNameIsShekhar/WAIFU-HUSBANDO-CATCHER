@@ -135,7 +135,9 @@ async def send_image(message: types.Message):
         doc = {'message_count': 0, 'time': 10}
     doc['message_count'] += 1
     if doc['message_count'] >= doc['time']:
+        # Reset the message count and save it to the database immediately
         doc['message_count'] = 0
+        await group_collection.update_one({'_id': group_id}, {'$set': {'message_count': doc['message_count']}}, upsert=True)
         # Fetch a random character from the database
         count = await collection.count_documents({})
         random_index = randint(0, count - 1)
@@ -149,8 +151,9 @@ async def send_image(message: types.Message):
                 caption=f"/collect this Character..And Add In Your Collection..",
                 
             )
-    # Save the updated settings to the database
-    await group_collection.update_one({'_id': group_id}, {'$set': doc}, upsert=True)
+    else:
+        # If no image was sent, save the updated message count to the database
+        await group_collection.update_one({'_id': group_id}, {'$set': {'message_count': doc['message_count']}}, upsert=True)
 
 executor.start_polling(dp)
 
