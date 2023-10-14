@@ -107,7 +107,7 @@ async def delete_handler(_, message):
 async def changetime_handler(_, message):
     # Check if the user is a group admin
     administrators = []
-    async for m in app.get_chat_members(chat_id, filter=enums.ChatMembersFilter.ADMINISTRATORS):
+    async for m in app.get_chat_members(message.chat.id,  filter=enums.ChatMembersFilter.ADMINISTRATORS):
         administrators.append(admin.user.id)
         
     
