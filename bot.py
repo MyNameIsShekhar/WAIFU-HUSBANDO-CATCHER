@@ -129,6 +129,7 @@ async def new_time(message: types.Message):
         await message.reply(f"Error: {str(e)}")
 
 
+
 @dp.message_handler(commands=['collect'])
 async def collect(message: types.Message):
     group_id = message.chat.id
@@ -140,7 +141,10 @@ async def collect(message: types.Message):
     # Fetch a character from the database that matches the name
     character_doc = await collection.find_one({'character_name': re.compile(character_name, re.IGNORECASE)})
     
-
+    # If no character is found or if this is not the last character sent in the group, reply with "You're wrong."
+    if not character_doc or last_character_sent.get(group_id) != character_doc['_id']:
+        await message.reply("You're wrong.")
+        return
 
     # Fetch the user's document from the database
     user_doc = await user_collection.find_one({'_id': user_id})
@@ -150,7 +154,7 @@ async def collect(message: types.Message):
             # Update the user's first name in the database
             await user_collection.update_one({'_id': user_id}, {'$set': {'first_name': user_first_name}})
         
-    if:
+    else:
         # Create a new document for the user in the database
         await user_collection.insert_one({'_id': user_id, 'first_name': user_first_name, 'collected_characters': []})
     
@@ -165,8 +169,6 @@ async def collect(message: types.Message):
     
     # Update the last character sent in this group to prevent others from collecting it
     last_character_sent[group_id] = None
-    else:
-        update.message.reply_text('Incorrect guess. Try again.')
 
 
    
