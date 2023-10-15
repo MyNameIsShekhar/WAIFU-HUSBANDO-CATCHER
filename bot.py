@@ -145,7 +145,7 @@ async def collect(message: types.Message):
     character_doc = await collection.find_one({'character_name': re.compile(character_name, re.IGNORECASE)})
     
     # If no character is found or if this is not the last character sent in the group, reply with "You're wrong."
-    if not character_doc or last_character_sent.get(group_id) != character_doc['_id']:
+    if last_character_sent.get(group_id) != first_collected_by:
         # Check if the character has been collected before
         if character_doc and first_collected_by.get(character_doc['_id']):
             first_collector = first_collected_by[character_doc['_id']]
