@@ -190,7 +190,7 @@ async def collect(message: types.Message):
     if group_id in first_collected:
         first_collector = await user_collection.find_one({'_id': first_collected[group_id]})
         await message.reply(f"Already collected by {first_collector['first_name']}.")
-        return
+        
 
     # Get the character name from the message
     _, character_name = message.text.split(' ', 1)
@@ -201,7 +201,7 @@ async def collect(message: types.Message):
     # if this is not the last character sent in the group, reply with "You're wrong."
     if not character_doc or last_character_sent.get(group_id) != character_doc['_id']:
         await message.reply("You're wrong.")
-        return
+        
 
     # If not, store this user as the first one who collected it
     first_collected[group_id] = user_id
