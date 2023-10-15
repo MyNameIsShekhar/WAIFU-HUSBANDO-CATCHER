@@ -136,43 +136,28 @@ async def new_time(message: types.Message):
 async def collect(message: types.Message):
     group_id = message.chat.id
     user_id = message.from_user.id
-    user_first_name = message.from_user.first_name
-    # Get the character name from the message
-    _, character_name = message.text.split(' ', 1)
-    character_name = character_name.lower()
-    # Fetch a character from the database that matches the name
-    character_doc = await collection.find_one({'character_name': re.compile(character_name, re.IGNORECASE)})
-    
-    # If already someone collected then show"
-    if character_doc and first_collected_by.get(character_doc['_id']):
-        first_collector = first_collected_by[character_doc['_id']]
-        await message.reply(f"You're wrong or maybe..Someone Already Collected by {first_collector}")
+    # Check if the user has already collected the character
+    if last_character_sent[group_id] in first_collected_by:
+        first_collector = await bot.get_chat_member(group_id, first_collected_by[last_character_sent[group_id]])
+        await message.reply(f"This character has already been collected by {first_collector.user.first_name}.", parse_mode='HTML')
         return
-
-    # If this is the first time this character is being collected, store the user's name
-    if not first_collected_by.get(character_doc['_id']):
-        first_collected_by[character_doc['_id']] = user_first_name
-
-    # Fetch the user's document from the database
+    # Check if the user has entered the correct character name
+    character_doc = await collection.find_one({'_id': last_character_sent[group_id]})
+    if character_doc is None or character_doc['character_name'].lower() != message.text[8:].strip().lower():
+        await message.reply("Wrong name. Try again.")
+        return
+    # Add the character to the user's collection
     user_doc = await user_collection.find_one({'_id': user_id})
-    if user_doc:
-        # Check if the user's first name has changed
-        if user_doc.get('first_name') != user_first_name:
-            # Update the user's first name in the database
-            await user_collection.update_one({'_id': user_id}, {'$set': {'first_name': user_first_name}})
-        
+    if user_doc is None:
+        user_doc = {'_id': user_id, 'collected_characters': [last_character_sent[group_id]]}
+        await user_collection.insert_one(user_doc)
     else:
-        # Create a new document for the user in the database
-        await user_collection.insert_one({'_id': user_id, 'first_name': user_first_name, 'collected_characters': []})
-    
-    # Add the character to the user's collection in the database
-    await user_collection.update_one({'_id': user_id}, {'$push': {'collected_characters': character_doc['_id']}}, upsert=True)
-    
-    # Fetch the updated document and count the number of times this specific character has been collected
-    updated_user_doc = await user_collection.find_one({'_id': user_id})
-    num_times_collected = updated_user_doc['collected_characters'].count(character_doc['_id'])
-    
-    await message.reply(f'<a href="tg://user?id={user_id}">{user_first_name}</a> Congrats! {character_name} is now in your collection. You have collected {character_name} {num_times_collected} times.', parse_mode='HTML')
+        if 'collected_characters' not in user_doc:
+            user_doc['collected_characters'] = []
+        user_doc['collected_characters'].append(last_character_sent[group_id])
+        await user_collection.update_one({'_id': user_id}, {'$set': {'collected_characters': user_doc['collected_characters']}})
+    first_collected_by[last_character_sent[group_id]] = user_id
+    await message.reply("Character successfully collected.")
 
 @dp.message_handler(content_types=types.ContentTypes.ANY)
 async def send_image(message: types.Message):
