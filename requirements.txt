@@ -2,3 +2,5 @@ motor
 aiohttp
 requests
 pyrogram
+pymongo 
+pymongo[srv]
