@@ -129,94 +129,89 @@ async def new_time(message: types.Message):
         await message.reply(f"Error: {str(e)}")
 
 
-@dp.message_handler(commands=['collect'])
-async def collect(message: types.Message):
-    group_id = message.chat.id
-    user_id = message.from_user.id
-    user_first_name = message.from_user.first_name
-    # Get the character name from the message
-    _, character_name = message.text.split(' ', 1)
-    character_name = character_name.lower()
-    # Fetch a character from the database that matches the name
-    character_doc = await collection.find_one({'character_name': re.compile(character_name, re.IGNORECASE)})
-    
-    # If no character is found or if this is not the last character sent in the group, reply with "You're wrong."
-    if not character_doc or last_character_sent.get(group_id) != character_doc['_id']:
-        await message.reply("You're wrong.")
-        return
-
-    # Fetch the user's document from the database
-    user_doc = await user_collection.find_one({'_id': user_id})
-    if user_doc:
-        # Check if the user's first name has changed
-        if user_doc.get('first_name') != user_first_name:
-            # Update the user's first name in the database
-            await user_collection.update_one({'_id': user_id}, {'$set': {'first_name': user_first_name}})
-        
-    else:
-        # Create a new document for the user in the database
-        await user_collection.insert_one({'_id': user_id, 'first_name': user_first_name, 'collected_characters': []})
-    
-    # Add the character to the user's collection in the database
-    await user_collection.update_one({'_id': user_id}, {'$push': {'collected_characters': character_doc['_id']}}, upsert=True)
-    
-    # Fetch the updated document and count the number of times this specific character has been collected
-    updated_user_doc = await user_collection.find_one({'_id': user_id})
-    num_times_collected = updated_user_doc['collected_characters'].count(character_doc['_id'])
-    
-    await message.reply(f'<a href="tg://user?id={user_id}">{user_first_name}</a> Congrats! {character_name} is now in your collection. You have collected {character_name} {num_times_collected} times.', parse_mode='HTML')
-    
-    # Update the last character sent in this group to prevent others from collecting it
-    last_character_sent[group_id] = None
-
-
-
 @dp.message_handler(content_types=types.ContentTypes.ANY)
 async def send_image(message: types.Message):
-    group_id = message.chat.id
-    # Load the settings from the database
-    doc = await group_collection.find_one({'_id': group_id})
-    if doc is None:
-        # Use default settings if no settings are found in the database
-        doc = {'message_count': 0, 'time': 10, 'sent_images': []}
+    chat_id = message.chat.id
+
+    # Get all characters
+    all_characters = list(await collection.find({}).to_list(length=None))
+    
+    # Initialize sent characters list for this chat if it doesn't exist
+    if chat_id not in sent_characters:
+        sent_characters[chat_id] = []
+
+    # Reset sent characters list if all characters have been sent
+    if len(sent_characters[chat_id]) == len(all_characters):
+        sent_characters[chat_id] = []
+
+    # Select a random character that hasn't been sent yet
+    character = random.choice([c for c in all_characters if c['_id'] not in sent_characters[chat_id]])
+
+    # Add character to sent characters list and set as last sent character
+    sent_characters[chat_id].append(character['_id'])
+    last_characters[chat_id] = character
+
+    # Reset first correct guess when a new character is sent
+    if chat_id in first_correct_guesses:
+        del first_correct_guesses[chat_id]
+
+    # Send image with caption
+    await bot.send_photo(
+        chat_id,
+        character['img_url'],
+        caption="Use /collect Command And.. Collect This Character.."
+    )
+@dp.message_handler(commands=['collect'])
+async def collect(message: types.Message):
+    chat_id = message.chat.id
+    user_id = message.from_user.id
+    user_first_name = message.from_user.first_name
+
+    # Check if a character has been sent in this chat yet
+    if chat_id not in last_characters:
+        return
+
+    # If someone has already guessed correctly
+    if chat_id in first_correct_guesses:
+        await message.reply(f'❌️ Already collected by Someone..So Try Next Time Bruhh')
+        return
+
+    # Check if collect is correct
+    collect = ' '.join(context.args).lower() if context.args else ''
+    
+    if collect and collect in last_characters[chat_id]['name'].lower():
+        # Set the flag that someone has collected correctly
+        first_correct_guesses[chat_id] = user_id
+
+        # Add character to user's collection
+        user = user_collection.find_one({'id': user_id})
+        if user:
+            # Update username if it has changed
+            if hasattr(update.effective_user, 'username') and update.effective_user.username != user['username']:
+                user_collection.update_one({'id': user_id}, {'$set': {'username': update.effective_user.username}})
+            # Increment count of character in user's collection
+            character_index = next((index for (index, d) in enumerate(user['characters']) if d["id"] == last_characters[chat_id]["id"]), None)
+            if character_index is not None:
+                # Check if 'count' key exists and increment it, otherwise add it
+                if 'count' in user['characters'][character_index]:
+                    user['characters'][character_index]['count'] += 1
+                else:
+                    user['characters'][character_index]['count'] = 1
+                user_collection.update_one({'id': user_id}, {'$set': {'characters': user['characters']}})
+            else:
+                # Add character to user's collection
+                last_characters[chat_id]['count'] = 1
+                user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
+        elif hasattr(update.effective_user, 'username'):
+            # Create new user document
+            last_characters[chat_id]['count'] = 1
+            user_collection.insert_one({
+                'id': user_id,
+                'username': update.effective_user.username,
+                'characters': [last_characters[chat_id]]
+            })
+
+        await message.reply(f'Congooo ✅️! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> collected it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
+
     else:
-        # Check if 'time' key exists in the doc, if not set a default time
-        if 'time' not in doc:
-            doc['time'] = 10
-        # Check if 'message_count' key exists in the doc, if not set it to 0
-        if 'message_count' not in doc:
-            doc['message_count'] = 0
-
-    doc['message_count'] += 1
-    if doc['message_count'] >= doc['time']:
-        # Reset the message count and save it to the database immediately
-        doc['message_count'] = 0
-        await group_collection.update_one({'_id': group_id}, {'$set': {'message_count': doc['message_count']}}, upsert=True)
-        
-        # Fetch a random character from the database that hasn't been sent yet
-        count = await collection.count_documents({})
-        random_index = randint(0, count - 1)
-        character_doc = await collection.find().skip(random_index).limit(1).to_list(length=1)
-        
-        # If all images have been sent, start from the beginning
-        if not character_doc:
-            doc['sent_images'] = []
-            character_doc = await collection.find().to_list(length=None)
-
-        character_doc = character_doc[0]
-        
-        # Send the image to the group and update last_character_sent for this group
-        last_character_sent[group_id] = character_doc['_id']
-        
-        await bot.send_photo(
-            group_id,
-            character_doc['img_url'],
-            caption=f"/collect this Character..And Add In Your Collection..",
-            
-        )
-    else:
-        # If no image was sent, save the updated message count to the database
-        await group_collection.update_one({'_id': group_id}, {'$set': {'message_count': doc['message_count']}}, upsert=True)
-
-
-executor.start_polling(dp)
+        await message.reply('Incorrect collect. Try again.')
