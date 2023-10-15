@@ -147,7 +147,7 @@ async def collect(message: types.Message):
     if character_doc is None:
         await message.reply("No character to collect. Try again when a new character appears.")
         return
-    entered_name_parts = set(message.text[8:].strip().lower().split())
+    entered_name_parts = set(message.get_args().strip().lower().split())
     character_name_parts = set(character_doc['character_name'].lower().split())
     if not entered_name_parts.issubset(character_name_parts):
         await message.reply("❎️ Try again.")
