@@ -135,7 +135,7 @@ def delete(update: Update, context: CallbackContext) -> None:
 
         if character:
             # Delete message from channel
-            context.bot.delete_message(chat_id='-1001670772912', message_id=character['message_id'])
+            context.bot.delete_message(chat_id='-1001915956222', message_id=character['message_id'])
             update.message.reply_text('Successfully deleted.')
         else:
             update.message.reply_text('No character found with given ID.')
