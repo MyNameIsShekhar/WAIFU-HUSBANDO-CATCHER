@@ -150,7 +150,7 @@ async def collect(message: types.Message):
             # Update the user's first name in the database
             await user_collection.update_one({'_id': user_id}, {'$set': {'first_name': user_first_name}})
         
-    else:
+    if:
         # Create a new document for the user in the database
         await user_collection.insert_one({'_id': user_id, 'first_name': user_first_name, 'collected_characters': []})
     
