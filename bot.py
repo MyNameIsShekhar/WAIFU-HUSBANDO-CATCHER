@@ -168,7 +168,11 @@ async def collect(message: types.Message):
     
     # Update the last character sent in this group to prevent others from collecting it
     last_character_sent[group_id] = None
+    else:
+        update.message.reply_text('Incorrect guess. Try again.')
 
+
+   
 
 
 @dp.message_handler(content_types=types.ContentTypes.ANY)
