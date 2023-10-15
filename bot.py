@@ -225,11 +225,11 @@ def message_counter(update: Update, context: CallbackContext) -> None:
         # Get message frequency and counter for this chat from the database
         chat_frequency = user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
-            message_frequency = chat_frequency.get('message_frequency', 20)
+            message_frequency = chat_frequency.get('message_frequency', 100)
             message_counter = chat_frequency.get('message_counter', 0)
         else:
             # Default to 20 messages if not set
-            message_frequency = 20
+            message_frequency = 100
             message_counter = 0
 
         # Increment counter for this chat
@@ -437,7 +437,7 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
 
 # Add InlineQueryHandler to the dispatcher
 def main() -> None:
-    updater = Updater(token='6347356084:AAHX7A8aY9fbtgCQ-8R16TRBKkCHtX4bMxA')
+    updater = Updater(token='6420751168:AAEtf-OyEYLLTZM2c4LrhIroXPfvsW7KlM8')
 
     dispatcher = updater.dispatcher
 
