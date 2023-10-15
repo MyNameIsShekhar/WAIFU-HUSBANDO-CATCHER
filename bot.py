@@ -143,7 +143,12 @@ async def collect(message: types.Message):
         return
     # Check if the user has entered the correct character name
     character_doc = await collection.find_one({'_id': last_character_sent[group_id]})
-    if character_doc is None or character_doc['character_name'].lower() != message.text[8:].strip().lower():
+    if character_doc is None:
+        await message.reply("No character to collect. Try again when a new character appears.")
+        return
+    entered_name_parts = set(message.text[8:].strip().lower().split())
+    character_name_parts = set(character_doc['character_name'].lower().split())
+    if not entered_name_parts.issubset(character_name_parts):
         await message.reply("Wrong name. Try again.")
         return
     # Add the character to the user's collection
