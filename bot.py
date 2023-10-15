@@ -18,6 +18,7 @@ group_collection = db['group_collection']
 user_collection = db['user_collectionn']
 
 last_character_sent = {}# Store the ID of the last character sent in each group
+first_collected_by = {}
 
 group_settings = {}  # Store the settings for each group
 CHANNEL_ID = -1001683394959
@@ -130,6 +131,8 @@ async def new_time(message: types.Message):
 
 
 
+# Create a dictionary to store the first user who collects each character
+
 @dp.message_handler(commands=['collect'])
 async def collect(message: types.Message):
     group_id = message.chat.id
@@ -143,8 +146,17 @@ async def collect(message: types.Message):
     
     # If no character is found or if this is not the last character sent in the group, reply with "You're wrong."
     if not character_doc or last_character_sent.get(group_id) != character_doc['_id']:
-        await message.reply("You're wrong or maybe..Someone Already Collected")
+        # Check if the character has been collected before
+        if character_doc and first_collected_by.get(character_doc['_id']):
+            first_collector = first_collected_by[character_doc['_id']]
+            await message.reply(f"You're wrong or maybe..Someone Already Collected by {first_collector}")
+        else:
+            await message.reply("You're wrong or maybe..Someone Already Collected")
         return
+
+    # If this is the first time this character is being collected, store the user's name
+    if not first_collected_by.get(character_doc['_id']):
+        first_collected_by[character_doc['_id']] = user_first_name
 
     # Fetch the user's document from the database
     user_doc = await user_collection.find_one({'_id': user_id})
@@ -166,17 +178,13 @@ async def collect(message: types.Message):
     num_times_collected = updated_user_doc['collected_characters'].count(character_doc['_id'])
     
     await message.reply(f'<a href="tg://user?id={user_id}">{user_first_name}</a> Congrats! {character_name} is now in your collection. You have collected {character_name} {num_times_collected} times.', parse_mode='HTML')
-    
-    # Update the last character sent in this group to prevent others from collecting it
-    
-   
+
 
 
 @dp.message_handler(content_types=types.ContentTypes.ANY)
 async def send_image(message: types.Message):
     group_id = message.chat.id
-    # Load the settings from the dat
-    last_character_sent[group_id] = None
+    # Load the settings from the database
     doc = await group_collection.find_one({'_id': group_id})
     if doc is None:
         # Use default settings if no settings are found in the database
@@ -207,18 +215,16 @@ async def send_image(message: types.Message):
 
         character_doc = character_doc[0]
         
+        # Delete the corresponding entry from first_collected_by to reset it for the next round
+        if character_doc['_id'] in first_collected_by:
+            del first_collected_by[character_doc['_id']]
+        
         # Send the image to the group and update last_character_sent for this group
         last_character_sent[group_id] = character_doc['_id']
         
         await bot.send_photo(
             group_id,
             character_doc['img_url'],
-            caption=f"/collect this Character..And Add In Your Collection..",
-            
-        )
-    else:
-        # If no image was sent, save the updated message count to the database
-        await group_collection.update_one({'_id': group_id}, {'$set': {'message_count': doc['message_count']}}, upsert=True)
-
+            caption=f"/collect this Character..And Add In Your Collection")
 
 executor.start_polling(dp)
