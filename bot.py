@@ -16,7 +16,7 @@ user_collection = db['user_collectionn']
 api_id = '24427150'
 api_hash = '9fcc60263a946ef550d11406667404fa'
 bot_token = '6430015242:AAG5eGK4MYd9-58PjYfJZy0LhcfMvpWly1I'
-app = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
+bot = Client("my_bot", api_id=api_id, api_hash=api_hash, bot_token=bot_token)
 
 last_character_sent = {}# Store the ID of the last character sent in each group
 first_collected_by = {}
