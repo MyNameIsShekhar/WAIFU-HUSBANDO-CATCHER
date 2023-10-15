@@ -214,11 +214,14 @@ async def send_image(message: types.Message):
             character_doc = await collection.find().to_list(length=None)
 
         character_doc = character_doc[0]
+        
+        # Delete the corresponding entry from first_collected_by to reset it for the next round
         if character_doc['_id'] in first_collected_by:
             del first_collected_by[character_doc['_id']]
         
         # Send the image to the group and update last_character_sent for this group
         last_character_sent[group_id] = character_doc['_id']
+        
         
         await bot.send_photo(
             group_id,
