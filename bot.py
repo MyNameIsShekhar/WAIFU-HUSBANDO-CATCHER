@@ -40,6 +40,13 @@ first_correct_guesses = {}
 
 
 
+def ping(update: Update, context: CallbackContext) -> None:
+    start_time = datetime.datetime.now()
+    update.message.reply_text('pong')
+    end_time = datetime.datetime.now()
+    elapsed_time = end_time - start_time
+    update.message.reply_text('Response time: ' + str(elapsed_time))
+
 def get_next_sequence_number(sequence_name):
     # Get a handle to the sequence collection
     sequence_collection = db.sequences
