@@ -5,10 +5,9 @@ from telegram.ext import InlineQueryHandler,CallbackQueryHandler, ChosenInlineRe
 from pymongo import MongoClient, ReturnDocument
 import urllib.request
 import random
-from datetime import datetime, timedelta
 from threading import Lock
-
-# Connect to MongoDB
+import time 
+#Connect to MongoDB
 client = MongoClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
 db = client['Waifus']
 collection = db['anime_characters']
@@ -40,12 +39,14 @@ first_correct_guesses = {}
 
 
 
+
+
 def ping(update: Update, context: CallbackContext) -> None:
-    start_time = datetime.datetime.now()
+    start_time = time.time()
     update.message.reply_text('pong')
-    end_time = datetime.datetime.now()
+    end_time = time.time()
     elapsed_time = end_time - start_time
-    update.message.reply_text('Response time: ' + str(elapsed_time))
+    update.message.reply_text('Response time: ' + str(elapsed_time) + ' seconds')
 
 def get_next_sequence_number(sequence_name):
     # Get a handle to the sequence collection
