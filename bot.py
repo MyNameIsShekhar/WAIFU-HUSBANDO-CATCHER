@@ -226,7 +226,7 @@ async def send_image(message: types.Message):
 
 async def main():
     
-    executor.start_polling(dp)
+    await executor.start_polling(dp)
 
 
         
