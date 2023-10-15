@@ -180,7 +180,6 @@ async def send_image(message: types.Message):
         # If no image was sent, save the updated message count to the database
         await group_collection.update_one({'_id': group_id}, {'$set': {'message_count': doc['message_count']}}, upsert=True)
 
-
 @dp.message_handler(commands=['collect'])
 async def collect(message: types.Message):
     group_id = message.chat.id
@@ -192,17 +191,16 @@ async def collect(message: types.Message):
     # Fetch a character from the database that matches the name
     character_doc = await collection.find_one({'character_name': re.compile(character_name, re.IGNORECASE)})
     
-    if group_id in first_collected:
-        await message.reply(f"Already collected by {first_collected[group_id]['first_name']}.")
-        return
-
     # if this is not the last character sent in the group, reply with "You're wrong."
     if not character_doc or last_character_sent.get(group_id) != character_doc['_id']:
         await message.reply("You're wrong.")
         return
 
     # Check if the character has already been collected
-    
+    if group_id in first_collected:
+        await message.reply(f"Already collected by {first_collected[group_id]['first_name']}.")
+        return
+
     # If not, store this user as the first one who collected it
     first_collected[group_id] = {'user_id': user_id, 'first_name': user_first_name}
 
@@ -230,6 +228,7 @@ async def collect(message: types.Message):
     
     await message.reply(f'<a href="tg://user?id={user_id}">{user_first_name}</a> Congrats! {character_name} is now in your collection. You have collected {character_name} {num_times_collected} times.', parse_mode='HTML')
     
-
+    # Update the last character sent in this group to prevent others from collecting it
+    
 
 executor.start_polling(dp)
