@@ -181,5 +181,54 @@ async def collect(message: types.Message):
 
 
 
+@dp.message_handler(content_types=types.ContentTypes.ANY)
+async def send_image(message: types.Message):
+    group_id = message.chat.id
+    # Load the settings from the database
+    doc = await group_collection.find_one({'_id': group_id})
+    if doc is None:
+        # Use default settings if no settings are found in the database
+        doc = {'message_count': 0, 'time': 10, 'sent_images': []}
+    else:
+        # Check if 'time' key exists in the doc, if not set a default time
+        if 'time' not in doc:
+            doc['time'] = 10
+        # Check if 'message_count' key exists in the doc, if not set it to 0
+        if 'message_count' not in doc:
+            doc['message_count'] = 0
+
+    doc['message_count'] += 1
+    if doc['message_count'] >= doc['time']:
+        # Reset the message count and save it to the database immediately
+        doc['message_count'] = 0
+        await group_collection.update_one({'_id': group_id}, {'$set': {'message_count': doc['message_count']}}, upsert=True)
+        
+        # Fetch a random character from the database that hasn't been sent yet
+        count = await collection.count_documents({})
+        random_index = randint(0, count - 1)
+        character_doc = await collection.find().skip(random_index).limit(1).to_list(length=1)
+        
+        # If all images have been sent, start from the beginning
+        if not character_doc:
+            doc['sent_images'] = []
+            character_doc = await collection.find().to_list(length=None)
+
+        character_doc = character_doc[0]
+        if character_doc['_id'] in first_collected_by:
+            del first_collected_by[character_doc['_id']]
+        
+        # Send the image to the group and update last_character_sent for this group
+        last_character_sent[group_id] = character_doc['_id']
+        
+        await bot.send_photo(
+            group_id,
+            character_doc['img_url'],
+            caption=f"/collect this Character..And Add In Your Collection..",
+            
+        )
+    else:
+        # If no image was sent, save the updated message count to the database
+        await group_collection.update_one({'_id': group_id}, {'$set': {'message_count': doc['message_count']}}, upsert=True)
+
 
 executor.start_polling(dp)
