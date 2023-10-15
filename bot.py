@@ -143,7 +143,7 @@ async def collect(message: types.Message):
     
     # If no character is found or if this is not the last character sent in the group, reply with "You're wrong."
     if not character_doc or last_character_sent.get(group_id) != character_doc['_id']:
-        await message.reply("You're wrong.")
+        await message.reply("You're wrong or maybe..Someone Already Collected")
         return
 
     # Fetch the user's document from the database
@@ -168,16 +168,15 @@ async def collect(message: types.Message):
     await message.reply(f'<a href="tg://user?id={user_id}">{user_first_name}</a> Congrats! {character_name} is now in your collection. You have collected {character_name} {num_times_collected} times.', parse_mode='HTML')
     
     # Update the last character sent in this group to prevent others from collecting it
-    last_character_sent[group_id] = None
-
-
+    
    
 
 
 @dp.message_handler(content_types=types.ContentTypes.ANY)
 async def send_image(message: types.Message):
     group_id = message.chat.id
-    # Load the settings from the database
+    # Load the settings from the dat
+    last_character_sent[group_id] = None
     doc = await group_collection.find_one({'_id': group_id})
     if doc is None:
         # Use default settings if no settings are found in the database
