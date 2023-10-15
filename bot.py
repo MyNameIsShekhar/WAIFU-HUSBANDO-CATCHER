@@ -9,17 +9,17 @@ from threading import Lock
 import time 
 #Connect to MongoDB
 client = MongoClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
-db = client['Waifus']
-collection = db['anime_characters']
+db = client['Waifus_lol']
+collection = db['anime_characters_lol']
 
 # Get the collection for user totals
-user_totals_collection = db['user_totals']
-user_collection = db["user_collection"]
+user_totals_collection = db['user_totals_lol']
+user_collection = db["user_collection_lol"]
 
 
 
 # List of sudo users
-sudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651'  ]
+sudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651', '5813998595', '5813403535', '6393627898' ]
 
 
 # Create a dictionary of locks
@@ -103,7 +103,7 @@ def upload(update: Update, context: CallbackContext) -> None:
         
         # Send message to channel
         message = context.bot.send_photo(
-            chat_id='-1001670772912',
+            chat_id='-1001915956222',
             photo=args[0],
             caption=f'<b>Character Name:</b> {character_name}\n<b>Anime Name:</b> {anime}\n<b>ID:</b> {id}\nAdded by <a href="tg://user?id={update.effective_user.id}">{update.effective_user.first_name}</a>',
             parse_mode='HTML'
@@ -113,7 +113,7 @@ def upload(update: Update, context: CallbackContext) -> None:
         character['message_id'] = message.message_id
         collection.insert_one(character)
 
-        update.message.reply_text('Successfully uploaded.')
+        update.message.reply_text('Done...@characters_database.')
     except Exception as e:
         update.message.reply_text('Unsuccessfully uploaded.')
 
