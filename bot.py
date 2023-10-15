@@ -222,4 +222,14 @@ async def send_image(message: types.Message):
         # If no image was sent, save the updated message count to the database
         await group_collection.update_one({'_id': group_id}, {'$set': {'message_count': doc['message_count']}}, upsert=True)
 
-executor.start_polling(dp)
+
+
+async def main():
+    
+    await executor.start_polling(dp)
+
+
+        
+# This will run your bot
+asyncio.run(main())
+
