@@ -8,7 +8,7 @@ from datetime import datetime
 import time
 from random import randint
 
-bot =Bot('6504156888:AAEg_xcxqSyYIbyCZnH6zJmwMNZm3DFTmJs')
+bot =Bot('6492563678:AAGSw9sjps3Ir39Ah6o1lg7BjmnnN2RtF2I')
 dp = Dispatcher(bot)
 
 client = AsyncIOMotorClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
@@ -180,11 +180,11 @@ async def send_image(message: types.Message):
     doc = await group_collection.find_one({'_id': group_id})
     if doc is None:
         # Use default settings if no settings are found in the database
-        doc = {'message_count': 0, 'time': 10, 'sent_images': []}
+        doc = {'message_count': 0, 'time': 100, 'sent_images': []}
     else:
         # Check if 'time' key exists in the doc, if not set a default time
         if 'time' not in doc:
-            doc['time'] = 10
+            doc['time'] = 100
         # Check if 'message_count' key exists in the doc, if not set it to 0
         if 'message_count' not in doc:
             doc['message_count'] = 0
