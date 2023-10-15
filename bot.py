@@ -171,7 +171,7 @@ async def collect(message: types.Message):
         await user_collection.update_one({'_id': user_id}, {'$set': {'collected_characters': user_doc['collected_characters']}})
     first_collected_by[last_character_sent[group_id]] = user_id
     total_characters = sum(user_doc['collected_characters'].values())
-    await bot.send_message(group_id, f"✅️ <a href='tg://user?id={user_id}'>{first_name}</a> successfully collected {character_doc['character_name']}. Total characters: {total_characters}", parse_mode='HTML')
+    await message.reply(f"✅️ <a href='tg://user?id={user_id}'>{first_name}</a> Added {character_doc['character_name']} in Your Collection !!", parse_mode='HTML')
 
 @dp.message_handler(content_types=types.ContentTypes.ANY)
 async def send_image(message: types.Message):
