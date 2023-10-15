@@ -15,10 +15,10 @@ client = AsyncIOMotorClient('mongodb+srv://shekharhatture:kUi2wj2wKxyUbbG1@clust
 db = client['anime_db']
 collection = db['anime_collection']
 group_collection = db['group_collection']
-user_collection = db['user_collectionn']
+user_collection = db['user_collectionnn']
 
 last_character_sent = {}# Store the ID of the last character sent in each group
-
+first_collected = {}  
 group_settings = {}  # Store the settings for each group
 CHANNEL_ID = -1001683394959
 SUDO_USER_ID = [6404226395]
@@ -172,6 +172,10 @@ async def send_image(message: types.Message):
             caption=f"/collect this Character..And Add In Your Collection..",
             
         )
+
+        # Reset first_collected for this group when a new image is sent
+        if group_id in first_collected:
+            del first_collected[group_id]
     else:
         # If no image was sent, save the updated message count to the database
         await group_collection.update_one({'_id': group_id}, {'$set': {'message_count': doc['message_count']}}, upsert=True)
@@ -181,6 +185,13 @@ async def collect(message: types.Message):
     group_id = message.chat.id
     user_id = message.from_user.id
     user_first_name = message.from_user.first_name
+
+    # Check if the character has already been collected
+    if group_id in first_collected:
+        first_collector = await user_collection.find_one({'_id': first_collected[group_id]})
+        await message.reply(f"Already collected by {first_collector['first_name']}.")
+        return
+
     # Get the character name from the message
     _, character_name = message.text.split(' ', 1)
     character_name = character_name.lower()
@@ -191,6 +202,9 @@ async def collect(message: types.Message):
     if not character_doc or last_character_sent.get(group_id) != character_doc['_id']:
         await message.reply("You're wrong.")
         return
+
+    # If not, store this user as the first one who collected it
+    first_collected[group_id] = user_id
 
     # Fetch the user's document from the database
     user_doc = await user_collection.find_one({'_id': user_id})
@@ -213,8 +227,6 @@ async def collect(message: types.Message):
     
     await message.reply(f'<a href="tg://user?id={user_id}">{user_first_name}</a> Congrats! {character_name} is now in your collection. You have collected {character_name} {num_times_collected} times.', parse_mode='HTML')
     
-    # Update the last character sent in this group to prevent others from collecting it
-    last_character_sent[group_id] = None
-
+    # Update the last character sent in this group to prevent others from collecting 
 
 executor.start_polling(dp)
