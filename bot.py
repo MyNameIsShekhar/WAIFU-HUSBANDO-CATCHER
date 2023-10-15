@@ -1,15 +1,18 @@
-from aiogram import Bot, Dispatcher, types
+from aiogram import Bot, Dispatcher, Router, types
+from aiogram.types import Message
 from motor.motor_asyncio import AsyncIOMotorClient
 import re
 import aiohttp
-from aiogram import executor
+from aiogram.types import Message
+from aiogram.enums import ParseMode
 import asyncio
 from datetime import datetime
 import time
 from random import randint
 
-bot =Bot('6492563678:AAGSw9sjps3Ir39Ah6o1lg7BjmnnN2RtF2I')
-dp = Dispatcher(bot)
+
+TOKEN  ='6492563678:AAGSw9sjps3Ir39Ah6o1lg7BjmnnN2RtF2I'
+dp = Dispatcher()
 
 client = AsyncIOMotorClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
 db = client['anime_db']
@@ -226,10 +229,13 @@ async def send_image(message: types.Message):
 
 async def main():
     
-    await executor.start_polling(dp)
+    # Initialize Bot instance with a default parse mode which will be passed to all API calls
+    bot = Bot(TOKEN, parse_mode=ParseMode.HTML)
+    # And the run events dispatching
+    await dp.start_polling(bot)
 
 
-        
-# This will run your bot
-asyncio.run(main())
+if __name__ == "__main__":
+    
+    asyncio.run(main()))
 
