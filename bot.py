@@ -132,7 +132,6 @@ async def new_time(message: types.Message):
 
 
 # Create a dictionary to store the first user who collects each character
-
 @dp.message_handler(commands=['collect'])
 async def collect(message: types.Message):
     group_id = message.chat.id
@@ -144,13 +143,10 @@ async def collect(message: types.Message):
     # Fetch a character from the database that matches the name
     character_doc = await collection.find_one({'character_name': re.compile(character_name, re.IGNORECASE)})
     
-    # If no character is found or if this is not the last character sent in the group, reply with "You're wrong."
-    if last_character_sent.get(group_id) == first_collected_by:
-        # Check if the character has been collected before
-        if character_doc and first_collected_by.get(character_doc['_id']):
-            first_collector = first_collected_by[character_doc['_id']]
-            await message.reply(f"You're wrong or maybe..Someone Already Collected by {first_collector}")
-        
+    # If already someone collected then show"
+    if character_doc and first_collected_by.get(character_doc['_id']):
+        first_collector = first_collected_by[character_doc['_id']]
+        await message.reply(f"You're wrong or maybe..Someone Already Collected by {first_collector}")
         return
 
     # If this is the first time this character is being collected, store the user's name
@@ -177,8 +173,6 @@ async def collect(message: types.Message):
     num_times_collected = updated_user_doc['collected_characters'].count(character_doc['_id'])
     
     await message.reply(f'<a href="tg://user?id={user_id}">{user_first_name}</a> Congrats! {character_name} is now in your collection. You have collected {character_name} {num_times_collected} times.', parse_mode='HTML')
-
-
 
 @dp.message_handler(content_types=types.ContentTypes.ANY)
 async def send_image(message: types.Message):
@@ -213,14 +207,11 @@ async def send_image(message: types.Message):
             character_doc = await collection.find().to_list(length=None)
 
         character_doc = character_doc[0]
-        
-        # Delete the corresponding entry from first_collected_by to reset it for the next round
         if character_doc['_id'] in first_collected_by:
             del first_collected_by[character_doc['_id']]
         
         # Send the image to the group and update last_character_sent for this group
         last_character_sent[group_id] = character_doc['_id']
-        
         
         await bot.send_photo(
             group_id,
@@ -231,6 +222,5 @@ async def send_image(message: types.Message):
     else:
         # If no image was sent, save the updated message count to the database
         await group_collection.update_one({'_id': group_id}, {'$set': {'message_count': doc['message_count']}}, upsert=True)
-
 
 executor.start_polling(dp)
