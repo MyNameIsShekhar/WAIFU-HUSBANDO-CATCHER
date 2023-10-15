@@ -448,6 +448,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('anime', anime, run_async=True))
     dispatcher.add_handler(CommandHandler('total', total, run_async=True))
     dispatcher.add_handler(CommandHandler('changetime', change_time, run_async=True))
+    dispatcher.add_handler(CommandHandler('ping', ping, run_async=True))
 
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter, run_async=True))
     dispatcher.add_handler(CommandHandler('guess', guess, run_async=True))
