@@ -179,7 +179,6 @@ async def send_image(message: types.Message):
     else:
         # If no image was sent, save the updated message count to the database
         await group_collection.update_one({'_id': group_id}, {'$set': {'message_count': doc['message_count']}}, upsert=True)
-
 @dp.message_handler(commands=['collect'])
 async def collect(message: types.Message):
     group_id = message.chat.id
@@ -190,21 +189,22 @@ async def collect(message: types.Message):
     if group_id in first_collected:
         first_collector = await user_collection.find_one({'_id': first_collected[group_id]})
         await message.reply(f"Already collected by {first_collector['first_name']}.")
+    else:
+        # Get the character name from the message
+        _, character_name = message.text.split(' ', 1)
+        character_name = character_name.lower()
+        # Fetch a character from the database that matches the name
+        character_doc = await collection.find_one({'character_name': re.compile(character_name, re.IGNORECASE)})
         
+        # if this is not the last character sent in the group, reply with "You're wrong."
+        if not character_doc or last_character_sent.get(group_id) != character_doc['_id']:
+            await message.reply("You're wrong.")
+        else:
+            # If not, store this user as the first one who collected it
+            first_collected[group_id] = user_id
 
-    # Get the character name from the message
-    _, character_name = message.text.split(' ', 1)
-    character_name = character_name.lower()
-    # Fetch a character from the database that matches the name
-    character_doc = await collection.find_one({'character_name': re.compile(character_name, re.IGNORECASE)})
-    
-    # if this is not the last character sent in the group, reply with "You're wrong."
-    if not character_doc or last_character_sent.get(group_id) != character_doc['_id']:
-        await message.reply("You're wrong.")
-        
+            # Rest of your code...
 
-    # If not, store this user as the first one who collected it
-    first_collected[group_id] = user_id
 
     # Fetch the user's document from the database
     user_doc = await user_collection.find_one({'_id': user_id})
