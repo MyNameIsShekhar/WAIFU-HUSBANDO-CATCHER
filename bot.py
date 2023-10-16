@@ -383,63 +383,59 @@ def harrem(update: Update, context: CallbackContext) -> None:
     )
 
 def inlinequery(update: Update, context: CallbackContext) -> None:
-    """Handle the inline query."""
-    
-    
     query = update.inline_query.query     
 
-    # Check if the query is a user id
     if query.isdigit():
-        # Find the user in the database
         user = user_collection.find_one({'id': int(query)})
 
         if user:
-            # Create a list of InlineQueryResultPhoto for each character
             results = []
             added_characters = set()
             for character in user['characters']:
                 if character['name'] not in added_characters:
-                    # Count how many characters from the same anime the user has guessed
                     anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
-                    # Count total characters from the same anime
                     total_anime_characters = collection.count_documents({'anime': character['anime']})
 
-                    # Find all users who have this character
                     users_with_character = list(user_collection.find({'characters.id': character['id']}))
-                    # Create a list of mentions for each user
-                    mentions = [f'<a href="tg://user?id={user["id"]}">{user["username"]}</a>' for user in users_with_character]
+                    mentions = [f'<a href="tg://user?id={user["id"]}">{user["username"]}</a>(×{character.get("count", 1)})' for user in users_with_character]
 
                     results.append(
                         InlineQueryResultPhoto(
                             id=character['id'],
                             photo_url=character['img_url'],
                             thumb_url=character['img_url'],
-                            caption=f"🔥 <b>Character Name:</b> {character['name']} ×{character.get('count', 0)}\n📺 <b>Anime Name:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n👥 <b>Owned by:</b> {', '.join(mentions)}",
+                            caption=f"<b>{update.effective_user.username}'s Harrem</b>\n\n🔥 <b>Character Name:</b> {character['name']} ×{character.get('count', 1)}\n📺 <b>Anime Name:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n👥 <b>Guessed by:</b> {', '.join(mentions)}",
                             parse_mode='HTML'
                         )
                     )
                     added_characters.add(character['name'])
 
-            # Answer the inline query
             update.inline_query.answer(results)
         else:
             update.inline_query.answer([])
-    else:
-        # If no id is given, show all characters from upload database
-        all_characters = list(collection.find({}))
-        results = [
-            InlineQueryResultPhoto(
-                id=character['id'],
-                photo_url=character['img_url'],
-                thumb_url=character['img_url'],
-                caption=f"Character Name: {character['name']}\nAnime Name: {character['anime']}",
-                parse_mode='HTML'
+        else:
+            
+            
+            
+            all_characters = list(collection.find({}))
+            results = []
+            for character in all_characters:
+            users_with_character = list(user_collection.find({'characters.id': character['id']}))
+            mentions = [f'<a href="tg://user?id={user["id"]}">{user["username"]}</a>(×{character.get("count", 1)})' for user in users_with_character]
+
+            results.append(
+                InlineQueryResultPhoto(
+                    id=character['id'],
+                    photo_url=character['img_url'],
+                    thumb_url=character['img_url'],
+                    caption=f"🔥 <b>Character Name:</b> {character['name']}\n📺 <b>Anime Name:</b> {character['anime']}\n👥 <b>Guessed by:</b> {', '.join(mentions)}",
+                    parse_mode='HTML'
+                )
             )
-            for character in all_characters
-        ]
         update.inline_query.answer(results)
 
-# Add InlineQueryHandler and ChosenInlineResultHandler to the dispatcher
+
+    
 
 # Add InlineQueryHandler to the dispatcher
 def main() -> None:
