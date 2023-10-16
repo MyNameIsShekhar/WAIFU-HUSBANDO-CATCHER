@@ -39,7 +39,13 @@ first_correct_guesses = {}
 
 
 
-
+def start(update: Update, context: CallbackContext) -> None:
+    if update.message.chat.type == 'private':
+        url = 'https://graph.org/file/6c27800378df0aedb1596.jpg'
+        caption = "Hello Its Guess 'Em all Character Bot.. Its Just Beta Testing Version... So if U Wann Add this Bot in You're You Can Add..."
+        keyboard = [[InlineKeyboardButton("add me in You're group", url='https://t.me/Collect_emAll_Bot?startgroup=_')]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        context.bot.send_photo(chat_id=update.effective_chat.id, photo=url, caption=caption, reply_markup=reply_markup)
 
 def ping(update: Update, context: CallbackContext) -> None:
     start_time = time.time()
@@ -441,6 +447,7 @@ def main() -> None:
 
     dispatcher = updater.dispatcher
 
+    dispatcher.add_handler(CommandHandler('start', start, run_async=True))
     
     dispatcher.add_handler(CommandHandler('upload', upload, run_async=True))
     
