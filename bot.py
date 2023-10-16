@@ -427,7 +427,7 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                     id=character['id'],
                     photo_url=character['img_url'],
                     thumb_url=character['img_url'],
-                    caption=f"<b>{character['name']}<\b>\n<b>{character['anime']}<\b>\n\n\n<b>{mentions_str}<\b>",
+                    caption=f"**{character['name']}** \n**{character['anime']}** \n\n**{mentions_str}**",
                     parse_mode='HTML'
                 )
             )
