@@ -397,14 +397,15 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                     total_anime_characters = collection.count_documents({'anime': character['anime']})
 
                     users_with_character = list(user_collection.find({'characters.id': character['id']}))
-                    mentions = [f'<a href="tg://user?id={user["id"]}">{user["username"]}</a>(×{character.get("count", 1)})' for user in users_with_character]
+                    mentions = [f'{user["username"]}' + (f'(×{character.get("count")})' if character.get("count", 1) > 1 else '') for user in users_with_character]
+                    mentions_str = "\n".join(mentions)
 
                     results.append(
                         InlineQueryResultPhoto(
                             id=character['id'],
                             photo_url=character['img_url'],
                             thumb_url=character['img_url'],
-                            caption=f"<b>{update.effective_user.username}'s Harrem</b>\n\n🔥 <b>Character Name:</b> {character['name']} ×{character.get('count', 1)}\n📺 <b>Anime Name:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n👥 <b>Guessed by:</b> {', '.join(mentions)}",
+                            caption=f"<b>{user['username']}'s Harrem</b>\n\n🔥 <b>Character Name:</b> {character['name']} ×{character.get('count', 1)}\n📺 <b>Anime Name:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n👥 <b>Guessed by:</b>\n{mentions_str}",
                             parse_mode='HTML'
                         )
                     )
@@ -418,14 +419,15 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
         results = []
         for character in all_characters:
             users_with_character = list(user_collection.find({'characters.id': character['id']}))
-            mentions = [f'<a href="tg://user?id={user["id"]}">{user["username"]}</a>(×{character.get("count", 1)})' for user in users_with_character]
+            mentions = [f'{user["username"]}' + (f'(×{character.get("count")})' if character.get("count", 1) > 1 else '') for user in users_with_character]
+            mentions_str = "\n".join(mentions)
 
             results.append(
                 InlineQueryResultPhoto(
                     id=character['id'],
                     photo_url=character['img_url'],
                     thumb_url=character['img_url'],
-                    caption=f"🔥 <b>Character Name:</b> {character['name']}\n📺 <b>Anime Name:</b> {character['anime']}\n <b>Guessed by:</b> \n\n<b>{'\n'.join(mentions)}</b>",
+                    caption=f"🔥 <b>Character Name:</b> {character['name']}\n📺 <b>Anime Name:</b> {character['anime']}\n👥 <b>Guessed by:</b>\n{mentions_str}",
                     parse_mode='HTML'
                 )
             )
