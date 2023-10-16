@@ -413,13 +413,10 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
             update.inline_query.answer(results)
         else:
             update.inline_query.answer([])
-        else:
-            
-            
-            
-            all_characters = list(collection.find({}))
-            results = []
-            for character in all_characters:
+    else:
+        all_characters = list(collection.find({}))
+        results = []
+        for character in all_characters:
             users_with_character = list(user_collection.find({'characters.id': character['id']}))
             mentions = [f'<a href="tg://user?id={user["id"]}">{user["username"]}</a>(×{character.get("count", 1)})' for user in users_with_character]
 
