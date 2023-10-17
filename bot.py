@@ -401,7 +401,7 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                             id=character['id'],
                             photo_url=character['img_url'],
                             thumb_url=character['img_url'],
-                            caption=f"⛩ <b><a href='tg://user?id={user['id']}'>{user.get('username', user['id'])}'s Character</a></b>\n\n<b>Name:</b> {character['name']} " + (f"(x{character.get('count', 1)})" if character.get('count', 1) > 1 else "") + f"\n<b>Anime:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n\n🆔: {character['id']}",
+                            caption=f"⛩ <b><a href='tg://user?id={user['id']}'>{user.get('username', user['id'])}'s</a>Character</b>\n\n<b>Name:</b> {character['name']} " + (f"(x{character.get('count', 1)})" if character.get('count', 1) > 1 else "") + f"\n<b>Anime:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n\n🆔: {character['id']}",
                             parse_mode='HTML'
                         )
                     )
@@ -426,7 +426,7 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                     id=character['id'],
                     photo_url=character['img_url'],
                     thumb_url=character['img_url'],
-                    caption=f"<b>Name:</b> {character['name']}\n<b>Anime:</b> {character['anime']}\n🆔: {character['id']}\n\n👥 Guessed {total_guesses} times",
+                    caption=f"<b>Name:</b> {character['name']}\n<b>Anime:</b> {character['anime']}\n🆔: {character['id']}\n\n\nGuessed {total_guesses} times",
                     parse_mode='HTML'
                 )
             )
