@@ -498,7 +498,7 @@ def myfav(update: Update, context: CallbackContext) -> None:
     text = ''
     buttons = []
     for character in favorites:
-        anime_characters_guessed = sum(character_collection.find_one({'id': c})['anime'] == character['anime'] for c in user['characters'])
+        anime_characters_guessed = sum(collection.find_one({'id': c})['anime'] == character['anime'] for c in user['characters'])
         total_anime_characters = collection.count_documents({'anime': character['anime']})
 
         text += f"\n\n<b>Name:</b> {character['name']}\n<b>Anime:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n<b>Guessed:</b> {character.get('count', 1)} times\n<b>ID:</b> {character['id']}"
