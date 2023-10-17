@@ -267,7 +267,7 @@ def message_counter(update: Update, context: CallbackContext) -> None:
             upsert=True
         )
 
-
+# Don't forget to register the new handler
 
 def send_image(update: Update, context: CallbackContext) -> None:
     # Acquire the lock
@@ -328,10 +328,14 @@ def guess(update: Update, context: CallbackContext) -> None:
 
         # Add character to user's collection
         user = user_collection.find_one({'id': user_id})
+        
+        # Check if the user has a username, otherwise use their first name
+        username = update.effective_user.username if update.effective_user.username else update.effective_user.first_name
+
         if user:
             # Update username if it has changed
-            if hasattr(update.effective_user, 'username') and update.effective_user.username != user['username']:
-                user_collection.update_one({'id': user_id}, {'$set': {'username': update.effective_user.username}})
+            if username != user['username']:
+                user_collection.update_one({'id': user_id}, {'$set': {'username': username}})
             # Increment count of character in user's collection
             character_index = next((index for (index, d) in enumerate(user['characters']) if d["id"] == last_characters[chat_id]["id"]), None)
             if character_index is not None:
@@ -345,12 +349,12 @@ def guess(update: Update, context: CallbackContext) -> None:
                 # Add character to user's collection
                 last_characters[chat_id]['count'] = 1
                 user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
-        elif hasattr(update.effective_user, 'username'):
+        else:
             # Create new user document
             last_characters[chat_id]['count'] = 1
             user_collection.insert_one({
                 'id': user_id,
-                'username': update.effective_user.username,
+                'username': username,
                 'characters': [last_characters[chat_id]]
             })
 
@@ -493,8 +497,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('total', total, run_async=True))
     dispatcher.add_handler(CommandHandler('changetime', change_time, run_async=True))
     dispatcher.add_handler(CommandHandler('ping', ping, run_async=True))
-
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter, run_async=True))
+    dispatcher.add_handler(MessageHandler(Filters.text | Filters.sticker, message_counter))
     dispatcher.add_handler(CommandHandler('guess', guess, run_async=True))
     # Add CommandHandler for /list command to your Updater
     dispatcher.add_handler(CommandHandler('harrem', harrem, run_async=True))
