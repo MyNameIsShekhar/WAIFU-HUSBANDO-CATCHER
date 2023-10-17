@@ -142,27 +142,9 @@ def total(update: Update, context: CallbackContext) -> None:
     except Exception as e:
         update.message.reply_text('Failed to fetch characters.')
 
-        else:
+        
             
-            # Default to 20 messages if not set
-            message_frequency = 20
-            message_counter = 0
-
-        # Increment counter for this chat
-        message_counter += 1
-
-        # Send image after every message_frequency messages
-        if message_counter % message_frequency == 0:
-            send_image(update, context)
-            # Reset counter for this chat
-            message_counter = 0
-
-        # Update counter in the database
-        user_totals_collection.update_one(
-            {'chat_id': chat_id},
-            {'$set': {'message_counter': message_counter}},
-            upsert=True
-        )
+        
 
 
 def change_time(update: Update, context: CallbackContext) -> None:
