@@ -49,10 +49,10 @@ def start(update: Update, context: CallbackContext) -> None:
 
 def ping(update: Update, context: CallbackContext) -> None:
     start_time = time.time()
-    update.message.reply_text('pong')
+    message = update.message.reply_text('Pong!')
     end_time = time.time()
-    elapsed_time = end_time - start_time
-    update.message.reply_text('Response time: ' + str(elapsed_time) + ' seconds')
+    elapsed_time = round((end_time - start_time) * 1000, 3)
+    message.edit_text(f'Pong! {elapsed_time}ms')
 
 def get_next_sequence_number(sequence_name):
     # Get a handle to the sequence collection
@@ -431,6 +431,91 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                 )
             )
         update.inline_query.answer(results)
+def fav(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
+
+    # Check if an ID was provided
+    if not context.args:
+        update.message.reply_text('Please provide a character ID.')
+        return
+
+    character_id = context.args[0]
+
+    # Get the user document
+    user = user_collection.find_one({'id': user_id})
+    if not user:
+        update.message.reply_text('You have not guessed any characters yet.')
+        return
+
+    # Check if the character is in the user's collection
+    character = next((c for c in user['characters'] if c['id'] == character_id), None)
+    if not character:
+        update.message.reply_text('This character is not in your collection.')
+        return
+
+    # Add character to user's favorites
+    if 'favorites' in user:
+        if character_id in user['favorites']:
+            update.message.reply_text('This character is already in your favorites.')
+            return
+        else:
+            user['favorites'].append(character_id)
+    else:
+        user['favorites'] = [character_id]
+
+    # Update user document
+    user_collection.update_one({'id': user_id}, {'$set': {'favorites': user['favorites']}})
+
+    update.message.reply_text(f'Character {character["name"]} has been added to your favorites.')
+
+
+PAGE_SIZE = 10
+
+def build_menu(buttons, n_cols, header_buttons=None, footer_buttons=None):
+    menu = [buttons[i:i + n_cols] for i in range(0, len(buttons), n_cols)]
+    if header_buttons:
+        menu.insert(0, header_buttons)
+    if footer_buttons:
+        menu.append(footer_buttons)
+    return menu
+
+def myfav(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
+    page = int(context.args[0]) if context.args else 0
+
+    # Get the user document
+    user = user_collection.find_one({'id': user_id})
+    if not user or 'favorites' not in user or not user['favorites']:
+        update.message.reply_text('You have not favorited any characters yet.')
+        return
+
+    # Get the favorite characters for this page
+    start = page * PAGE_SIZE
+    end = start + PAGE_SIZE
+    favorites = user['favorites'][start:end]
+
+    # Build the message text and inline keyboard buttons
+    text = ''
+    buttons = []
+    for character in favorites:
+        anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
+        total_anime_characters = collection.count_documents({'anime': character['anime']})
+
+        text += f"\n\n<b>Name:</b> {character['name']}\n<b>Anime:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n<b>Guessed:</b> {character.get('count', 1)} times\n<b>ID:</b> {character['id']}"
+
+        buttons.append(InlineKeyboardButton(character['name'], switch_inline_query_current_chat=str(character['id'])))
+
+    # Add navigation buttons
+    footer_buttons = []
+    if page > 0:
+        footer_buttons.append(InlineKeyboardButton('Prev', callback_data=f'myfav {page - 1}'))
+    if end < len(user['favorites']):
+        footer_buttons.append(InlineKeyboardButton('Next', callback_data=f'myfav {page + 1}'))
+
+    reply_markup = InlineKeyboardMarkup(build_menu(buttons, n_cols=2, footer_buttons=footer_buttons))
+
+    # Send the message
+    update.message.reply_text(text, reply_markup=reply_markup, parse_mode='HTML')
 
 # Add InlineQueryHandler to the dispatcher
 def main() -> None:
@@ -454,6 +539,9 @@ def main() -> None:
     # Add CommandHandler for /list command to your Updater
     dispatcher.add_handler(CommandHandler('harrem', harrem, run_async=True))
     dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
+    dispatcher.add_handler(CommandHandler('fav', fav, run_async=True))
+    dispatcher.add_handler(CommandHandler('myfav', myfav, run_async=True))
+    
     
 
     updater.start_polling()
