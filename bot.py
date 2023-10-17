@@ -143,6 +143,7 @@ def total(update: Update, context: CallbackContext) -> None:
         update.message.reply_text('Failed to fetch characters.')
 
         else:
+            
             # Default to 20 messages if not set
             message_frequency = 20
             message_counter = 0
