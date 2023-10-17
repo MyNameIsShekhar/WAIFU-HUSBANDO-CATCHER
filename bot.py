@@ -37,7 +37,12 @@ sent_characters = {}
 # Keep track of the user who guessed correctly first in each group
 first_correct_guesses = {}
 
-
+def ping(update: Update, context: CallbackContext) -> None:
+    start_time = time.time()
+    message = update.message.reply_text('Pong!')
+    end_time = time.time()
+    elapsed_time = round((end_time - start_time) * 1000, 3)
+    message.edit_text(f'Pong! {elapsed_time}ms')
 
 
 def get_next_sequence_number(sequence_name):
@@ -95,7 +100,7 @@ def upload(update: Update, context: CallbackContext) -> None:
         
         # Send message to channel
         message = context.bot.send_photo(
-            chat_id='-1001670772912',
+            chat_id='-1001915956222',
             photo=args[0],
             caption=f'<b>Character Name:</b> {character_name}\n<b>Anime Name:</b> {anime}\n<b>ID:</b> {id}\nAdded by <a href="tg://user?id={update.effective_user.id}">{update.effective_user.first_name}</a>',
             parse_mode='HTML'
@@ -127,7 +132,7 @@ def delete(update: Update, context: CallbackContext) -> None:
 
         if character:
             # Delete message from channel
-            context.bot.delete_message(chat_id='-1001670772912', message_id=character['message_id'])
+            context.bot.delete_message(chat_id='-1001915956222', message_id=character['message_id'])
             update.message.reply_text('Successfully deleted.')
         else:
             update.message.reply_text('No character found with given ID.')
@@ -414,9 +419,41 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                 )
             )
         update.inline_query.answer(results)
-        
-# InlineQueryHandler and ChosenInlineResultHandler to the dispatcher
 
+def fav(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
+
+    # Check if an ID was provided
+    if not context.args:
+        update.message.reply_text('Please provide a character ID.')
+        return
+
+    character_id = context.args[0]
+
+    # Get the user document
+    user = user_collection.find_one({'id': user_id})
+    if not user:
+        update.message.reply_text('You have not guessed any characters yet.')
+        return
+
+    # Check if the character is in the user's collection
+    character = next((c for c in user['characters'] if c['id'] == character_id), None)
+    if not character:
+        update.message.reply_text('This character is not in your collection.')
+        return
+
+    # Replace the old favorite with the new one
+    user['favorites'] = [character_id]
+
+    # Update user document
+    user_collection.update_one({'id': user_id}, {'$set': {'favorites': user['favorites']}})
+
+    update.message.reply_text(f'Character {character["name"]} has been added to your favorites.')
+
+# Add InlineQueryHandler to the dispatcher
+
+
+    
 # Add InlineQueryHandler to the dispatcher
 def main() -> None:
     updater = Updater(token='6347356084:AAHX7A8aY9fbtgCQ-8R16TRBKkCHtX4bMxA')
@@ -437,6 +474,7 @@ def main() -> None:
     # Add CommandHandler for /list command to your Updater
     dispatcher.add_handler(CommandHandler('harrem', harrem, run_async=True))
     dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
+    dispatcher.add_handler(CommandHandler('fav', fav, run_async=True))
     
 
     updater.start_polling()
