@@ -396,16 +396,12 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                     anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
                     total_anime_characters = collection.count_documents({'anime': character['anime']})
 
-                    users_with_character = list(user_collection.find({'characters.id': character['id']}))
-                    mentions = [f'{user["username"]}' + (f'(×{character.get("count")})' if character.get("count", 1) > 1 else '') for user in users_with_character]
-                    mentions_str = "\n".join(mentions)
-
                     results.append(
                         InlineQueryResultPhoto(
                             id=character['id'],
                             photo_url=character['img_url'],
                             thumb_url=character['img_url'],
-                            caption=f"<b>{user['username']}'s Harrem</b>\n\n🔥 <b>Character Name:</b> {character['name']} ×{character.get('count', 1)}\n📺 <b>Anime Name:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n👥 <b>Guessed by:</b>\n{mentions_str}",
+                            caption=f"<a href='tg://user?id={user['id']}'>{user.get('username', user['id'])}'s</a> harem\n\nName: {character['name']} (x{character.get('count', 1)})\nAnime: {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n\n🆔: {character['id']}",
                             parse_mode='HTML'
                         )
                     )
@@ -419,15 +415,14 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
         results = []
         for character in all_characters:
             users_with_character = list(user_collection.find({'characters.id': character['id']}))
-            mentions = [f'{user["username"]}' + (f'(×{character.get("count")})' if character.get("count", 1) > 1 else '') for user in users_with_character]
-            mentions_str = "\n".join(mentions)
+            total_guesses = sum(character.get("count", 1) for user in users_with_character)
 
             results.append(
                 InlineQueryResultPhoto(
                     id=character['id'],
                     photo_url=character['img_url'],
                     thumb_url=character['img_url'],
-                    caption=f"**{character['name']}** \n**{character['anime']}** \n\n**{mentions_str}**",
+                    caption=f"<b>Name:</b> {character['name']}\n<b>Anime:</b> {character['anime']}\n🆔: {character['id']}\n👥 Guessed {total_guesses} times in Global",
                     parse_mode='HTML'
                 )
             )
