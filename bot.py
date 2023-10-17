@@ -10,17 +10,17 @@ from threading import Lock
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
-db = client['Waifus']
-collection = db['anime_characters']
+db = client['Waifus_lol']
+collection = db['anime_characters_lol']
 
 # Get the collection for user totals
-user_totals_collection = db['user_totals']
-user_collection = db["user_collection"]
+user_totals_collection = db['user_totals_lol']
+user_collection = db["user_collection_lol"]
 
 
 
 # List of sudo users
-sudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651'  ]
+sudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651', '5813998595', '5813403535', '6393627898', '5952787198']
 
 
 # Create a dictionary of locks
@@ -243,10 +243,7 @@ def message_counter(update: Update, context: CallbackContext) -> None:
 
 
 def send_image(update: Update, context: CallbackContext) -> None:
-    # Acquire the lock
     
-        # Your existing send_image code here
-
     
     chat_id = update.effective_chat.id
 
@@ -277,7 +274,7 @@ def send_image(update: Update, context: CallbackContext) -> None:
         chat_id=chat_id,
         photo=character['img_url'],
         caption="Use /Guess Command And.. Guess This Character Name.."
-    )
+            )
     
 def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
@@ -369,63 +366,56 @@ def harrem(update: Update, context: CallbackContext) -> None:
     )
 
 def inlinequery(update: Update, context: CallbackContext) -> None:
-    """Handle the inline query."""
-    
-    
     query = update.inline_query.query     
 
-    # Check if the query is a user id
     if query.isdigit():
-        # Find the user in the database
         user = user_collection.find_one({'id': int(query)})
 
         if user:
-            # Create a list of InlineQueryResultPhoto for each character
             results = []
             added_characters = set()
             for character in user['characters']:
                 if character['name'] not in added_characters:
-                    # Count how many characters from the same anime the user has guessed
                     anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
-                    # Count total characters from the same anime
                     total_anime_characters = collection.count_documents({'anime': character['anime']})
-
-                    # Find all users who have this character
-                    users_with_character = list(user_collection.find({'characters.id': character['id']}))
-                    # Create a list of mentions for each user
-                    mentions = [f'<a href="tg://user?id={user["id"]}">{user["username"]}</a>' for user in users_with_character]
 
                     results.append(
                         InlineQueryResultPhoto(
                             id=character['id'],
                             photo_url=character['img_url'],
                             thumb_url=character['img_url'],
-                            caption=f"🔥 <b>Character Name:</b> {character['name']} ×{character.get('count', 0)}\n📺 <b>Anime Name:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n👥 <b>Owned by:</b> {', '.join(mentions)}",
+                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('username', user['id'])}</a></b>'s Character\n\n<b>Name:</b> {character['name']} " + (f"(x{character.get('count', 1)})" if character.get('count', 1) > 1 else "") + f"\n<b>Anime:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n\n🆔: {character['id']}",
                             parse_mode='HTML'
                         )
                     )
                     added_characters.add(character['name'])
 
-            # Answer the inline query
             update.inline_query.answer(results)
         else:
-            update.inline_query.answer([])
+            update.inline_query.answer([InlineQueryResultArticle(
+                id='notfound', 
+                title="User not found", 
+                input_message_content=InputTextMessageContent("User not found")
+            )])
     else:
-        # If no id is given, show all characters from upload database
         all_characters = list(collection.find({}))
-        results = [
-            InlineQueryResultPhoto(
-                id=character['id'],
-                photo_url=character['img_url'],
-                thumb_url=character['img_url'],
-                caption=f"Character Name: {character['name']}\nAnime Name: {character['anime']}",
-                parse_mode='HTML'
-            )
-            for character in all_characters
-        ]
-        update.inline_query.answer(results)
+        results = []
+        for character in all_characters:
+            users_with_character = list(user_collection.find({'characters.id': character['id']}))
+            total_guesses = sum(character.get("count", 1) for user in users_with_character)
 
-# Add InlineQueryHandler and ChosenInlineResultHandler to the dispatcher
+            results.append(
+                InlineQueryResultPhoto(
+                    id=character['id'],
+                    photo_url=character['img_url'],
+                    thumb_url=character['img_url'],
+                    caption=f"<b>Look at this character!</b>\n\n⟹ <b>{character['name']}</b>\n⟹ <b>{character['anime']}</b>\n🆔: {character['id']}\n\n<b>Guessed {total_guesses} times In Globally</b>",
+                    parse_mode='HTML'
+                )
+            )
+        update.inline_query.answer(results)
+        
+# InlineQueryHandler and ChosenInlineResultHandler to the dispatcher
 
 # Add InlineQueryHandler to the dispatcher
 def main() -> None:
