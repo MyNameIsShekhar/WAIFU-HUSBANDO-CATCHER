@@ -47,7 +47,7 @@ def start(update: Update, context: CallbackContext) -> None:
     if update.message.chat.type == 'private':
         url = 'https://graph.org/file/6c27800378df0aedb1596.jpg'
         caption = "𝙃𝙚𝙡𝙡𝙤 𝙄𝙩𝙨 𝙂𝙪𝙚𝙨𝙨 '𝙀𝙢 𝙖𝙡𝙡 𝘾𝙝𝙖𝙧𝙖𝙘𝙩𝙚𝙧 𝘽𝙤𝙩.. 𝙄𝙩𝙨 𝙅𝙪𝙨𝙩 𝘽𝙚𝙩𝙖 𝙏𝙚𝙨𝙩𝙞𝙣𝙜 𝙑𝙚𝙧𝙨𝙞𝙤𝙣... 𝙎𝙤 𝙞𝙛 𝙐 𝙒𝙖𝙣𝙣 𝘼𝙙𝙙 𝙩𝙝𝙞𝙨 𝘽𝙤𝙩 𝙞𝙣 𝙔𝙤𝙪'𝙧𝙚 𝘾𝙝𝙖𝙩...𝙎𝙤 𝙔𝙤𝙪 𝘾𝙖𝙣 𝘼𝙙𝙙..."
-        keyboard = [[InlineKeyboardButton("Help", callback_data='help'), InlineKeyboardButton("Add me in your group", url='https://t.me/Collect_emAll_Bot?startgroup=_')]]
+        keyboard = [[InlineKeyboardButton("Help", callback_data='help')], [InlineKeyboardButton("Add me in your group", url='https://t.me/Collect_emAll_Bot?startgroup=_')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         context.bot.send_photo(chat_id=update.effective_chat.id, photo=url, caption=caption, reply_markup=reply_markup)
 
