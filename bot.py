@@ -7,6 +7,7 @@ import urllib.request
 import random
 from datetime import datetime, timedelta
 from threading import Lock
+import time
 
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
@@ -499,14 +500,14 @@ def button(update: Update, context: CallbackContext) -> None:
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         # Edit message
-        query.edit_message_text(text=leaderboard_text, reply_markup=reply_markup)
+        query.edit_message_text(text=leaderboard_text, reply_markup=reply_markup, parse_mode='HTML')
 
     elif query.data == 'group_leaderboard':
         # Get the top 10 users in this group
         group_leaderboard = list(user_collection.find({'chat_id': str(chat_id)}).sort('total_characters', -1).limit(10))
 
         # Create leaderboard text
-        leaderboard_text = '🏆 Group Leaderboard:\n\n'
+        leaderboard_text = 'Group Leaderboard:\n\n'
         for i, user in enumerate(group_leaderboard, start=1):
             leaderboard_text += f'{i}. <a href="tg://user?id={user["id"]}">{user["username"]}</a>: {len(user["characters"])} characters\n'
 
@@ -518,7 +519,7 @@ def button(update: Update, context: CallbackContext) -> None:
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         # Edit message
-        query.edit_message_text(text=leaderboard_text, reply_markup=reply_markup)
+        query.edit_message_text(text=leaderboard_text, reply_markup=reply_markup, parse_mode='HTML')
 
     elif query.data == 'close':
         # Delete message
