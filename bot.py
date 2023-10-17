@@ -454,8 +454,77 @@ def myprofile(update: Update, context: CallbackContext) -> None:
         parse_mode='HTML'
     )
 
-# Add the command handler to the dispatcher
 
+def leaderboard(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+
+    # Get the top 10 users in this group
+    group_leaderboard = list(user_collection.find({'chat_id': chat_id}).sort('total_characters', -1).limit(10))
+
+    # Create leaderboard text
+    leaderboard_text = '🏆 Group Leaderboard:\n\n'
+    for i, user in enumerate(group_leaderboard, start=1):
+        leaderboard_text += f'{i}. <a href="tg://user?id={user["id"]}">{user["username"]}</a>: {len(user["characters"])} characters\n'
+
+    # Create keyboard
+    keyboard = [
+        [InlineKeyboardButton('Globally', callback_data='global_leaderboard'),
+         InlineKeyboardButton('Close', callback_data='close')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Send message
+    context.bot.send_message(chat_id=chat_id, text=leaderboard_text, reply_markup=reply_markup, parse_mode='HTML')
+
+def button(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    query.answer()
+
+    chat_id = query.message.chat_id
+
+    if query.data == 'global_leaderboard':
+        # Get the top 10 users globally
+        global_leaderboard = list(user_collection.find().sort('total_characters', -1).limit(10))
+
+        # Create leaderboard text
+        leaderboard_text = '🏆 Global Leaderboard:\n\n'
+        for i, user in enumerate(global_leaderboard, start=1):
+            leaderboard_text += f'{i}. <a href="tg://user?id={user["id"]}">{user["username"]}</a>: {len(user["characters"])} characters\n'
+
+        # Create keyboard
+        keyboard = [
+            [InlineKeyboardButton('Group', callback_data='group_leaderboard'),
+             InlineKeyboardButton('Close', callback_data='close')]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        # Edit message
+        query.edit_message_text(text=leaderboard_text, reply_markup=reply_markup)
+
+    elif query.data == 'group_leaderboard':
+        # Get the top 10 users in this group
+        group_leaderboard = list(user_collection.find({'chat_id': str(chat_id)}).sort('total_characters', -1).limit(10))
+
+        # Create leaderboard text
+        leaderboard_text = '🏆 Group Leaderboard:\n\n'
+        for i, user in enumerate(group_leaderboard, start=1):
+            leaderboard_text += f'{i}. <a href="tg://user?id={user["id"]}">{user["username"]}</a>: {len(user["characters"])} characters\n'
+
+        # Create keyboard
+        keyboard = [
+            [InlineKeyboardButton('Globally', callback_data='global_leaderboard'),
+             InlineKeyboardButton('Close', callback_data='close')]
+        ]
+        reply_markup = InlineKeyboardMarkup(keyboard)
+
+        # Edit message
+        query.edit_message_text(text=leaderboard_text, reply_markup=reply_markup)
+
+    elif query.data == 'close':
+        # Delete message
+        query.delete_message()
+
+# Add the command handler and callback query handler to the dispatcher
 
 # Add the command handler to the dispatcher
 
@@ -483,7 +552,10 @@ def main() -> None:
     dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
     dispatcher.add_handler(CommandHandler('fav', fav, run_async=True))
     dispatcher.add_handler(CommandHandler('myprofile', myprofile, run_async=True))
-
+    dispatcher.add_handler(CommandHandler('leaderboard', leaderboard))
+    dispatcher.add_handler(CallbackQueryHandler(button, pattern='^global_leaderboard$', run_async=True))
+    dispatcher.add_handler(CallbackQueryHandler(button, pattern='^group_leaderboard$', run_async=True))
+    dispatcher.add_handler(CallbackQueryHandler(button, pattern='^close$', run_async=True))
 
     updater.start_polling()
 
