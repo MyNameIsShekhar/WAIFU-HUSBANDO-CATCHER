@@ -432,7 +432,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('total', total, run_async=True))
     dispatcher.add_handler(CommandHandler('changetime', change_time, run_async=True))
 
-    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter, run_async=True))
+    dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.sticker, message_counter, run_async=True))
     dispatcher.add_handler(CommandHandler('guess', guess, run_async=True))
     # Add CommandHandler for /list command to your Updater
     dispatcher.add_handler(CommandHandler('harrem', harrem, run_async=True))
