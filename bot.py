@@ -426,7 +426,7 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                     id=character['id'],
                     photo_url=character['img_url'],
                     thumb_url=character['img_url'],
-                    caption=f"<b>Name:</b> {character['name']}\n<b>Anime:</b> {character['anime']}\n🆔: {character['id']}\n\n<b>Guessed {total_guesses} Times In Globally<\b>",
+                    caption=f"<b>Name:</b>{character['name']}\n<b>Anime:</b> {character['anime']}\n🆔:{character['id']}\n\n<b>Guessed {total_guesses} Times In Globally<\b>",
                     parse_mode='HTML'
                 )
             )
