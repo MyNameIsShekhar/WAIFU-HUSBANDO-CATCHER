@@ -109,6 +109,31 @@ def upload(update: Update, context: CallbackContext) -> None:
     except Exception as e:
         update.message.reply_text('Unsuccessfully uploaded.')
         
+ def delete(update: Update, context: CallbackContext) -> None:
+    # Check if user is a sudo user
+    if str(update.effective_user.id) not in sudo_users:
+        update.message.reply_text('You do not have permission to use this command.')
+        return
+
+    try:
+        # Extract arguments
+        args = context.args
+        if len(args) != 1:
+            update.message.reply_text('Incorrect format. Please use: /delete ID')
+            return
+
+        # Delete character with given ID
+        character = collection.find_one_and_delete({'id': args[0]})
+
+        if character:
+            # Delete message from channel
+            context.bot.delete_message(chat_id='-1001915956222', message_id=character['message_id'])
+            update.message.reply_text('Successfully deleted.')
+        else:
+            update.message.reply_text('No character found with given ID.')
+    except Exception as e:
+        update.message.reply_text('Failed to delete character.')   
+        
 def anime(update: Update, context: CallbackContext) -> None:
     try:
         # Get all unique anime names
