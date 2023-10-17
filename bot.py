@@ -109,7 +109,7 @@ def upload(update: Update, context: CallbackContext) -> None:
     except Exception as e:
         update.message.reply_text('Unsuccessfully uploaded.')
         
- def delete(update: Update, context: CallbackContext) -> None:
+def delete(update: Update, context: CallbackContext) -> None:
     # Check if user is a sudo user
     if str(update.effective_user.id) not in sudo_users:
         update.message.reply_text('You do not have permission to use this command.')
@@ -132,8 +132,7 @@ def upload(update: Update, context: CallbackContext) -> None:
         else:
             update.message.reply_text('No character found with given ID.')
     except Exception as e:
-        update.message.reply_text('Failed to delete character.')   
-        
+        update.message.reply_text('Failed to delete character.') 
 def anime(update: Update, context: CallbackContext) -> None:
     try:
         # Get all unique anime names
