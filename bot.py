@@ -460,6 +460,7 @@ def main() -> None:
 
     dispatcher = updater.dispatcher
 
+    dispatcher.add_handler(CommandHandler('ping', ping, run_async=True))
     
     dispatcher.add_handler(CommandHandler('upload', upload, run_async=True))
     
