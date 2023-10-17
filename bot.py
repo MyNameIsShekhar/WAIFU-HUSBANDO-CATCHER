@@ -431,6 +431,7 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                 )
             )
         update.inline_query.answer(results)
+        
 def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
@@ -453,22 +454,13 @@ def fav(update: Update, context: CallbackContext) -> None:
         update.message.reply_text('This character is not in your collection.')
         return
 
-    # Add character to user's favorites
-    if 'favorites' in user:
-        if character_id in user['favorites']:
-            update.message.reply_text('This character is already in your favorites.')
-            return
-        else:
-            user['favorites'].append(character_id)
-    else:
-        user['favorites'] = [character_id]
+    # Replace the old favorite with the new one
+    user['favorites'] = [character_id]
 
     # Update user document
     user_collection.update_one({'id': user_id}, {'$set': {'favorites': user['favorites']}})
 
     update.message.reply_text(f'Character {character["name"]} has been added to your favorites.')
-
-
 
 # Add InlineQueryHandler to the dispatcher
 def main() -> None:
@@ -493,7 +485,6 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('harrem', harrem, run_async=True))
     dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
     dispatcher.add_handler(CommandHandler('fav', fav, run_async=True))
-    dispatcher.add_handler(CommandHandler('myfav', myfav, run_async=True))
     
     
 
