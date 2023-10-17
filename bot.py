@@ -424,6 +424,7 @@ def fav(update: Update, context: CallbackContext) -> None:
 def myprofile(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
     username = update.effective_user.username
+    first_name = update.effective_user.first_name
 
     # Get the user document
     user = user_collection.find_one({'id': user_id})
@@ -432,7 +433,8 @@ def myprofile(update: Update, context: CallbackContext) -> None:
         return
 
     # Get the user's global ranking
-    global_ranking = user_collection.count_documents({'total_characters': {'$gt': len(user['characters'])}}) + 1
+    users_sorted_by_characters = list(user_collection.find().sort('total_characters', -1))
+    global_ranking = users_sorted_by_characters.index(user) + 1
 
     # Get the user's total characters
     total_characters = len(user['characters'])
@@ -440,16 +442,20 @@ def myprofile(update: Update, context: CallbackContext) -> None:
     # Get the user's profile picture or use a default one
     profile_picture = update.effective_user.get_profile_photos().photos[0][-1].file_id if update.effective_user.get_profile_photos().photos else 'https://te.legra.ph/file/feb83585c6bb5a587685a.jpg'
 
-    # Send the profile information
+    # Send the profile information to the chat where the command was triggered
     context.bot.send_photo(
-        chat_id=user_id,
+        chat_id=update.effective_chat.id,
         photo=profile_picture,
         caption=f'👤 YOUR PROFILE\n'
+                 f' • First Name: {first_name}\n'
                  f' • Username: <a href="tg://user?id={user_id}">{username}</a>\n'
                  f' • Ranking Globally: {global_ranking}\n'
                  f' • Total Characters: {total_characters}',
         parse_mode='HTML'
     )
+
+# Add the command handler to the dispatcher
+
 
 # Add the command handler to the dispatcher
 
