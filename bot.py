@@ -338,37 +338,7 @@ def guess(update: Update, context: CallbackContext) -> None:
 
 
 
-def harrem(update: Update, context: CallbackContext) -> None:
-    user_id = update.effective_user.id
 
-    # Get the user document
-    user = user_collection.find_one({'id': user_id})
-    if not user or not user['characters']:
-        update.message.reply_text('You have not guessed any characters yet.')
-        return
-
-    # Get a random character from the user's collection
-    character = random.choice(user['characters'])
-
-    # Get the last 5 characters
-    last_characters = user['characters'][-5:]
-
-    # Create the caption
-    caption = 'Your latest characters:\n\n'
-    for char in last_characters:
-        caption += f'{char["name"]} from {char["anime"]}\n'
-
-    # Add the inline keyboard button
-    keyboard = [[InlineKeyboardButton('See all waifus (' + str(len(user['characters'])) + ')', switch_inline_query_current_chat=str(user_id))]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    # Send the character's image with the caption and inline keyboard button
-    context.bot.send_photo(
-        chat_id=update.effective_chat.id,  # Send in the group where the command was issued
-        photo=character['img_url'],
-        caption=caption,
-        reply_markup=reply_markup
-    )
 
 def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query     
@@ -451,6 +421,37 @@ def fav(update: Update, context: CallbackContext) -> None:
     update.message.reply_text(f'Character {character["name"]} has been added to your favorites.')
 
 # Add InlineQueryHandler to the dispatcher
+def myprofile(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
+    username = update.effective_user.username
+
+    # Get the user document
+    user = user_collection.find_one({'id': user_id})
+    if not user:
+        update.message.reply_text('You have not guessed any characters yet.')
+        return
+
+    # Get the user's global ranking
+    global_ranking = user_collection.count_documents({'total_characters': {'$gt': len(user['characters'])}}) + 1
+
+    # Get the user's total characters
+    total_characters = len(user['characters'])
+
+    # Get the user's profile picture or use a default one
+    profile_picture = update.effective_user.get_profile_photos().photos[0][-1].file_id if update.effective_user.get_profile_photos().photos else 'https://te.legra.ph/file/feb83585c6bb5a587685a.jpg'
+
+    # Send the profile information
+    context.bot.send_photo(
+        chat_id=user_id,
+        photo=profile_picture,
+        caption=f'👤 YOUR PROFILE\n'
+                 f' • Username: <a href="tg://user?id={user_id}">{username}</a>\n'
+                 f' • Ranking Globally: {global_ranking}\n'
+                 f' • Total Characters: {total_characters}',
+        parse_mode='HTML'
+    )
+
+# Add the command handler to the dispatcher
 
 
     
@@ -476,7 +477,8 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('harrem', harrem, run_async=True))
     dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
     dispatcher.add_handler(CommandHandler('fav', fav, run_async=True))
-    
+    dispatcher.add_handler(CommandHandler('myprofile', myprofile, run_async=True))
+
 
     updater.start_polling()
 
