@@ -474,7 +474,6 @@ def main() -> None:
     dispatcher.add_handler(MessageHandler(Filters.text & ~Filters.command, message_counter, run_async=True))
     dispatcher.add_handler(CommandHandler('guess', guess, run_async=True))
     # Add CommandHandler for /list command to your Updater
-    dispatcher.add_handler(CommandHandler('harrem', harrem, run_async=True))
     dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
     dispatcher.add_handler(CommandHandler('fav', fav, run_async=True))
     dispatcher.add_handler(CommandHandler('myprofile', myprofile, run_async=True))
