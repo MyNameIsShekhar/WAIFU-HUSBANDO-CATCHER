@@ -244,11 +244,11 @@ def message_counter(update: Update, context: CallbackContext) -> None:
         # Get message frequency and counter for this chat from the database
         chat_frequency = user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
-            message_frequency = chat_frequency.get('message_frequency', 100)
+            message_frequency = chat_frequency.get('message_frequency', 20)
             message_counter = chat_frequency.get('message_counter', 0)
         else:
             # Default to 20 messages if not set
-            message_frequency = 100
+            message_frequency = 20
             message_counter = 0
 
         # Increment counter for this chat
@@ -267,14 +267,19 @@ def message_counter(update: Update, context: CallbackContext) -> None:
             upsert=True
         )
 
-# Don't forget to register the new handler
+
 
 def send_image(update: Update, context: CallbackContext) -> None:
+    # Acquire the lock
+    
+        # Your existing send_image code here
+
+    
     chat_id = update.effective_chat.id
 
     # Get all characters
+    # Change it to this
     all_characters = list(collection.find({}))
-
     # Initialize sent characters list for this chat if it doesn't exist
     if chat_id not in sent_characters:
         sent_characters[chat_id] = []
@@ -300,7 +305,7 @@ def send_image(update: Update, context: CallbackContext) -> None:
         photo=character['img_url'],
         caption="Use /Guess Command And.. Guess This Character Name.."
     )
-
+    
 def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
@@ -353,6 +358,10 @@ def guess(update: Update, context: CallbackContext) -> None:
 
     else:
         update.message.reply_text('Incorrect guess. Try again.')
+
+
+ 
+
 
 
 def harrem(update: Update, context: CallbackContext) -> None:
@@ -474,8 +483,8 @@ def main() -> None:
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler('start', start, run_async=True))
-    updater.dispatcher.add_handler(CallbackQueryHandler(help, pattern='^' + 'help' + '$'))
-    updater.dispatcher.add_handler(CallbackQueryHandler(back, pattern='^' + 'back' + '$'))
+    updater.dispatcher.add_handler(CallbackQueryHandler(help, pattern='^' + 'help' + '$', run_async=True))
+    updater.dispatcher.add_handler(CallbackQueryHandler(back, pattern='^' + 'back' + '$', run_async=True))
 
     dispatcher.add_handler(CommandHandler('upload', upload, run_async=True))
     
@@ -485,7 +494,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('total', total, run_async=True))
     dispatcher.add_handler(CommandHandler('changetime', change_time, run_async=True))
     dispatcher.add_handler(CommandHandler('ping', ping, run_async=True))
-    dispatcher.add_handler(MessageHandler(Filters.text | Filters.sticker, message_counter))
+    dispatcher.add_handler(MessageHandler(Filters.text | Filters.sticker, message_counter, run_async=True))
     dispatcher.add_handler(CommandHandler('guess', guess, run_async=True))
     # Add CommandHandler for /list command to your Updater
     dispatcher.add_handler(CommandHandler('harrem', harrem, run_async=True))
