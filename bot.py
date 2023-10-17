@@ -401,7 +401,7 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                             id=character['id'],
                             photo_url=character['img_url'],
                             thumb_url=character['img_url'],
-                            caption=f"<a href='tg://user?id={user['id']}'>{user.get('username', user['id'])}'s</a> harem\n\nName: {character['name']} (x{character.get('count', 1)})\nAnime: {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n\n🆔: {character['id']}",
+                            caption=f"⛩ <b><a href='tg://user?id={user['id']}'>{user.get('username', user['id'])}'s Character</a></b>\n\n<b>Name:</b> {character['name']} " + (f"(x{character.get('count', 1)})" if character.get('count', 1) > 1 else "") + f"\n<b>Anime:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n\n🆔: {character['id']}",
                             parse_mode='HTML'
                         )
                     )
@@ -409,7 +409,11 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
 
             update.inline_query.answer(results)
         else:
-            update.inline_query.answer([])
+            update.inline_query.answer([InlineQueryResultArticle(
+                id='notfound', 
+                title="User not found", 
+                input_message_content=InputTextMessageContent("User not found")
+            )])
     else:
         all_characters = list(collection.find({}))
         results = []
@@ -422,11 +426,12 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                     id=character['id'],
                     photo_url=character['img_url'],
                     thumb_url=character['img_url'],
-                    caption=f"<b>Name:</b> {character['name']}\n<b>Anime:</b> {character['anime']}\n🆔: {character['id']}\n👥 Guessed {total_guesses} times in Global",
+                    caption=f"<b>Name:</b> {character['name']}\n<b>Anime:</b> {character['anime']}\n🆔: {character['id']}\n\n👥 Guessed {total_guesses} times",
                     parse_mode='HTML'
                 )
             )
         update.inline_query.answer(results)
+
 
 
     
