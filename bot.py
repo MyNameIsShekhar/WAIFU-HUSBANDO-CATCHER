@@ -42,17 +42,26 @@ first_correct_guesses = {}
 def start(update: Update, context: CallbackContext) -> None:
     if update.message.chat.type == 'private':
         url = 'https://graph.org/file/6c27800378df0aedb1596.jpg'
-        caption = "𝙃𝙚𝙡𝙡𝙤 𝙄𝙩𝙨 𝙂𝙪𝙚𝙨𝙨 '𝙀𝙢 𝙖𝙡𝙡 𝘾𝙝𝙖𝙧𝙖𝙘𝙩𝙚𝙧 𝘽𝙤𝙩.. 𝙄𝙩𝙨 𝙅𝙪𝙨𝙩 𝘽𝙚𝙩𝙖 𝙏𝙚𝙨𝙩𝙞𝙣𝙜 𝙑𝙚𝙧𝙨𝙞𝙤𝙣... 𝙎𝙤 𝙞𝙛 𝙐 𝙒𝙖𝙣𝙣 𝘼𝙙𝙙 𝙩𝙝𝙞𝙨 𝘽𝙤𝙩 𝙞𝙣 𝙔𝙤𝙪'𝙧𝙚 𝙔𝙤𝙪 𝘾𝙖𝙣 𝘼𝙙𝙙..."
-        keyboard = [[InlineKeyboardButton("add me in You're group", url='https://t.me/Collect_emAll_Bot?startgroup=_')]]
+        caption = "𝙃𝙚𝙡𝙡𝙤 𝙄𝙩𝙨 𝙂𝙪𝙚𝙨𝙨 '𝙀𝙢 𝙖𝙡𝙡 𝘾𝙝𝙖𝙧𝙖𝙘𝙩𝙚𝙧 𝘽𝙤𝙩.. 𝙄𝙩𝙨 𝙅𝙪𝙨𝙩 𝘽𝙚𝙩𝙖 𝙏𝙚𝙨𝙩𝙞𝙣𝙜 𝙑𝙚𝙧𝙨𝙞𝙤𝙣... 𝙎𝙤 𝙞𝙛 𝙐 𝙒𝙖𝙣𝙣 𝘼𝙙𝙙 𝙩𝙝𝙞𝙨 𝘽𝙤𝙩 𝙞𝙣 𝙔𝙤𝙪'𝙧𝙚 𝘾𝙝𝙖𝙩...𝙎𝙤 𝙔𝙤𝙪 𝘾𝙖𝙣 𝘼𝙙𝙙..."
+        keyboard = [[InlineKeyboardButton("Help", callback_data='help'), InlineKeyboardButton("Add me in your group", url='https://t.me/Collect_emAll_Bot?startgroup=_')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         context.bot.send_photo(chat_id=update.effective_chat.id, photo=url, caption=caption, reply_markup=reply_markup)
 
-def ping(update: Update, context: CallbackContext) -> None:
-    start_time = time.time()
-    message = update.message.reply_text('Pong!')
-    end_time = time.time()
-    elapsed_time = round((end_time - start_time) * 1000, 3)
-    message.edit_text(f'Pong! {elapsed_time}ms')
+def help(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    query.answer()
+    keyboard = [[InlineKeyboardButton("Back", callback_data='back')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.edit_message_caption(caption="Bot still in underdevelopment", reply_markup=reply_markup)
+
+def back(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    query.answer()
+    keyboard = [[InlineKeyboardButton("Help", callback_data='help'), InlineKeyboardButton("Add me in your group", url='https://t.me/Collect_emAll_Bot?startgroup=_')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    query.edit_message_caption(caption="𝙃𝙚𝙡𝙡𝙤 𝙄𝙩𝙨 𝙂𝙪𝙚𝙨𝙨 '𝙀𝙢 𝙖𝙡𝙡 𝘾𝙝𝙖𝙧𝙖𝙘𝙩𝙚𝙧 𝘽𝙤𝙩.. 𝙄𝙩𝙨 𝙅𝙪𝙨𝙩 𝘽𝙚𝙩𝙖 𝙏𝙚𝙨𝙩𝙞𝙣𝙜 𝙑𝙚𝙧𝙨𝙞𝙤𝙣... 𝙎𝙤 𝙞𝙛 𝙐 𝙒𝙖𝙣𝙣 𝘼𝙙𝙙 𝙩𝙝𝙞𝙨 𝘽𝙤𝙩 𝙞𝙣 𝙔𝙤𝙪'𝙧𝙚 𝘾𝙝𝙖𝙩...𝙎𝙤 𝙔𝙤𝙪 𝘾𝙖𝙣 𝘼𝙙𝙙...", reply_markup=reply_markup)
+
+# Don't forget to register the new handlers
 
 def get_next_sequence_number(sequence_name):
     # Get a handle to the sequence collection
@@ -469,7 +478,9 @@ def main() -> None:
     dispatcher = updater.dispatcher
 
     dispatcher.add_handler(CommandHandler('start', start, run_async=True))
-    
+    updater.dispatcher.add_handler(CallbackQueryHandler(help, pattern='^' + 'help' + '$'))
+    updater.dispatcher.add_handler(CallbackQueryHandler(back, pattern='^' + 'back' + '$'))
+
     dispatcher.add_handler(CommandHandler('upload', upload, run_async=True))
     
     dispatcher.add_handler(CommandHandler('delete', delete, run_async=True))
