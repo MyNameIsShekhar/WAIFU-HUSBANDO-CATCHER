@@ -328,14 +328,10 @@ def guess(update: Update, context: CallbackContext) -> None:
 
         # Add character to user's collection
         user = user_collection.find_one({'id': user_id})
-        
-        # Check if the user has a username, otherwise use their first name
-        username = update.effective_user.username if update.effective_user.username else update.effective_user.first_name
-
         if user:
             # Update username if it has changed
-            if username != user['username']:
-                user_collection.update_one({'id': user_id}, {'$set': {'username': username}})
+            if hasattr(update.effective_user, 'username') and update.effective_user.username != user['username']:
+                user_collection.update_one({'id': user_id}, {'$set': {'username': update.effective_user.username}})
             # Increment count of character in user's collection
             character_index = next((index for (index, d) in enumerate(user['characters']) if d["id"] == last_characters[chat_id]["id"]), None)
             if character_index is not None:
@@ -349,12 +345,12 @@ def guess(update: Update, context: CallbackContext) -> None:
                 # Add character to user's collection
                 last_characters[chat_id]['count'] = 1
                 user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
-        else:
+        elif hasattr(update.effective_user, 'username'):
             # Create new user document
             last_characters[chat_id]['count'] = 1
             user_collection.insert_one({
                 'id': user_id,
-                'username': username,
+                'username': update.effective_user.username,
                 'characters': [last_characters[chat_id]]
             })
 
@@ -362,9 +358,6 @@ def guess(update: Update, context: CallbackContext) -> None:
 
     else:
         update.message.reply_text('Incorrect guess. Try again.')
-
-
-
 
 
 def harrem(update: Update, context: CallbackContext) -> None:
