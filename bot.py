@@ -270,16 +270,11 @@ def message_counter(update: Update, context: CallbackContext) -> None:
 # Don't forget to register the new handler
 
 def send_image(update: Update, context: CallbackContext) -> None:
-    # Acquire the lock
-    
-        # Your existing send_image code here
-
-    
     chat_id = update.effective_chat.id
 
     # Get all characters
-    # Change it to this
     all_characters = list(collection.find({}))
+
     # Initialize sent characters list for this chat if it doesn't exist
     if chat_id not in sent_characters:
         sent_characters[chat_id] = []
@@ -305,7 +300,7 @@ def send_image(update: Update, context: CallbackContext) -> None:
         photo=character['img_url'],
         caption="Use /Guess Command And.. Guess This Character Name.."
     )
-    
+
 def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
