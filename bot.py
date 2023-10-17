@@ -533,7 +533,7 @@ def button(update: Update, context: CallbackContext) -> None:
     
 # Add InlineQueryHandler to the dispatcher
 def main() -> None:
-    updater = Updater(token='6347356084:AAHX7A8aY9fbtgCQ-8R16TRBKkCHtX4bMxA')
+    updater = Updater(token='6420751168:AAEtf-OyEYLLTZM2c4LrhIroXPfvsW7KlM8')
 
     dispatcher = updater.dispatcher
 
