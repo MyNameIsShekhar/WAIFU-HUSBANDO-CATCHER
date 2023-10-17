@@ -38,6 +38,12 @@ sent_characters = {}
 first_correct_guesses = {}
 
 
+def ping(update: Update, context: CallbackContext) -> None:
+    start_time = time.time()
+    message = update.message.reply_text('Pong!')
+    end_time = time.time()
+    elapsed_time = round((end_time - start_time) * 1000, 3)
+    message.edit_text(f'Pong! {elapsed_time}ms')
 
 
 def get_next_sequence_number(sequence_name):
