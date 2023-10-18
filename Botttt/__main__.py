@@ -352,14 +352,7 @@ def guess(update: Update, context: CallbackContext) -> None:
             return_document=ReturnDocument.AFTER
         )
 
-        # Increment count for this chat
-        chat_count = user_totals_collection.find_one_and_update(
-            {'id': chat_id},
-            {'$inc': {'count': 1}},
-            upsert=True,
-            return_document=ReturnDocument.AFTER
-        )
-
+        
         # Add character to user's collection
         user = user_collection.find_one({'id': user_id, 'chat_id': chat_id})
         if user:
@@ -391,8 +384,8 @@ def guess(update: Update, context: CallbackContext) -> None:
                 'id': user_id,
                 'username': update.effective_user.username,
                 'characters': [last_characters[chat_id]],
-                'chat_id': chat_id,  # Store chat_id
-                'total_count': 1  # Initialize total_count
+                'total_count': 1
+                  # Initialize total_count
             })
 
         update.message.reply_text(f'Congooo ✅️! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
@@ -503,52 +496,6 @@ def fav(update: Update, context: CallbackContext) -> None:
     user_collection.update_one({'id': user_id}, {'$set': {'favorites': user['favorites']}})
 
     update.message.reply_text(f'Character {character["name"]} has been added to your favorites.')
-
-def leaderboard(update: Update, context: CallbackContext) -> None:
-    chat_id = update.effective_chat.id
-
-    # Create inline keyboard
-    keyboard = [
-        [
-            InlineKeyboardButton('Global', callback_data='leaderboard_global'),
-            InlineKeyboardButton('Group', callback_data='leaderboard_group')
-        ]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    # Send message with inline keyboard
-    update.message.reply_text('Please select a leaderboard:', reply_markup=reply_markup)
-
-
-def leaderboard_button(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-
-    # CallbackQueries need to be answered
-    query.answer()
-
-    # Get new leaderboard type from callback data
-    new_leaderboard_type = query.data.split('_')[1]
-
-    # Get leaderboard data
-    if new_leaderboard_type == 'global':
-        leaderboard_data = user_collection.find().sort('total_count', -1).limit(10)
-    else:
-        leaderboard_data = user_collection.find({'chat_id': query.message.chat_id}).sort('total_count', -1).limit(10)
-
-    # Format leaderboard message
-    leaderboard_message = f'Top Users ({new_leaderboard_type.capitalize()})\n\n'
-    for i, user in enumerate(leaderboard_data, start=1):
-        username = user['username']
-        count = user['total_count']
-        leaderboard_message += f'{i}. <a href="tg://user?id={user["id"]}">{username}</a> - {count}\n'
-
-    # Edit message with new leaderboard
-    context.bot.edit_message_text(
-        chat_id=query.message.chat_id,
-        message_id=query.message.message_id,
-        text=leaderboard_message,
-        parse_mode='HTML'
-    )
 
 
 
