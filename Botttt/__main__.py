@@ -361,7 +361,7 @@ def guess(update: Update, context: CallbackContext) -> None:
         )
 
         # Add character to user's collection
-        user = user_collection.find_one({'id': user_id})
+        user = user_collection.find_one({'id': user_id, 'chat_id': chat_id})
         if user:
             # Update username if it has changed
             if hasattr(update.effective_user, 'username') and update.effective_user.username != user['username']:
@@ -385,14 +385,14 @@ def guess(update: Update, context: CallbackContext) -> None:
             user_collection.insert_one({
                 'id': user_id,
                 'username': update.effective_user.username,
-                'characters': [last_characters[chat_id]]
+                'characters': [last_characters[chat_id]],
+                'chat_id': chat_id  # Store chat_id
             })
 
         update.message.reply_text(f'Congooo ✅️! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
 
     else:
         update.message.reply_text('Incorrect guess. Try again.')
-
 
 
 
@@ -499,27 +499,8 @@ def fav(update: Update, context: CallbackContext) -> None:
 
     update.message.reply_text(f'Character {character["name"]} has been added to your favorites.')
 
-
-
 def leaderboard(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
-
-    # Extract arguments
-    args = context.args
-    leaderboard_type = 'global' if not args else args[0].lower()
-
-    # Get leaderboard data
-    if leaderboard_type == 'global':
-        leaderboard_data = user_collection.find().sort('count', -1).limit(10)
-    else:
-        leaderboard_data = user_collection.find({'chat_id': chat_id}).sort('count', -1).limit(10)
-
-    # Format leaderboard message
-    leaderboard_message = f'Top Users ({leaderboard_type.capitalize()})\n\n'
-    for i, user in enumerate(leaderboard_data, start=1):
-        username = user['username']
-        count = sum(character['count'] for character in user['characters'])
-        leaderboard_message += f'{i}. <a href="tg://user?id={user["id"]}">{username}</a> - {count}\n'
 
     # Create inline keyboard
     keyboard = [
@@ -530,8 +511,9 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Send leaderboard message with inline keyboard
-    update.message.reply_text(leaderboard_message, reply_markup=reply_markup, parse_mode='HTML')
+    # Send message with inline keyboard
+    update.message.reply_text('Please select a leaderboard:', reply_markup=reply_markup)
+
 
 def leaderboard_button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
@@ -542,12 +524,28 @@ def leaderboard_button(update: Update, context: CallbackContext) -> None:
     # Get new leaderboard type from callback data
     new_leaderboard_type = query.data.split('_')[1]
 
+    # Get leaderboard data
+    if new_leaderboard_type == 'global':
+        leaderboard_data = user_collection.find().sort('count', -1).limit(10)
+    else:
+        leaderboard_data = user_collection.find({'chat_id': query.message.chat_id}).sort('count', -1).limit(10)
+
+    # Format leaderboard message
+    leaderboard_message = f'Top Users ({new_leaderboard_type.capitalize()})\n\n'
+    for i, user in enumerate(leaderboard_data, start=1):
+        username = user['username']
+        count = sum(character['count'] for character in user['characters'])
+        leaderboard_message += f'{i}. <a href="tg://user?id={user["id"]}">{username}</a> - {count}\n'
+
     # Edit message with new leaderboard
     context.bot.edit_message_text(
         chat_id=query.message.chat_id,
         message_id=query.message.message_id,
-        text='/leaderboard ' + new_leaderboard_type
+        text=leaderboard_message,
+        parse_mode='HTML'
     )
+
+
 
         
 # Add the command handler and callback query handler to the dispatcher
