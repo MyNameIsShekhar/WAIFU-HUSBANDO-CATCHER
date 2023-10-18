@@ -9,7 +9,7 @@ import random
 from datetime import datetime, timedelta
 from threading import Lock
 import time
-
+from Waifuuuu import ping
 # Connect to MongoDB
 client = MongoClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
 db = client['Waifus_lol']
@@ -39,12 +39,6 @@ sent_characters = {}
 # Keep track of the user who guessed correctly first in each group
 first_correct_guesses = {}
 
-def ping(update: Update, context: CallbackContext) -> None:
-    start_time = time.time()
-    message = update.message.reply_text('Pong!')
-    end_time = time.time()
-    elapsed_time = round((end_time - start_time) * 1000, 3)
-    message.edit_text(f'Pong! {elapsed_time}ms')
 
 
 def get_next_sequence_number(sequence_name):
@@ -486,11 +480,7 @@ def myprofile(update: Update, context: CallbackContext) -> None:
     
 # Add InlineQueryHandler to the dispatcher
 def main() -> None:
-    updater = Updater(token='6420751168:AAEtf-OyEYLLTZM2c4LrhIroXPfvsW7KlM8')
-
-    dispatcher = updater.dispatcher
-
-    dispatcher.add_handler(CommandHandler('ping', ping, run_async=True))
+    
     
     dispatcher.add_handler(CommandHandler('upload', upload, run_async=True))
     
@@ -511,7 +501,14 @@ def main() -> None:
     dispatcher.add_handler(CallbackQueryHandler(button, pattern='^group_leaderboard$', run_async=True))
     dispatcher.add_handler(CallbackQueryHandler(button, pattern='^close$', run_async=True))
 
-    updater.start_polling()
-
+    updater.start_polling(
+            timeout=15,
+            read_latency=4,
+            drop_pending_updates=True,
+            
+    )
+    
+    updater.idle()
+    
 if __name__ == '__main__':
     main()
