@@ -573,7 +573,6 @@ def main() -> None:
     # Add CommandHandler for /list command to your Updater
     dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
     dispatcher.add_handler(CommandHandler('fav', fav, run_async=True))
-    dispatcher.add_handler(CommandHandler('myprofile', myprofile, run_async=True))
     dispatcher.add_handler(CommandHandler('leaderboard', leaderboard))
     dispatcher.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_'))
 
