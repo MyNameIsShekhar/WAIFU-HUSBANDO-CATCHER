@@ -498,6 +498,37 @@ def fav(update: Update, context: CallbackContext) -> None:
     update.message.reply_text(f'Character {character["name"]} has been added to your favorites.')
 
 
+def leaderboard(update: Update, context: CallbackContext) -> None:
+    # Create inline keyboard
+    keyboard = [
+        [InlineKeyboardButton('My Rank', callback_data='leaderboard_myrank')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Get global leaderboard data
+    leaderboard_data = user_collection.find().sort('total_count', -1).limit(10)
+
+    # Format leaderboard message
+    leaderboard_message = 'Top Users (Global)\n\n'
+    for i, user in enumerate(leaderboard_data, start=1):
+        username = user['username']
+        count = user['total_count']
+        leaderboard_message += f'{i}. <a href="tg://user?id={user["id"]}">{username}</a> - {count}\n'
+
+    # Send message with inline keyboard
+    update.message.reply_text(leaderboard_message, reply_markup=reply_markup, parse_mode='HTML')
+
+def leaderboard_button(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+
+    # Get user's rank
+    user_rank = user_collection.count_documents({'total_count': {'$gt': query.from_user['total_count']}}) + 1
+
+    # Check if user is in the leaderboard
+    if user_rank > user_collection.count_documents({}):
+        query.answer('You are not in the leaderboard.', show_alert=True)
+    else:
+        query.answer(f'Your rank is {user_rank}.', show_alert=True)
 
 
         
