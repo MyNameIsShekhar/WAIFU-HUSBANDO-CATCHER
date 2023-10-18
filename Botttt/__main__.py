@@ -10,7 +10,7 @@ from datetime import datetime, timedelta
 from threading import Lock
 import time
 
-from ptb import dispatcher,updater
+from botttt import dispatcher,updater
 
 client = MongoClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
 db = client['Waifus_lol']
