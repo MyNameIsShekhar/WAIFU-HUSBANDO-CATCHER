@@ -18,8 +18,8 @@ db = client['Waifus_lol']
 collection = db['anime_characters_lol']
 
 # Get the collection for user totals
-user_totals_collection = db['user_totals_lolll']
-user_collection = db["user_collection_lolll"]
+user_totals_collection = db['user_totals_lmao']
+user_collection = db["user_collection_lmao"]
 
 
 
