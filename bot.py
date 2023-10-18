@@ -1,6 +1,7 @@
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent, InputMediaPhoto
+from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import InlineQueryHandler,CallbackQueryHandler, ChosenInlineResultHandler
 from pymongo import MongoClient, ReturnDocument
 import urllib.request
@@ -340,17 +341,29 @@ def guess(update: Update, context: CallbackContext) -> None:
 
 
 
-
 def inlinequery(update: Update, context: CallbackContext) -> None:
-    query = update.inline_query.query     
+    query = update.inline_query.query
+    offset = int(update.inline_query.offset) if update.inline_query.offset else 0
 
     if query.isdigit():
         user = user_collection.find_one({'id': int(query)})
 
         if user:
+            # Get the next batch of characters
+            characters = user['characters'][offset:offset+50]
+
+            # Check if there are more characters
+            if len(characters) > 50:
+                # If so, remove the extra character and set the next offset
+                characters = characters[:50]
+                next_offset = str(offset + 50)
+            else:
+                # If not, set next_offset to None to indicate no more results
+                next_offset = None
+
             results = []
             added_characters = set()
-            for character in user['characters']:
+            for character in characters:
                 if character['name'] not in added_characters:
                     anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
                     total_anime_characters = collection.count_documents({'anime': character['anime']})
@@ -366,7 +379,7 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                     )
                     added_characters.add(character['name'])
 
-            update.inline_query.answer(results)
+            update.inline_query.answer(results, next_offset=next_offset)
         else:
             update.inline_query.answer([InlineQueryResultArticle(
                 id='notfound', 
@@ -374,7 +387,13 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                 input_message_content=InputTextMessageContent("User not found")
             )])
     else:
-        all_characters = list(collection.find({}))
+        all_characters = list(collection.find({}).skip(offset).limit(51))
+        if len(all_characters) > 50:
+            all_characters = all_characters[:50]
+            next_offset = str(offset + 50)
+        else:
+            next_offset = None
+
         results = []
         for character in all_characters:
             users_with_character = list(user_collection.find({'characters.id': character['id']}))
@@ -389,7 +408,9 @@ def inlinequery(update: Update, context: CallbackContext) -> None:
                     parse_mode='HTML'
                 )
             )
-        update.inline_query.answer(results)
+        update.inline_query.answer(results, next_offset=next_offset)
+
+
 
 def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
