@@ -1,3 +1,31 @@
+import logging
+import os
+import sys
+import time
+
+import telegram.ext as tg
+
+StartTime = time.time()
+
+# enable logging
+logging.basicConfig(
+    format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+    handlers=[logging.FileHandler("log.txt"), logging.StreamHandler()],
+    level=logging.INFO,
+)
+
+logging.getLogger("apscheduler").setLevel(logging.ERROR)
+
+logging.getLogger("pyrate_limiter").setLevel(logging.ERROR)
+LOGGER = logging.getLogger(__name__)
+
+# if version < 3.6, stop bot.
+if sys.version_info[0] < 3 or sys.version_info[1] < 6:
+    LOGGER.error(
+        "You MUST have a python version of at least 3.6! Multiple features depend on this. Bot quitting."
+    )
+    quit(1)
+
 LOAD = []
 NO_LOAD = []
 
