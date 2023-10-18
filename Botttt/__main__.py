@@ -503,7 +503,7 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
         leaderboard_message += f'{i}. [{username}](https://t.me/{username}) - {count}\n'
 
     # Send message with inline keyboard
-    update.message.reply_text(leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
+    update.message.reply_text(leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown', disable_web_page_preview=True)
 
 def leaderboard_button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
