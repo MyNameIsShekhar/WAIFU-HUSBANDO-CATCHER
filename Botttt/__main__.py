@@ -18,8 +18,8 @@ db = client['Waifus_lol']
 collection = db['anime_characters_lol']
 
 # Get the collection for user totals
-user_totals_collection = db['user_totals_lmao']
-user_collection = db["user_collection_lmao"]
+user_totals_collection = db['user_totals_lmaoo']
+user_collection = db["user_collection_lmaoo"]
 
 
 
@@ -352,9 +352,8 @@ def guess(update: Update, context: CallbackContext) -> None:
             return_document=ReturnDocument.AFTER
         )
 
-        
         # Add character to user's collection
-        user = user_collection.find_one({'id': user_id, 'chat_id': chat_id})
+        user = user_collection.find_one({'id': user_id})
         if user:
             # Update username if it has changed
             if hasattr(update.effective_user, 'username') and update.effective_user.username != user['username']:
@@ -363,36 +362,23 @@ def guess(update: Update, context: CallbackContext) -> None:
             # Increment total count of correct guesses
             user_collection.update_one({'id': user_id}, {'$inc': {'total_count': 1}})
             
-            # Increment count of character in user's collection
-            character_index = next((index for (index, d) in enumerate(user['characters']) if d["id"] == last_characters[chat_id]["id"]), None)
-            if character_index is not None:
-                # Check if 'count' key exists and increment it, otherwise add it
-                if 'count' in user['characters'][character_index]:
-                    user['characters'][character_index]['count'] += 1
-                else:
-                    user['characters'][character_index]['count'] = 1
-                user_collection.update_one({'id': user_id}, {'$set': {'characters': user['characters']}})
-            else:
-                # Add character to user's collection with count initialized to 1
-                last_characters[chat_id]['count'] = 1
+            # Add character to user's collection if not already present
+            if not any(character['id'] == last_characters[chat_id]['id'] for character in user['characters']):
                 user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
                 
         elif hasattr(update.effective_user, 'username'):
-            # Create new user document with total_count and character count initialized to 1
-            last_characters[chat_id]['count'] = 1
+            # Create new user document with total_count initialized to 1
             user_collection.insert_one({
                 'id': user_id,
                 'username': update.effective_user.username,
                 'characters': [last_characters[chat_id]],
-                'total_count': 1
-                  # Initialize total_count
+                'total_count': 1  # Initialize total_count
             })
 
         update.message.reply_text(f'Congooo ✅️! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
 
     else:
         update.message.reply_text('Incorrect guess. Try again.')
-
 
 
 
