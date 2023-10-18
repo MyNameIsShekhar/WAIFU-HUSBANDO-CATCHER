@@ -499,10 +499,11 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
     for i, user in enumerate(leaderboard_data, start=1):
         username = user['username']
         count = user['total_count']
-        leaderboard_message += f'{i}. <a href="tg://user?id={user["id"]}">{username}</a> - {count}\n'
+        # Mention the user with a hyperlink to their Telegram profile
+        leaderboard_message += f'{i}. [{username}](https://t.me/{username}) - {count}\n'
 
     # Send message with inline keyboard
-    update.message.reply_text(leaderboard_message, reply_markup=reply_markup, parse_mode='HTML')
+    update.message.reply_text(leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
 
 def leaderboard_button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
