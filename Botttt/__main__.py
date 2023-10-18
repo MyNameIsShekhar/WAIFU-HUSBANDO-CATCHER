@@ -366,6 +366,10 @@ def guess(update: Update, context: CallbackContext) -> None:
             # Update username if it has changed
             if hasattr(update.effective_user, 'username') and update.effective_user.username != user['username']:
                 user_collection.update_one({'id': user_id}, {'$set': {'username': update.effective_user.username}})
+            
+            # Increment total count of correct guesses
+            user_collection.update_one({'id': user_id}, {'$inc': {'total_count': 1}})
+            
             # Increment count of character in user's collection
             character_index = next((index for (index, d) in enumerate(user['characters']) if d["id"] == last_characters[chat_id]["id"]), None)
             if character_index is not None:
@@ -376,24 +380,25 @@ def guess(update: Update, context: CallbackContext) -> None:
                     user['characters'][character_index]['count'] = 1
                 user_collection.update_one({'id': user_id}, {'$set': {'characters': user['characters']}})
             else:
-                # Add character to user's collection
+                # Add character to user's collection with count initialized to 1
                 last_characters[chat_id]['count'] = 1
                 user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
+                
         elif hasattr(update.effective_user, 'username'):
-            # Create new user document
+            # Create new user document with total_count and character count initialized to 1
             last_characters[chat_id]['count'] = 1
             user_collection.insert_one({
                 'id': user_id,
                 'username': update.effective_user.username,
                 'characters': [last_characters[chat_id]],
-                'chat_id': chat_id  # Store chat_id
+                'chat_id': chat_id,  # Store chat_id
+                'total_count': 1  # Initialize total_count
             })
 
         update.message.reply_text(f'Congooo ✅️! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
 
     else:
         update.message.reply_text('Incorrect guess. Try again.')
-
 
 
 
@@ -526,15 +531,15 @@ def leaderboard_button(update: Update, context: CallbackContext) -> None:
 
     # Get leaderboard data
     if new_leaderboard_type == 'global':
-        leaderboard_data = user_collection.find().sort('count', -1).limit(10)
+        leaderboard_data = user_collection.find().sort('total_count', -1).limit(10)
     else:
-        leaderboard_data = user_collection.find({'chat_id': query.message.chat_id}).sort('count', -1).limit(10)
+        leaderboard_data = user_collection.find({'chat_id': query.message.chat_id}).sort('total_count', -1).limit(10)
 
     # Format leaderboard message
     leaderboard_message = f'Top Users ({new_leaderboard_type.capitalize()})\n\n'
     for i, user in enumerate(leaderboard_data, start=1):
         username = user['username']
-        count = sum(character['count'] for character in user['characters'])
+        count = user['total_count']
         leaderboard_message += f'{i}. <a href="tg://user?id={user["id"]}">{username}</a> - {count}\n'
 
     # Edit message with new leaderboard
@@ -544,6 +549,7 @@ def leaderboard_button(update: Update, context: CallbackContext) -> None:
         text=leaderboard_message,
         parse_mode='HTML'
     )
+
 
 
 
