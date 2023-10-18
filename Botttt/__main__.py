@@ -507,11 +507,17 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
 def leaderboard_button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 
+    # Get user's total count
+    user_total_count = user_collection.find_one({'id': query.from_user.id})['total_count']
+
+    # Get sorted list of total counts
+    sorted_counts = sorted(user_collection.distinct('total_count'), reverse=True)
+
     # Get user's rank
-    user_rank = user_collection.count_documents({'total_count': {'$gt': query.from_user['total_count']}}) + 1
+    user_rank = sorted_counts.index(user_total_count) + 1
 
     # Check if user is in the leaderboard
-    if user_rank > user_collection.count_documents({}):
+    if user_rank > len(sorted_counts):
         query.answer('You are not in the leaderboard.', show_alert=True)
     else:
         query.answer(f'Your rank is {user_rank}.', show_alert=True)
