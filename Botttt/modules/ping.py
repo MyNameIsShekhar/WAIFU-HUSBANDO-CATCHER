@@ -4,7 +4,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandle
 
 from datetime import datetime, timedelta
 import time
-from ptb import dispatcher, updater
+from Botttt import dispatcher, updater
 
 
 def ping(update: Update, context: CallbackContext) -> None:
