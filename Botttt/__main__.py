@@ -18,8 +18,8 @@ db = client['Waifus_lol']
 collection = db['anime_characters_lol']
 
 # Get the collection for user totals
-user_totals_collection = db['user_totals_lol']
-user_collection = db["user_collection_lol"]
+user_totals_collection = db['user_totals_lolll']
+user_collection = db["user_collection_lolll"]
 
 
 
@@ -344,6 +344,22 @@ def guess(update: Update, context: CallbackContext) -> None:
         # Set the flag that someone has guessed correctly
         first_correct_guesses[chat_id] = user_id
 
+        # Increment global count
+        global_count = user_totals_collection.find_one_and_update(
+            {'id': 'global'},
+            {'$inc': {'count': 1}},
+            upsert=True,
+            return_document=ReturnDocument.AFTER
+        )
+
+        # Increment count for this chat
+        chat_count = user_totals_collection.find_one_and_update(
+            {'id': chat_id},
+            {'$inc': {'count': 1}},
+            upsert=True,
+            return_document=ReturnDocument.AFTER
+        )
+
         # Add character to user's collection
         user = user_collection.find_one({'id': user_id})
         if user:
@@ -483,40 +499,55 @@ def fav(update: Update, context: CallbackContext) -> None:
 
     update.message.reply_text(f'Character {character["name"]} has been added to your favorites.')
 
-# Add InlineQueryHandler to the dispatcher
-def myprofile(update: Update, context: CallbackContext) -> None:
-    user_id = update.effective_user.id
-    username = update.effective_user.username
-    first_name = update.effective_user.first_name
 
-    # Get the user document
-    user = user_collection.find_one({'id': user_id})
-    if not user:
-        update.message.reply_text('You have not guessed any characters yet.')
-        return
 
-    # Get the user's global ranking
-    users_sorted_by_characters = list(user_collection.find().sort('total_characters', -1))
-    global_ranking = users_sorted_by_characters.index(user) + 1
+def leaderboard(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
 
-    # Get the user's total characters
-    total_characters = len(user['characters'])
+    # Extract arguments
+    args = context.args
+    leaderboard_type = 'global' if not args else args[0].lower()
 
-    # Get the user's profile picture or use a default one
-    profile_picture = update.effective_user.get_profile_photos().photos[0][-1].file_id if update.effective_user.get_profile_photos().photos else 'https://te.legra.ph/file/feb83585c6bb5a587685a.jpg'
+    # Get leaderboard data
+    if leaderboard_type == 'global':
+        leaderboard_data = user_collection.find().sort('count', -1).limit(10)
+    else:
+        leaderboard_data = user_collection.find({'chat_id': chat_id}).sort('count', -1).limit(10)
 
-    # Send the profile information to the chat where the command was triggered
-    context.bot.send_photo(
-        chat_id=update.effective_chat.id,
-        photo=profile_picture,
-        caption=f'👤 YOUR PROFILE\n'
-                 f' • First Name: {first_name}\n'
-                 f' • Username: <a href="tg://user?id={user_id}">{username}</a>\n'
-                 f' • Ranking Globally: {global_ranking}\n'
-                 f' • Total Characters: {total_characters}',
-        parse_mode='HTML'
+    # Format leaderboard message
+    leaderboard_message = f'Top Users ({leaderboard_type.capitalize()})\n\n'
+    for i, user in enumerate(leaderboard_data, start=1):
+        username = user['username']
+        count = sum(character['count'] for character in user['characters'])
+        leaderboard_message += f'{i}. <a href="tg://user?id={user["id"]}">{username}</a> - {count}\n'
+
+    # Create inline keyboard
+    keyboard = [
+        [
+            InlineKeyboardButton('Global', callback_data='leaderboard_global'),
+            InlineKeyboardButton('Group', callback_data='leaderboard_group')
+        ]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Send leaderboard message with inline keyboard
+    update.message.reply_text(leaderboard_message, reply_markup=reply_markup, parse_mode='HTML')
+
+def leaderboard_button(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+
+    # CallbackQueries need to be answered
+    query.answer()
+
+    # Get new leaderboard type from callback data
+    new_leaderboard_type = query.data.split('_')[1]
+
+    # Edit message with new leaderboard
+    context.bot.edit_message_text(
+        chat_id=query.message.chat_id,
+        message_id=query.message.message_id,
+        text='/leaderboard ' + new_leaderboard_type
     )
-
 
         
 # Add the command handler and callback query handler to the dispatcher
@@ -543,7 +574,9 @@ def main() -> None:
     dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
     dispatcher.add_handler(CommandHandler('fav', fav, run_async=True))
     dispatcher.add_handler(CommandHandler('myprofile', myprofile, run_async=True))
-    
+    dispatcher.add_handler(CommandHandler('leaderboard', leaderboard))
+    dispatcher.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_'))
+
     updater.start_polling(
             timeout=15,
             read_latency=4,
