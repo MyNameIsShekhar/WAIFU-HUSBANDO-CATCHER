@@ -15,8 +15,5 @@ def ping(update: Update, context: CallbackContext) -> None:
     message.edit_text(f'Pong! {elapsed_time}ms')
 
 
-dispatcher.add_handler("ping", ping, run_async=True)
-
-__command_list__ = ["ping"]
-
-__handlers__ = [PING_HANDLER]
+dispatcher.add_handler(CommandHandler('ping', ping, run_async=True))
+    
