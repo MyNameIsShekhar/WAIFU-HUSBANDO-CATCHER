@@ -497,10 +497,7 @@ def main() -> None:
     dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
     dispatcher.add_handler(CommandHandler('fav', fav, run_async=True))
     dispatcher.add_handler(CommandHandler('myprofile', myprofile, run_async=True))
-    dispatcher.add_handler(CallbackQueryHandler(button, pattern='^global_leaderboard$', run_async=True))
-    dispatcher.add_handler(CallbackQueryHandler(button, pattern='^group_leaderboard$', run_async=True))
-    dispatcher.add_handler(CallbackQueryHandler(button, pattern='^close$', run_async=True))
-
+    
     updater.start_polling(
             timeout=15,
             read_latency=4,
