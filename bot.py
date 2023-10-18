@@ -9,8 +9,9 @@ import random
 from datetime import datetime, timedelta
 from threading import Lock
 import time
-from Waifuuuu import ping
-# Connect to MongoDB
+
+from ptb import dispatcher,updater
+
 client = MongoClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
 db = client['Waifus_lol']
 collection = db['anime_characters_lol']
