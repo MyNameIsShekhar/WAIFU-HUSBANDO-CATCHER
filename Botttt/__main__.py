@@ -525,7 +525,6 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
     update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
 
 
-
 def leaderboard_button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 
@@ -533,16 +532,12 @@ def leaderboard_button(update: Update, context: CallbackContext) -> None:
     user_total_count = user_collection.find_one({'id': query.from_user.id})['total_count']
 
     # Get sorted list of total counts
-    sorted_counts = sorted(user_collection.distinct('total_count'), reverse=True)
+    sorted_counts = sorted(user_collection.find({}, {'total_count': 1, '_id': 0}), key=lambda x: x['total_count'], reverse=True)
 
     # Get user's rank
-    user_rank = sorted_counts.index(user_total_count) + 1
+    user_rank = [i for i, x in enumerate(sorted_counts) if x['total_count'] == user_total_count][0] + 1
 
-    # Check if user is in the leaderboard
-    if user_rank > len(sorted_counts):
-        query.answer('You are not in the leaderboard.', show_alert=True)
-    else:
-        query.answer(f'Your rank is {user_rank}.', show_alert=True)
+    query.answer(f'Your rank is {user_rank}.', show_alert=True)
 
 def group_leaderboard(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
