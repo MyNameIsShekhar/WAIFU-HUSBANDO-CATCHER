@@ -500,11 +500,14 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
         username = user['username']
         count = user['total_count']
         # Mention the user with a hyperlink to their Telegram profile
-        leaderboard_message += f'{i}. [{username}](https://t.me/{username}) - {count}\n'
+        # Assuming 'i' is the rank, 'username' is the name of the user, and 'count' is some kind of count related to the user.
+        leaderboard_message += f'<b>{i}. ➥ {username} - {count}</b>\n'
 
-    # Send message with inline keyboard
-    update.message.reply_text(leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown', disable_web_page_preview=True)
+# Send message with inline keyboard
+# Make sure to change parse_mode to 'HTML'
+    update.message.reply_text(leaderboard_message, reply_markup=reply_markup, parse_mode='HTML')
 
+    
 def leaderboard_button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 
