@@ -513,7 +513,7 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
     photo_url = random.choice(photo_urls)
 
     # Send photo with caption
-    update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown)
+    update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
 
 
 
