@@ -500,7 +500,7 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
     for i in range(1, 11): 
         username = user['username']
         count = user['total_count']# Top 10 users
-        leaderboard_message += f'<b>➟ {i}. {username} - {count}</b>\n'
+        leaderboard_message += f'<b>➟ {i}. [{username}](https://{username}) ⤷{count}</b>\n'
    
 # End of the leaderboard message
         leaderboard_message += "╘════════════════╛"
