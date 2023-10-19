@@ -496,16 +496,13 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
     leaderboard_data = user_collection.find().sort('total_count', -1).limit(10)
 
     # Start of the leaderboard message
-    leaderboard_message = "<b>TOP 10 MOST GUESSED USERS</b>\n╒════════════════╕\n"
+    leaderboard_message = "***TOP 10 MOST GUESSED USERS</b>***\n\n"
 
     for i, user in enumerate(leaderboard_data, start=1):
         username = user['username']
         count = user['total_count']
         # Mention the user with a hyperlink to their Telegram profile
-        leaderboard_message += f'<b>➟ {i}. [{username}](https://t.me/{username}) - {count}</b>\n'
-
-    # End of the leaderboard message
-    leaderboard_message += "╘════════════════╛"
+        leaderboard_message += f'➟ {i}. [{username}](https://t.me/{username}) - {count}\n'
 
     # Choose a random photo URL
     photo_urls = [
@@ -516,7 +513,7 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
     photo_url = random.choice(photo_urls)
 
     # Send photo with caption
-    update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='HTML')
+    update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown)
 
 
 
