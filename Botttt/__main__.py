@@ -1,4 +1,4 @@
-import importlib
+⁹import importlib
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, Filters
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent, InputMediaPhoto
@@ -482,8 +482,7 @@ def fav(update: Update, context: CallbackContext) -> None:
     user_collection.update_one({'id': user_id}, {'$set': {'favorites': user['favorites']}})
 
     update.message.reply_text(f'Character {character["name"]} has been added to your favorites.')
-
-
+    
 def leaderboard(update: Update, context: CallbackContext) -> None:
     # Create inline keyboard
     keyboard = [
@@ -493,24 +492,25 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
 
     # Get global leaderboard data
     leaderboard_data = user_collection.find().sort('total_count', -1).limit(10)
+
     # Start of the leaderboard message
     leaderboard_message = "<b>TOP 10 MOST GUESSED USERS</b>\n╒════════════════╕\n"
 
-# Assuming 'i' is the rank, 'username' is the name of the user, and 'count' is some kind of count related to the user.
-    for i in user(1, 11): 
-        
-        # Top 10 users
-        leaderboard_message += f'<b>➟ {i}. [{username}](https://{username}) ⤷{count}</b>\n'
-   
-# End of the leaderboard message
-        leaderboard_message += "╘════════════════╛"
+    for i, user in enumerate(leaderboard_data, start=1):
+        username = user['username']
+        count = user['total_count']
+        # Mention the user with a hyperlink to their Telegram profile
+        leaderboard_message += f'<b>➟ {i}. [{username}](https://t.me/{username}) ⤷{count}</b>\n'
 
-# Send message with inline keyboard
-# Make sure to change parse_mode to 'HTML'
-    update.message.reply_text(leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
+    # End of the leaderboard message
+    leaderboard_message += "╘════════════════╛"
 
-    
-    
+    # Send message with inline keyboard
+    # Make sure to change parse_mode to 'HTML'
+    update.message.reply_text(leaderboard_message, reply_markup=reply_markup, parse_mode='HTML')
+
+
+
 def leaderboard_button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 
