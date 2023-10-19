@@ -484,7 +484,8 @@ def fav(update: Update, context: CallbackContext) -> None:
 
     update.message.reply_text(f'Character {character["name"]} has been added to your favorites.')
     
- def leaderboard(update: Update, context: CallbackContext) -> None:
+
+def leaderboard(update: Update, context: CallbackContext) -> None:
     # Create inline keyboard
     keyboard = [
         [InlineKeyboardButton('My Rank', callback_data='leaderboard_myrank')]
@@ -494,23 +495,29 @@ def fav(update: Update, context: CallbackContext) -> None:
     # Get global leaderboard data
     leaderboard_data = user_collection.find().sort('total_count', -1).limit(10)
 
-# Choose a random photo URL
-photo_urls = [
-    "https://graph.org/file/38767e79402baa8b04125.jpg",
-    "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
-    "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg"
-]
-photo_url = random.choice(photo_urls)
+    # Start of the leaderboard message
+    leaderboard_message = "<b>TOP 10 MOST GUESSED USERS</b>\n╒════════════════╕\n"
 
-# Your leaderboard message
-leaderboard_message = "<b>TOP 10 MOST GUESSED USERS</b>\n\n"
-for i, user in enumerate(leaderboard_data, start=1):
-    username = user['username']
-    count = user['total_count']
-    leaderboard_message += f'<b>{i} [{username}](https://t.me/{username})- {count}</b>\n'
+    for i, user in enumerate(leaderboard_data, start=1):
+        username = user['username']
+        count = user['total_count']
+        # Mention the user with a hyperlink to their Telegram profile
+        leaderboard_message += f'<b>➟ {i}. {username} - {count}</b>\n'
 
-# Send photo with caption
-update.message.reply_photo(photo=photo_url, caption=leaderboard_message, parse_mode='HTML')
+    # End of the leaderboard message
+    leaderboard_message += "╘════════════════╛"
+
+    # Choose a random photo URL
+    photo_urls = [
+        "https://graph.org/file/38767e79402baa8b04125.jpg",
+        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
+        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg"
+    ]
+    photo_url = random.choice(photo_urls)
+
+    # Send photo with caption
+    update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='HTML')
+
 
 
 def leaderboard_button(update: Update, context: CallbackContext) -> None:
