@@ -495,7 +495,7 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
     leaderboard_data = user_collection.find().sort('total_count', -1).limit(10)
 
     # Format leaderboard message
-    leaderboard_message = '𝗧𝗢𝗣 𝟭𝟬 𝗠𝗢𝗦𝗧 𝗚𝗨𝗘𝗦𝗦𝗘𝗗 𝗨𝗦𝗘𝗥𝗦 🌻\n\n'
+    leaderboard_message = '𝗧𝗢𝗣 𝟭𝟬 𝗠𝗢𝗦𝗧 𝗚𝗨𝗘𝗦𝗦𝗘𝗗 𝗨𝗦𝗘𝗥𝗦 \n\n'
     for i, user in enumerate (leaderboard_data, start=1):
         username = user['username']
         count = user['total_count']
