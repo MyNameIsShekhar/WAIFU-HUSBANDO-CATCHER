@@ -493,20 +493,23 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
 
     # Get global leaderboard data
     leaderboard_data = user_collection.find().sort('total_count', -1).limit(10)
+    # Start of the leaderboard message
+    leaderboard_message = "<b>TOP 10 MOST GUESSED USERS</b>\n╒════════════════╕\n"
 
-    # Format leaderboard message
-    leaderboard_message = '𝗧𝗢𝗣 𝟭𝟬 𝗠𝗢𝗦𝗧 𝗚𝗨𝗘𝗦𝗦𝗘𝗗 𝗨𝗦𝗘𝗥𝗦 \n\n'
-    for i, user in enumerate (leaderboard_data, start=1):
+# Assuming 'i' is the rank, 'username' is the name of the user, and 'count' is some kind of count related to the user.
+    for i in range(1, 11): 
         username = user['username']
-        count = user['total_count']
-        # Mention the user with a hyperlink to their Telegram profile
-        # Assuming 'i' is the rank, 'username' is the name of the user, and 'count' is some kind of count related to the user.
-        leaderboard_message += f'➥ {i}. [{username}](https://t.me/{username}) - {count}\n'
+        count = user['total_count']# Top 10 users
+        leaderboard_message += f'<b>➟ {i}. {username} - {count}</b>\n'
+   
+# End of the leaderboard message
+        leaderboard_message += "╘════════════════╛"
 
 # Send message with inline keyboard
 # Make sure to change parse_mode to 'HTML'
-    update.message.reply_text(leaderboard_message, reply_markup=reply_markup, disable_web_page_preview=True, parse_mode='Markdown')
+   update.message.reply_text(leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
 
+    
     
 def leaderboard_button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
