@@ -502,7 +502,7 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
         username = user['username']
         count = user['total_count']
         # Mention the user with a hyperlink to their Telegram profile
-        leaderboard_message += f'<b>➟ {i}. {username} - {count}</b>\n'
+        leaderboard_message += f'<b>➟ {i}. [{username}](https://t.me/{username}) - {count}</b>\n'
 
     # End of the leaderboard message
     leaderboard_message += "╘════════════════╛"
