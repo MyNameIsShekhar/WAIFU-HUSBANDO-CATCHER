@@ -22,6 +22,7 @@ collection = db['anime_characters_lol']
 user_totals_collection = db['user_totals_lmaoo']
 user_collection = db["user_collection_lmaoo"]
 
+group_user_totals_collection = db['group_user_totals']
 
 
 # List of sudo users
@@ -353,6 +354,13 @@ def guess(update: Update, context: CallbackContext) -> None:
             return_document=ReturnDocument.AFTER
         )
 
+        # Increment user's count in this group
+        group_user_totals_collection.update_one(
+            {'group_id': chat_id, 'user_id': user_id},
+            {'$inc': {'total_count': 1}},
+            upsert=True
+        )
+
         # Add character to user's collection
         user = user_collection.find_one({'id': user_id})
         if user:
@@ -380,6 +388,7 @@ def guess(update: Update, context: CallbackContext) -> None:
 
     else:
         update.message.reply_text('Incorrect guess. Try again.')
+
 
 
 
@@ -535,6 +544,24 @@ def leaderboard_button(update: Update, context: CallbackContext) -> None:
     else:
         query.answer(f'Your rank is {user_rank}.', show_alert=True)
 
+def group_leaderboard(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+
+    # Get all users in this group
+    users_in_group = group_user_totals_collection.find({'group_id': chat_id})
+
+    # Sort users by total count
+    sorted_users = sorted(users_in_group, key=lambda u: u['total_count'], reverse=True)
+
+    # Start of the leaderboard message
+    leaderboard_message = "***TOP 10 USERS IN THIS GROUP***\n\n"
+
+    for i, user in enumerate(sorted_users[:10], start=1):
+        username = user_collection.find_one({'id': user['user_id']})['username']
+        count = user['total_count']
+        leaderboard_message += f'➟ {i}. {username} - {count}\n'
+
+    update.message.reply_text(leaderboard_message, parse_mode='Markdown')
 
         
 # Add the command handler and callback query handler to the dispatcher
@@ -562,7 +589,8 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('fav', fav, run_async=True))
     dispatcher.add_handler(CommandHandler('leaderboard', leaderboard))
     dispatcher.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_'))
-
+    dispatcher.add_handler(CommandHandler('ctop', group_leaderboard))
+    
     updater.start_polling(
             timeout=15,
             read_latency=4,
