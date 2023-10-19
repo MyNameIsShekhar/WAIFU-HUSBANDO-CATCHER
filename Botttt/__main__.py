@@ -496,7 +496,7 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
 
     # Format leaderboard message
     leaderboard_message = '<b>Top 10 Most Guessed Users</b>\n\n'
-    for i, user in enumerate leaderboard_data, start=1):
+    for i, user in enumerate (leaderboard_data, start=1):
         username = user['username']
         count = user['total_count']
         # Mention the user with a hyperlink to their Telegram profile
