@@ -507,7 +507,7 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
 
 # Send message with inline keyboard
 # Make sure to change parse_mode to 'HTML'
-   update.message.reply_text(leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
+    update.message.reply_text(leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
 
     
     
