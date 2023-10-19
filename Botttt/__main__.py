@@ -497,9 +497,9 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
     leaderboard_message = "<b>TOP 10 MOST GUESSED USERS</b>\n╒════════════════╕\n"
 
 # Assuming 'i' is the rank, 'username' is the name of the user, and 'count' is some kind of count related to the user.
-    for i in range(1, 11): 
-        username = user['username']
-        count = user['total_count']# Top 10 users
+    for i in user(1, 11): 
+        
+        # Top 10 users
         leaderboard_message += f'<b>➟ {i}. [{username}](https://{username}) ⤷{count}</b>\n'
    
 # End of the leaderboard message
