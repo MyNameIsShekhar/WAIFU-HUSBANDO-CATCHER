@@ -501,7 +501,7 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
         count = user['total_count']
         # Mention the user with a hyperlink to their Telegram profile
         # Assuming 'i' is the rank, 'username' is the name of the user, and 'count' is some kind of count related to the user.
-        leaderboard_message += f'<b>{i}. ➥ {username} - {count}</b>\n'
+        leaderboard_message += f'<b>{i}. ➥ [{username}](https://t.me/{username}) - {count}</b>\n'
 
 # Send message with inline keyboard
 # Make sure to change parse_mode to 'HTML'
