@@ -551,7 +551,7 @@ def group_leaderboard(update: Update, context: CallbackContext) -> None:
     # Start of the leaderboard message
     leaderboard_message = "***TOP 10 USERS IN THIS GROUP***\n\n"
 
-    for i, user in enumerate(sorted_users[:10], start=1):
+    for i, user in enumerate(sorted_users[:10]):
         username = user_collection.find_one({'id': user['user_id']})['username']
         count = user['total_count']
         leaderboard_message += f'➟ {i}. {username} - {count}\n'
