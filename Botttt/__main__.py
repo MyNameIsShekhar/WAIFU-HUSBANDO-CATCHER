@@ -539,16 +539,6 @@ def leaderboard_button(update: Update, context: CallbackContext) -> None:
 
     query.answer(f'Your rank is {user_rank}.', show_alert=True)
 
-def group_leaderboard(update: Update, context: CallbackContext) -> None:
-def leaderboard(update: Update, context: CallbackContext) -> None:
-    # Create inline keyboard
-    keyboard = [
-        [InlineKeyboardButton('My Rank', callback_data='leaderboard_myrank')],
-        [InlineKeyboardButton('Group Leaderboard', callback_data='leaderboard_group')]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    # Rest of your code...
 
 def leaderboard_group(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
