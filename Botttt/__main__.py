@@ -540,7 +540,7 @@ def leaderboard_button(update: Update, context: CallbackContext) -> None:
     query.answer(f'Your rank is {user_rank}.', show_alert=True)
 
 
-def leaderboard_group(update: Update, context: CallbackContext) -> None:
+def group_leaderboard(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 
     # Get group id
