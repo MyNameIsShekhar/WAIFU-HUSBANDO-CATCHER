@@ -540,25 +540,48 @@ def leaderboard_button(update: Update, context: CallbackContext) -> None:
     query.answer(f'Your rank is {user_rank}.', show_alert=True)
 
 def group_leaderboard(update: Update, context: CallbackContext) -> None:
-    chat_id = update.effective_chat.id
+def leaderboard(update: Update, context: CallbackContext) -> None:
+    # Create inline keyboard
+    keyboard = [
+        [InlineKeyboardButton('My Rank', callback_data='leaderboard_myrank')],
+        [InlineKeyboardButton('Group Leaderboard', callback_data='leaderboard_group')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Get all users in this group
-    users_in_group = group_user_totals_collection.find({'group_id': chat_id})
+    # Rest of your code...
 
-    # Sort users by total count
-    sorted_users = sorted(users_in_group, key=lambda u: u['total_count'], reverse=True)
+def leaderboard_group(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+
+    # Get group id
+    group_id = query.message.chat_id
+
+    # Get list of users in the group (you need to implement this)
+    group_users = get_group_users(group_id)
+
+    # Get global leaderboard data
+    leaderboard_data = user_collection.find({'id': {'$in': group_users}}).sort('total_count', -1).limit(10)
 
     # Start of the leaderboard message
-    leaderboard_message = "***TOP 10 USERS IN THIS GROUP***\n\n"
+    leaderboard_message = "***TOP 10 MOST GUESSED USERS IN THIS GROUP***\n\n"
 
-    for i, user in enumerate(sorted_users[:10]):
-        username = user_collection.find_one({'id': user['user_id']})['username']
+    for i, user in enumerate(leaderboard_data, start=1):
+        username = user['username']
         count = user['total_count']
+        # Mention the user with a hyperlink to their Telegram profile
         leaderboard_message += f'➟ {i}. {username} - {count}\n'
 
-    update.message.reply_text(leaderboard_message, parse_mode='Markdown')
+    # Choose a random photo URL
+    photo_urls = [
+        "https://graph.org/file/38767e79402baa8b04125.jpg",
+        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
+        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg"
+    ]
+    photo_url = random.choice(photo_urls)
 
-        
+    # Edit message with new photo and caption
+    query.edit_message_media(media=InputMediaPhoto(media=photo_url, caption=leaderboard_message), reply_markup=reply_markup, parse_mode='Markdown')
+
 # Add the command handler and callback query handler to the dispatcher
 
 # Add the command handler to the dispatcher
