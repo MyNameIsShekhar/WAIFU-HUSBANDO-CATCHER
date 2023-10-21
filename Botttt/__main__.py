@@ -610,6 +610,7 @@ def leaderboard_button(update: Update, context: CallbackContext) -> None:
 
 
 
+
 def harem(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
@@ -649,18 +650,22 @@ def harem(update: Update, context: CallbackContext) -> None:
 
         harem_message += '\n'
 
+    # Create an InlineKeyboardButton named 'All Characters'
+    keyboard = [[InlineKeyboardButton("All Characters", switch_inline_query_current_chat=str(user_id))]]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
     # If a favorite character is set, send its image with harem message as caption
     if 'favorites' in user and user['favorites']:
         fav_character_id = user['favorites'][0]
         fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
         
         if fav_character and 'img_url' in fav_character:
-            media = InputMediaPhoto(media=fav_character['img_url'], caption=harem_message)
-            update.message.reply_photo(media=media)
+            update.message.reply_photo(photo=fav_character['img_url'], caption=harem_message, reply_markup=reply_markup)
         else:
-            update.message.reply_text(harem_message, parse_mode='HTML')
+            update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
     else:
-        update.message.reply_text(harem_message, parse_mode='HTML')
+        update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
 
 # Add InlineQueryHandler to the dispatcher
 def main() -> None:
@@ -670,7 +675,7 @@ def main() -> None:
     
     dispatcher.add_handler(CommandHandler('delete', delete, run_async=True))
     
-    dispatcher.add_handler(CommandHandler('anime', anime, run_async=True))
+    dispatcher.add_handler(CommandHandler('animee', anime, run_async=True))
     dispatcher.add_handler(CommandHandler('total', total, run_async=True))
     dispatcher.add_handler(CommandHandler('changetime', change_time, run_async=True))
 
@@ -679,11 +684,11 @@ def main() -> None:
     # Add CommandHandler for /list command to your Updater
     dispatcher.add_handler(InlineQueryHandler(inlinequery, run_async=True))
     dispatcher.add_handler(CommandHandler('fav', fav, run_async=True))
-    dispatcher.add_handler(CommandHandler('leaderboard', leaderboard))
+    dispatcher.add_handler(CommandHandler('globaltop', leaderboard))
     dispatcher.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_'))
-    dispatcher.add_handler(CommandHandler('ctop', group_leaderboard))
+    dispatcher.add_handler(CommandHandler('grouptop', group_leaderboard))
     dispatcher.add_handler(CallbackQueryHandler(group_leaderboard_button, pattern='^group_leaderboard_myrank$'))
-    dispatcher.add_handler(CommandHandler('harem', harem, run_async=True))
+    dispatcher.add_handler(CommandHandler('collection', harem, run_async=True))
     
     updater.start_polling(
             timeout=15,
