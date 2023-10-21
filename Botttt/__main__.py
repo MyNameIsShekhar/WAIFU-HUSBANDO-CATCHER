@@ -627,7 +627,7 @@ def harem(update: Update, context: CallbackContext) -> None:
     grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['anime'])}
 
     # Start of the harem message
-    harem_message = f"<a href='tg://user?id={user_id}'>{update.effective_user.first_name}</a>'s harem\n\n"
+    harem_message = f"<a href='tg://user?id={user_id}'>{update.effective_user.first_name}</a>'s Collection\n\n"
 
     # Iterate over the grouped characters
     for anime, characters in grouped_characters.items():
@@ -651,7 +651,7 @@ def harem(update: Update, context: CallbackContext) -> None:
         harem_message += '\n'
         total_count = len(user['characters'])
     # Create an InlineKeyboardButton named 'All Characters'
-    keyboard = [[InlineKeyboardButton(f"See Total Characters({total_count})", switch_inline_query_current_chat=str(user_id))]]
+    keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
