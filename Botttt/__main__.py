@@ -435,7 +435,8 @@ def group_leaderboard(update: Update, context: CallbackContext) -> None:
     photo_urls = [
         "https://graph.org/file/38767e79402baa8b04125.jpg",
         "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
-        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg"
+        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg",
+        "https://graph.org//file/e65e9605f3beb5c76026b.jpg"
     ]
     photo_url = random.choice(photo_urls)
 
