@@ -651,7 +651,7 @@ def harem(update: Update, context: CallbackContext) -> None:
         harem_message += '\n'
 
     # Create an InlineKeyboardButton named 'All Characters'
-    keyboard = [[InlineKeyboardButton("All Characters", switch_inline_query_current_chat=str(user_id))]]
+    keyboard = [[InlineKeyboardButton("See Total Characters", switch_inline_query_current_chat=str(user_id))]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
@@ -661,7 +661,7 @@ def harem(update: Update, context: CallbackContext) -> None:
         fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
         
         if fav_character and 'img_url' in fav_character:
-            update.message.reply_photo(photo=fav_character['img_url'], caption=harem_message, reply_markup=reply_markup)
+            update.message.reply_photo(photo=fav_character['img_url'], parse_mode='HTML', caption=harem_message, reply_markup=reply_markup)
         else:
             update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
     else:
