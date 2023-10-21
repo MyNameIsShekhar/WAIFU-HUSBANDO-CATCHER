@@ -19,10 +19,10 @@ db = client['Waifus_lol']
 collection = db['anime_characters_lol']
 
 # Get the collection for user totals
-user_totals_collection = db['user_totals_lmaooo']
-user_collection = db["user_collection_lmaooo"]
+user_totals_collection = db['user_totals_lmao']
+user_collection = db["user_collection_lmao"]
 
-group_user_totals_collection = db['group_user_totalsss']
+group_user_totals_collection = db['group_user_totals']
 
 
 # List of sudo users
@@ -541,10 +541,9 @@ def leaderboard_button(update: Update, context: CallbackContext) -> None:
 
 
 def group_leaderboard(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-
-    # Get group id
-    group_id = query.message.chat_id
+    # Get group id and user id
+    group_id = update.effective_chat.id
+    user_id = update.effective_user.id
 
     # Get list of users in the group (you need to implement this)
     group_users = get_group_users(group_id)
@@ -561,21 +560,8 @@ def group_leaderboard(update: Update, context: CallbackContext) -> None:
         # Mention the user with a hyperlink to their Telegram profile
         leaderboard_message += f'➟ {i}. {username} - {count}\n'
 
-    # Choose a random photo URL
-    photo_urls = [
-        "https://graph.org/file/38767e79402baa8b04125.jpg",
-        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
-        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg"
-    ]
-    photo_url = random.choice(photo_urls)
-
-    # Edit message with new photo and caption
-    query.edit_message_media(media=InputMediaPhoto(media=photo_url, caption=leaderboard_message), reply_markup=reply_markup, parse_mode='Markdown')
-
-# Add the command handler and callback query handler to the dispatcher
-
-# Add the command handler to the dispatcher
-
+    # Reply to the user with the leaderboard message
+    update.message.reply_text(text=leaderboard_message, parse_mode='Markdown')
 
     
 # Add InlineQueryHandler to the dispatcher
