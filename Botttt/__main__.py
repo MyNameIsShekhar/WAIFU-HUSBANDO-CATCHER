@@ -541,15 +541,17 @@ def leaderboard_button(update: Update, context: CallbackContext) -> None:
 
 
 def group_leaderboard(update: Update, context: CallbackContext) -> None:
-    # Get group id and user id
-    group_id = update.effective_chat.id
-    user_id = update.effective_user.id
+    # Get the chat ID
+    chat_id = update.effective_chat.id
 
-    # Get list of users in the group (you need to implement this)
-    group_users = get_group_users(group_id)
+    # Create inline keyboard
+    keyboard = [
+        [InlineKeyboardButton('My Group Rank', callback_data='group_leaderboard_myrank')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Get global leaderboard data
-    leaderboard_data = user_collection.find({'id': {'$in': group_users}}).sort('total_count', -1).limit(10)
+    # Get group leaderboard data
+    leaderboard_data = group_user_totals_collection.find({'group_id': chat_id}).sort('total_count', -1).limit(10)
 
     # Start of the leaderboard message
     leaderboard_message = "***TOP 10 MOST GUESSED USERS IN THIS GROUP***\n\n"
@@ -560,10 +562,33 @@ def group_leaderboard(update: Update, context: CallbackContext) -> None:
         # Mention the user with a hyperlink to their Telegram profile
         leaderboard_message += f'➟ {i}. {username} - {count}\n'
 
-    # Reply to the user with the leaderboard message
-    update.message.reply_text(text=leaderboard_message, parse_mode='Markdown')
+    # Choose a random photo URL
+    photo_urls = [
+        "https://graph.org/file/38767e79402baa8b04125.jpg",
+        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
+        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg"
+    ]
+    photo_url = random.choice(photo_urls)
 
-    
+    # Send photo with caption
+    update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
+
+
+def group_leaderboard_button(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+
+    # Get user's total count in this group
+    user_total_count = group_user_totals_collection.find_one({'group_id': query.message.chat.id, 'user_id': query.from_user.id})['total_count']
+
+    # Get sorted list of total counts in this group
+    sorted_counts = sorted(group_user_totals_collection.find({'group_id': query.message.chat.id}, {'total_count': 1, '_id': 0}), key=lambda x: x['total_count'], reverse=True)
+
+    # Get user's rank in this group
+    user_rank = [i for i, x in enumerate(sorted_counts) if x['total_count'] == user_total_count][0] + 1
+
+    query.answer(f'Your rank in this group is {user_rank}.', show_alert=True)
+
+
 # Add InlineQueryHandler to the dispatcher
 def main() -> None:
     
@@ -584,7 +609,7 @@ def main() -> None:
     dispatcher.add_handler(CommandHandler('leaderboard', leaderboard))
     dispatcher.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_'))
     dispatcher.add_handler(CommandHandler('ctop', group_leaderboard))
-    
+    dispatcher.add_handler(CallbackQueryHandler(group_leaderboard_button, pattern='^group_leaderboard_myrank$'))
     updater.start_polling(
             timeout=15,
             read_latency=4,
