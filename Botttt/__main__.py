@@ -609,6 +609,7 @@ def leaderboard_button(update: Update, context: CallbackContext) -> None:
     query.answer(f'Your rank is {user_rank}.', show_alert=True)
 
 
+
 def harem(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
@@ -648,13 +649,18 @@ def harem(update: Update, context: CallbackContext) -> None:
 
         harem_message += '\n'
 
-    # Create an InlineKeyboardButton named 'All Characters'
-    keyboard = [[InlineKeyboardButton("All Characters", switch_inline_query_current_chat=str(user_id))]]
-
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
-
+    # If a favorite character is set, send its image with harem message as caption
+    if 'favorites' in user and user['favorites']:
+        fav_character_id = user['favorites'][0]
+        fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
+        
+        if fav_character and 'img_url' in fav_character:
+            media = InputMediaPhoto(media=fav_character['img_url'], caption=harem_message)
+            update.message.reply_photo(media=media)
+        else:
+            update.message.reply_text(harem_message, parse_mode='HTML')
+    else:
+        update.message.reply_text(harem_message, parse_mode='HTML')
 
 # Add InlineQueryHandler to the dispatcher
 def main() -> None:
