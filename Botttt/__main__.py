@@ -607,6 +607,7 @@ def leaderboard_button(update: Update, context: CallbackContext) -> None:
 
     query.answer(f'Your rank is {user_rank}.', show_alert=True)
 
+
 def harem(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
@@ -638,11 +639,20 @@ def harem(update: Update, context: CallbackContext) -> None:
 
         # Add the character details to the message
         for character in characters:
-            harem_message += f'ID: {character["id"]} - {character["name"]} × {character["count"]}\n'
+            count = character.get('count')
+            if count is not None:
+                harem_message += f'ID: {character["id"]} - {character["name"]} × {count}\n'
+            else:
+                harem_message += f'ID: {character["id"]} - {character["name"]}\n'
 
         harem_message += '\n'
 
-    update.message.reply_text(harem_message, parse_mode='HTML')
+    # Create an InlineKeyboardButton named 'All Characters'
+    keyboard = [[InlineKeyboardButton("All Characters", switch_inline_query=str(user_id))]]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
 
 
 # Add InlineQueryHandler to the dispatcher
