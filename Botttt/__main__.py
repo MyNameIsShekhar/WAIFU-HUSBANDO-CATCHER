@@ -648,7 +648,7 @@ def harem(update: Update, context: CallbackContext) -> None:
         harem_message += '\n'
 
     # Create an InlineKeyboardButton named 'All Characters'
-    keyboard = [[InlineKeyboardButton("All Characters", switch_inline_query=str(user_id))]]
+    keyboard = [[InlineKeyboardButton("All Characters", switch_inline_query_current_chat=str(user_id))]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
