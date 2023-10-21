@@ -557,7 +557,7 @@ def group_leaderboard(update: Update, context: CallbackContext) -> None:
     leaderboard_message = "***TOP 10 MOST GUESSED USERS IN THIS GROUP***\n\n"
 
     for i, user in enumerate(leaderboard_data, start=1):
-        username = user('username', 'Unknown')
+        username = user.get('username', 'Unknown')
         count = user['total_count']
         # Mention the user with a hyperlink to their Telegram profile
         leaderboard_message += f'➟ {i}. {username} - {count}\n'
