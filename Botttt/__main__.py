@@ -429,7 +429,7 @@ def group_leaderboard(update: Update, context: CallbackContext) -> None:
         username = user.get('username', 'Unknown')
         first_name = user.get('first_name', 'Unknown')
         count = user['total_count']
-        leaderboard_message += f'➟ {i}. {first_name} - {count}\n'
+        leaderboard_message += f'➟ {i}. [{first_name}](https://t.me/{username}) - {count}\n'
 
     # Choose a random photo URL
     photo_urls = [
@@ -576,10 +576,11 @@ def leaderboard(update: Update, context: CallbackContext) -> None:
     leaderboard_message = "***TOP 10 MOST GUESSED USERS***\n\n"
 
     for i, user in enumerate(leaderboard_data, start=1):
-        username = user['username']
+        username = user.get('username', 'Unknown')
+        first_name = user.get('first_name', 'Unknown')
         count = user['total_count']
         # Mention the user with a hyperlink to their Telegram profile
-        leaderboard_message += f'➟ {i}. [{username}](https://t.me/{username}) - {count}\n'
+        leaderboard_message += f'➟ {i}. [{first_name}](https://t.me/{username}) - {count}\n'
 
     # Choose a random photo URL
     photo_urls = [
