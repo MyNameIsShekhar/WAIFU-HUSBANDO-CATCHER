@@ -649,9 +649,9 @@ def harem(update: Update, context: CallbackContext) -> None:
                 harem_message += f'ID: {character["id"]} - {character["name"]}\n'
 
         harem_message += '\n'
-
+        total_count = len(user['characters'])
     # Create an InlineKeyboardButton named 'All Characters'
-    keyboard = [[InlineKeyboardButton("See Total Characters", switch_inline_query_current_chat=str(user_id))]]
+    keyboard = [[InlineKeyboardButton("See Total Characters({total_count})", switch_inline_query_current_chat=str(user_id))]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
