@@ -606,6 +606,42 @@ def leaderboard_button(update: Update, context: CallbackContext) -> None:
 
     query.answer(f'Your rank is {user_rank}.', show_alert=True)
 
+def harem(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
+
+    # Get the user's collection
+    user = user_collection.find_one({'id': user_id})
+    if not user:
+        update.message.reply_text('You have not guessed any characters yet.')
+        return
+
+    # Get the list of characters and sort by anime name
+    characters = sorted(user['characters'], key=lambda x: x['anime'])
+
+    # Group the characters by anime
+    grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['anime'])}
+
+    # Start of the harem message
+    harem_message = f"<a href='tg://user?id={user_id}'>{update.effective_user.first_name}</a>'s harem\n\n"
+
+    # Iterate over the grouped characters
+    for anime, characters in grouped_characters.items():
+        # Get the total number of characters from this anime
+        total_characters = collection.count_documents({'anime': anime})
+
+        # Add the anime name and the number of collected characters to the message
+        harem_message += f'{anime} - {len(characters)} / {total_characters}\n'
+
+        # Sort the characters by ID and take only the first five
+        characters = sorted(characters, key=lambda x: x['id'])[:5]
+
+        # Add the character details to the message
+        for character in characters:
+            harem_message += f'ID: {character["id"]} - {character["name"]} × {character["count"]}\n'
+
+        harem_message += '\n'
+
+    update.message.reply_text(harem_message, parse_mode='HTML')
 
 
 # Add InlineQueryHandler to the dispatcher
@@ -629,6 +665,8 @@ def main() -> None:
     dispatcher.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_'))
     dispatcher.add_handler(CommandHandler('ctop', group_leaderboard))
     dispatcher.add_handler(CallbackQueryHandler(group_leaderboard_button, pattern='^group_leaderboard_myrank$'))
+    dispatcher.add_handler(CommandHandler('harem', harem, run_async=True))
+    
     updater.start_polling(
             timeout=15,
             read_latency=4,
