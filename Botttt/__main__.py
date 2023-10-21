@@ -355,20 +355,38 @@ def guess(update: Update, context: CallbackContext) -> None:
         )
 
         # Increment user's count in this group
-        group_user_totals_collection.update_one(
-            {'group_id': chat_id, 'user_id': user_id},
-            {'$inc': {'total_count': 1}},
-            upsert=True
-        )
+        group_user = group_user_totals_collection.find_one({'group_id': chat_id, 'user_id': user_id})
+        if group_user:
+            # Update username and first_name if they have changed
+            update_fields = {}
+            if hasattr(update.effective_user, 'username') and update.effective_user.username != group_user.get('username'):
+                update_fields['username'] = update.effective_user.username
+            if update.effective_user.first_name != group_user.get('first_name'):
+                update_fields['first_name'] = update.effective_user.first_name
+            if update_fields:
+                group_user_totals_collection.update_one({'group_id': chat_id, 'user_id': user_id}, {'$set': update_fields})
+            group_user_totals_collection.update_one({'group_id': chat_id, 'user_id': user_id}, {'$inc': {'total_count': 1}})
+        elif hasattr(update.effective_user, 'username'):
+            # Create new user document with total_count initialized to 1
+            group_user_totals_collection.insert_one({
+                'group_id': chat_id,
+                'user_id': user_id,
+                'username': update.effective_user.username,
+                'first_name': update.effective_user.first_name,
+                'total_count': 1  # Initialize total_count
+            })
 
         # Add character to user's collection
         user = user_collection.find_one({'id': user_id})
         if user:
-            # Update username if it has changed
-            if hasattr(update.effective_user, 'username') and update.effective_user.username != user['username']:
-                user_collection.update_one({'id': user_id}, {'$set': {'username': update.effective_user.username}})
-            
-            # Increment total count of correct guesses
+            # Update username and first_name if they have changed
+            update_fields = {}
+            if hasattr(update.effective_user, 'username') and update.effective_user.username != user.get('username'):
+                update_fields['username'] = update.effective_user.username
+            if update.effective_user.first_name != user.get('first_name'):
+                update_fields['first_name'] = update.effective_user.first_name
+            if update_fields:
+                user_collection.update_one({'id': user_id}, {'$set': update_fields})
             user_collection.update_one({'id': user_id}, {'$inc': {'total_count': 1}})
             
             # Add character to user's collection if not already present
@@ -380,6 +398,7 @@ def guess(update: Update, context: CallbackContext) -> None:
             user_collection.insert_one({
                 'id': user_id,
                 'username': update.effective_user.username,
+                'first_name': update.effective_user.first_name,
                 'characters': [last_characters[chat_id]],
                 'total_count': 1  # Initialize total_count
             })
@@ -389,6 +408,54 @@ def guess(update: Update, context: CallbackContext) -> None:
     else:
         update.message.reply_text('Incorrect guess. Try again.')
 
+def group_leaderboard(update: Update, context: CallbackContext) -> None:
+    # Get the chat ID
+    chat_id = update.effective_chat.id
+
+    # Create inline keyboard
+    keyboard = [
+        [InlineKeyboardButton('My Group Rank', callback_data='group_leaderboard_myrank')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Get group leaderboard data
+    leaderboard_data = group_user_totals_collection.find({'group_id': chat_id}).sort('total_count', -1).limit(10)
+
+    # Start of the leaderboard message
+    leaderboard_message = "***TOP 10 MOST GUESSED USERS IN THIS GROUP***\n\n"
+
+    for i, user in enumerate(leaderboard_data, start=1):
+        username = user.get('username', 'Unknown')
+        first_name = user.get('first_name', 'Unknown')
+        count = user['total_count']
+        leaderboard_message += f'➟ {i}. {first_name} - {count}\n'
+
+    # Choose a random photo URL
+    photo_urls = [
+        "https://graph.org/file/38767e79402baa8b04125.jpg",
+        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
+        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg"
+    ]
+    photo_url = random.choice(photo_urls)
+
+    # Send photo with caption
+    update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
+
+
+
+def group_leaderboard_button(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+
+    # Get user's total count in this group
+    user_total_count = group_user_totals_collection.find_one({'group_id': query.message.chat.id, 'user_id': query.from_user.id})['total_count']
+
+    # Get sorted list of total counts in this group
+    sorted_counts = sorted(group_user_totals_collection.find({'group_id': query.message.chat.id}, {'total_count': 1, '_id': 0}), key=lambda x: x['total_count'], reverse=True)
+
+    # Get user's rank in this group
+    user_rank = [i for i, x in enumerate(sorted_counts) if x['total_count'] == user_total_count][0] + 1
+
+    query.answer(f'Your rank in this group is {user_rank}.', show_alert=True)
 
 
 
@@ -539,54 +606,6 @@ def leaderboard_button(update: Update, context: CallbackContext) -> None:
 
     query.answer(f'Your rank is {user_rank}.', show_alert=True)
 
-
-def group_leaderboard(update: Update, context: CallbackContext) -> None:
-    # Get the chat ID
-    chat_id = update.effective_chat.id
-
-    # Create inline keyboard
-    keyboard = [
-        [InlineKeyboardButton('My Group Rank', callback_data='group_leaderboard_myrank')]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    # Get group leaderboard data
-    leaderboard_data = group_user_totals_collection.find({'group_id': chat_id}).sort('total_count', -1).limit(10)
-
-    # Start of the leaderboard message
-    leaderboard_message = "***TOP 10 MOST GUESSED USERS IN THIS GROUP***\n\n"
-
-    for i, user in enumerate(leaderboard_data, start=1):
-        username = user.get('username', 'Unknown')
-        count = user['total_count']
-        # Mention the user with a hyperlink to their Telegram profile
-        leaderboard_message += f'➟ {i}. {username} - {count}\n'
-
-    # Choose a random photo URL
-    photo_urls = [
-        "https://graph.org/file/38767e79402baa8b04125.jpg",
-        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
-        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg"
-    ]
-    photo_url = random.choice(photo_urls)
-
-    # Send photo with caption
-    update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
-
-
-def group_leaderboard_button(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-
-    # Get user's total count in this group
-    user_total_count = group_user_totals_collection.find_one({'group_id': query.message.chat.id, 'user_id': query.from_user.id})['total_count']
-
-    # Get sorted list of total counts in this group
-    sorted_counts = sorted(group_user_totals_collection.find({'group_id': query.message.chat.id}, {'total_count': 1, '_id': 0}), key=lambda x: x['total_count'], reverse=True)
-
-    # Get user's rank in this group
-    user_rank = [i for i, x in enumerate(sorted_counts) if x['total_count'] == user_total_count][0] + 1
-
-    query.answer(f'Your rank in this group is {user_rank}.', show_alert=True)
 
 
 # Add InlineQueryHandler to the dispatcher
