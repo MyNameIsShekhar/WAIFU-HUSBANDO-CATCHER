@@ -19,10 +19,10 @@ db = client['Waifus_lol']
 collection = db['anime_characters_lol']
 
 # Get the collection for user totals
-user_totals_collection = db['user_totals_lmaoo']
-user_collection = db["user_collection_lmaoo"]
+user_totals_collection = db['user_totals_lmaooo']
+user_collection = db["user_collection_lmaooo"]
 
-group_user_totals_collection = db['group_user_totals']
+group_user_totals_collection = db['group_user_totalsss']
 
 
 # List of sudo users
