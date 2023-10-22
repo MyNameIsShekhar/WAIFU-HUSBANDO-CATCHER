@@ -4,7 +4,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from itertools import groupby
 from telegram import InputMediaPhoto
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters
+from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters, Application 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent, InputMediaPhoto
 from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import InlineQueryHandler,CallbackQueryHandler, ChosenInlineResultHandler
@@ -15,7 +15,6 @@ from datetime import datetime, timedelta
 from threading import Lock
 import time
 
-from Botttt import dispatcher,updater
 from Botttt.modules import ALL_MODULES
 
 client = AsyncIOMotorClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
@@ -96,53 +95,53 @@ for module_name in ALL_MODULES:
 
 
 
-def anime(update: Update, context: CallbackContext) -> None:
+async def anime(update: Update, context: CallbackContext) -> None:
     try:
         # Get all unique anime names
-        anime_names = collection.distinct('anime')
+        anime_names = await collection.distinct('anime')
 
         # Send message with anime names
-        update.message.reply_text('\n'.join(anime_names))
+        await update.message.reply_text('\n'.join(anime_names))
     except Exception as e:
-        update.message.reply_text('Failed to fetch anime names.')
+        await update.message.reply_text('Failed to fetch anime names.')
 
 
-def total(update: Update, context: CallbackContext) -> None:
+async def total(update: Update, context: CallbackContext) -> None:
     try:
         # Extract arguments
         args = context.args
         if len(args) != 1:
-            update.message.reply_text('Incorrect format. Please use: /total Anime-Name')
+            await update.message.reply_text('Incorrect format. Please use: /total Anime-Name')
             return
 
         # Replace '-' with ' ' in anime name
         anime_name = args[0].replace('-', ' ')
 
         # Get all characters of the given anime
-        characters = collection.find({'anime': anime_name})
+        characters = await collection.find({'anime': anime_name})
 
         # Create a list of character names and IDs
         character_list = [f'Character Name: {character["name"]}\nID: {character["id"]}' for character in characters]
 
         # Send message with character names and IDs
-        update.message.reply_text('\n\n'.join(character_list))
+        await update.message.reply_text('\n\n'.join(character_list))
     except Exception as e:
-        update.message.reply_text('Failed to fetch characters.')
+        await update.message.reply_text('Failed to fetch characters.')
 
-def change_time(update: Update, context: CallbackContext) -> None:
+async def change_time(update: Update, context: CallbackContext) -> None:
     # Check if user is a group admin
     user = update.effective_user
     chat = update.effective_chat
 
     if chat.get_member(user.id).status not in ('administrator', 'creator'):
-        update.message.reply_text('You do not have permission to use this command.')
+        await update.message.reply_text('You do not have permission to use this command.')
         return
 
     try:
         # Extract arguments
         args = context.args
         if len(args) != 1:
-            update.message.reply_text('Incorrect format. Please use: /changetime NUMBER')
+            await update.message.reply_text('Incorrect format. Please use: /changetime NUMBER')
             return
 
         # Check if the provided number is greater than or equal to 100
@@ -152,20 +151,20 @@ def change_time(update: Update, context: CallbackContext) -> None:
             return
 
         # Change message frequency for this chat in the database
-        chat_frequency = user_totals_collection.find_one_and_update(
+        chat_frequency = await user_totals_collection.find_one_and_update(
             {'chat_id': str(chat.id)},
             {'$set': {'message_frequency': new_frequency}},
             upsert=True,
             return_document=ReturnDocument.AFTER
         )
 
-        update.message.reply_text(f'Successfully changed character appearance frequency to every {new_frequency} messages.')
+        await update.message.reply_text(f'Successfully changed character appearance frequency to every {new_frequency} messages.')
     except Exception as e:
-        update.message.reply_text('Failed to change character appearance frequency.')
+        await update.message.reply_text('Failed to change character appearance frequency.')
 
 
 
-def message_counter(update: Update, context: CallbackContext) -> None:
+async def message_counter(update: Update, context: CallbackContext) -> None:
     chat_id = str(update.effective_chat.id)
 
     # Get or create a lock for this chat
@@ -176,7 +175,7 @@ def message_counter(update: Update, context: CallbackContext) -> None:
     # Use the lock to ensure that only one instance of this function can run at a time for this chat
     with lock:
         # Get message frequency and counter for this chat from the database
-        chat_frequency = user_totals_collection.find_one({'chat_id': chat_id})
+        chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
             message_frequency = chat_frequency.get('message_frequency', 100)
             message_counter = chat_frequency.get('message_counter', 0)
@@ -190,12 +189,12 @@ def message_counter(update: Update, context: CallbackContext) -> None:
 
         # Send image after every message_frequency messages
         if message_counter % message_frequency == 0:
-            send_image(update, context)
+            await send_image(update, context)
             # Reset counter for this chat
             message_counter = 0
 
         # Update counter in the database
-        user_totals_collection.update_one(
+        await user_totals_collection.update_one(
             {'chat_id': chat_id},
             {'$set': {'message_counter': message_counter}},
             upsert=True
@@ -203,7 +202,7 @@ def message_counter(update: Update, context: CallbackContext) -> None:
 
 
 
-def send_image(update: Update, context: CallbackContext) -> None:
+async def send_image(update: Update, context: CallbackContext) -> None:
     
     
     chat_id = update.effective_chat.id
@@ -220,7 +219,7 @@ def send_image(update: Update, context: CallbackContext) -> None:
         sent_characters[chat_id] = []
 
     # Select a random character that hasn't been sent yet
-    character = random.choice([c for c in all_characters if c['id'] not in sent_characters[chat_id]])
+    character = await random.choice([c for c in all_characters if c['id'] not in sent_characters[chat_id]])
 
     # Add character to sent characters list and set as last sent character
     sent_characters[chat_id].append(character['id'])
@@ -228,10 +227,10 @@ def send_image(update: Update, context: CallbackContext) -> None:
 
     # Reset first correct guess when a new character is sent
     if chat_id in first_correct_guesses:
-        del first_correct_guesses[chat_id]
+        await del first_correct_guesses[chat_id]
 
     # Send image with caption
-    context.bot.send_photo(
+    await context.bot.send_photo(
         chat_id=chat_id,
         photo=character['img_url'],
         caption="Use /Guess Command And.. Guess This Character Name.."
@@ -239,3 +238,6 @@ def send_image(update: Update, context: CallbackContext) -> None:
     
         
 
+application = Application.builder().token('5823371420:AAERluGPDzcPUjQzGnRe9OoBbECe19_JFXk').build()
+application.add_handler(CommandHandler('', start_callback))
+application.run_polling()
