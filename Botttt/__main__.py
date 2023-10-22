@@ -244,7 +244,7 @@ async def send_image(update: Update, context: CallbackContext) -> None:
 
 
 if __name__ == '__main__':
-    application = ApplicationBuilder().token('5823371420:AAERluGPDzcPUjQzGnRe9OoBbECe19_JFXk').build()
+    application = ApplicationBuilder().token('6549598091:AAFkdpiZgJMzdEnmBQpwUtpibFrdApL_Pvk').build()
     
     ANIME = CommandHandler('anime', anime)
     application.add_handler(ANIME)
