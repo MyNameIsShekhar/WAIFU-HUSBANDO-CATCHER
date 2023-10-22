@@ -668,42 +668,6 @@ def harem(update: Update, context: CallbackContext) -> None:
             update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
     else:
         update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
-def stats(update: Update, context: CallbackContext) -> None:
-    # Check if user is a sudo user
-    if str(update.effective_user.id) != '6404226395':
-        update.message.reply_text('You do not have permission to use this command.')
-        return
-
-    # Get total number of users and groups from the database
-    total_users = user_collection.count_documents({})
-    total_groups = group_user_totals_collection.count_documents({})
-
-    # Send the stats to the user
-    update.message.reply_text(f'Total users: {total_users}\nTotal groups: {total_groups}')
-
-def broadcast(update: Update, context: CallbackContext) -> None:
-    # Check if user is a sudo user
-    if str(update.effective_user.id) != '6404226395':
-        return
-
-    message = update.message.reply_to_message.text if update.message.reply_to_message else None
-    if message is None:
-        return
-
-    # Get all chat ids from the database
-    user_chat_ids = [user['id'] for user in user_collection.find({})]
-    group_chat_ids = [group['group_id'] for group in group_user_totals_collection.find({})]
-
-    success, failed = 0, 0
-    for chat_id in user_chat_ids + group_chat_ids:
-        try:
-            context.bot.send_message(chat_id=chat_id, text=message)
-            success += 1
-        except Exception:
-            failed += 1
-
-    update.message.reply_text(f'Message sent to {success} chats.\nFailed to send message to {failed} chats.')
-
 
 
 def main() -> None:
@@ -728,9 +692,7 @@ def main() -> None:
     dispatcher.add_handler(CallbackQueryHandler(group_leaderboard_button, pattern='^group_leaderboard_myrank$'))
     dispatcher.add_handler(CommandHandler('collection', harem, run_async=True))
     #  command handlers to the dispatcher
-    dispatcher.add_handler(CommandHandler('stats', stats))
-    dispatcher.add_handler(CommandHandler('broadcast', broadcast))
-
+    
     updater.start_polling(
             timeout=15,
             read_latency=4,
