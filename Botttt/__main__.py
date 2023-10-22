@@ -5,7 +5,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from itertools import groupby
 from telegram import InputMediaPhoto
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters, Application 
+from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters, ApplicationBuilder
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent, InputMediaPhoto
 from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import InlineQueryHandler,CallbackQueryHandler, ChosenInlineResultHandler
@@ -240,7 +240,6 @@ async def send_image(update: Update, context: CallbackContext) -> None:
         caption="Use /Guess Command And.. Guess This Character Name.."
             )
  
-
 
 
 
