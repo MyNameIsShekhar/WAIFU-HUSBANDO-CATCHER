@@ -250,7 +250,7 @@ if __name__ == '__main__':
     application.add_handler(ANIME)
     
     TOTAL = CommandHandler('total', total)
-    application.add_handler(start_handler)
+    application.add_handler(TOTAL)
     
     
     application.run_polling()   
