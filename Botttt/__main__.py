@@ -102,7 +102,7 @@ for module_name in ALL_MODULES:
 async def anime(update: Update, context: CallbackContext) -> None:
     try:
         # Get all unique anime names
-        anime_names = await collection.distinct('anime')
+        anime_names = collection.distinct('anime')
 
         # Send message with anime names
         await update.message.reply_text('\n'.join(anime_names))
@@ -122,7 +122,7 @@ async def total(update: Update, context: CallbackContext) -> None:
         anime_name = args[0].replace('-', ' ')
 
         # Get all characters of the given anime
-        characters = await collection.find({'anime': anime_name})
+        characters = collection.find({'anime': anime_name})
 
         # Create a list of character names and IDs
         character_list = [f'Character Name: {character["name"]}\nID: {character["id"]}' for character in characters]
