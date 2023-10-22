@@ -151,7 +151,7 @@ async def change_time(update: Update, context: CallbackContext) -> None:
         # Check if the provided number is greater than or equal to 100
         new_frequency = int(args[0])
         if new_frequency < 100:
-            update.message.reply_text('The message frequency must be greater than or equal to 100.')
+            await update.message.reply_text('The message frequency must be greater than or equal to 100.')
             return
 
         # Change message frequency for this chat in the database
@@ -231,7 +231,7 @@ async def send_image(update: Update, context: CallbackContext) -> None:
 
     # Reset first correct guess when a new character is sent
     if chat_id in first_correct_guesses:
-        await del first_correct_guesses[chat_id]
+         del first_correct_guesses[chat_id]
 
     # Send image with caption
     await context.bot.send_photo(
