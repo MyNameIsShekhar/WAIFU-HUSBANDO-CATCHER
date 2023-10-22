@@ -1,5 +1,6 @@
 import importlib
 import asyncio
+import logging
 from motor.motor_asyncio import AsyncIOMotorClient
 from itertools import groupby
 from telegram import InputMediaPhoto
@@ -26,7 +27,10 @@ user_totals_collection = db['user_totals_lmaoooo']
 user_collection = db["user_collection_lmaoooo"]
 
 group_user_totals_collection = db['group_user_totalssssss']
-
+logging.basicConfig(
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    level=logging.INFO
+)
 
 # List of sudo users
 sudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651', '5813998595', '5813403535', '6393627898', '5952787198', '6614280216','6248411931','5216262234','1608353423']
@@ -235,9 +239,22 @@ async def send_image(update: Update, context: CallbackContext) -> None:
         photo=character['img_url'],
         caption="Use /Guess Command And.. Guess This Character Name.."
             )
+ 
+
+
+
+
+if __name__ == '__main__':
+    application = ApplicationBuilder().token('5823371420:AAERluGPDzcPUjQzGnRe9OoBbECe19_JFXk').build()
     
+    ANIME = CommandHandler('anime', anime)
+    application.add_handler(ANIME)
+    
+    TOTAL = CommandHandler('total', total)
+    application.add_handler(start_handler)
+    
+    
+    application.run_polling()   
         
 
-application = Application.builder().token('5823371420:AAERluGPDzcPUjQzGnRe9OoBbECe19_JFXk').build()
-application.add_handler(CommandHandler('', start_callback))
-application.run_polling()
+    
