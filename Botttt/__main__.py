@@ -100,7 +100,7 @@ async def change_time(update: Update, context: CallbackContext) -> None:
     user = update.effective_user
     chat = update.effective_chat
 
-    if chat.get_member(user.id).status not in ('administrator', 'creator'):
+    if chat.get_member(user.id).ChatMemberStatus not in ('administrator', 'creator'):
         await update.message.reply_text('You do not have permission to use this command.')
         return
 
@@ -144,8 +144,8 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
         # Get message frequency and counter for this chat from the database
         chat_frequency =  await user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
-            message_frequency = chat_frequency.get('message_frequency', 10)
-            message_counter = chat_frequency.get('message_counter', 0)
+            message_frequency = chat_frequency.filter('message_frequency', 10)
+            message_counter = chat_frequency.filter('message_counter', 0)
         else:
             # Default to 20 messages if not set
             message_frequency =10
