@@ -131,7 +131,7 @@ async def change_time(update: Update, context: CallbackContext) -> None:
 
 
 
-def message_counter(update: Update, context: CallbackContext) -> None:
+async def message_counter(update: Update, context: CallbackContext) -> None:
     chat_id = str(update.effective_chat.id)
 
     # Get or create a lock for this chat
@@ -142,7 +142,7 @@ def message_counter(update: Update, context: CallbackContext) -> None:
     # Use the lock to ensure that only one instance of this function can run at a time for this chat
     with lock:
         # Get message frequency and counter for this chat from the database
-        chat_frequency =  user_totals_collection.find_one({'chat_id': chat_id})
+        chat_frequency =  await user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
             message_frequency = chat_frequency.get('message_frequency', 10)
             message_counter = chat_frequency.get('message_counter', 0)
@@ -169,7 +169,7 @@ def message_counter(update: Update, context: CallbackContext) -> None:
 
 
 
-def send_image(update: Update, context: CallbackContext) -> None:
+async def send_image(update: Update, context: CallbackContext) -> None:
     
     
     chat_id = update.effective_chat.id
