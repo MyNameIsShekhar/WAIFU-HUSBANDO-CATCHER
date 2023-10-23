@@ -15,7 +15,7 @@ import random
 from datetime import datetime, timedelta
 from threading import Lock
 import time
-
+import httpx
 from Botttt.modules import ALL_MODULES
 
 client = AsyncIOMotorClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
