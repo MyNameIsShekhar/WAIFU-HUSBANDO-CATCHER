@@ -125,7 +125,7 @@ async def total(update: Update, context: CallbackContext) -> None:
         characters = await collection.find({'anime': anime_name})
 
         # Create a list of character names and IDs
-        character_list = [f'Character Name: {character["name"]}\nID: {character["id"]}' for character in characters]
+        character_list = await [f'Character Name: {character["name"]}\nID: {character["id"]}' for character in characters]
 
         # Send message with character names and IDs
         await update.message.reply_text('\n\n'.join(character_list))
