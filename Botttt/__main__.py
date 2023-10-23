@@ -107,7 +107,7 @@ async def anime(update: Update, context: CallbackContext) -> None:
         # Send message with anime names
         await update.message.reply_text('\n'.join(anime_names))
     except Exception as e:
-        await update.message.reply_text('Failed to fetch anime names.')
+        await update.message.reply_text('Failed to fetch anime names.{e}')
 
 
 async def total(update: Update, context: CallbackContext) -> None:
@@ -130,7 +130,7 @@ async def total(update: Update, context: CallbackContext) -> None:
         # Send message with character names and IDs
         await update.message.reply_text('\n\n'.join(character_list))
     except Exception as e:
-        await update.message.reply_text('Failed to fetch characters.')
+        await update.message.reply_text('Failed to fetch characters.{e}')
 
 async def change_time(update: Update, context: CallbackContext) -> None:
     # Check if user is a group admin
