@@ -144,8 +144,8 @@ def message_counter(update: Update, context: CallbackContext) -> None:
         # Get message frequency and counter for this chat from the database
         chat_frequency =  user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
-            message_frequency = await chat_frequency.get('message_frequency', 10)
-            message_counter = await chat_frequency.get('message_counter', 0)
+            message_frequency = chat_frequency.get('message_frequency', 10)
+            message_counter = chat_frequency.get('message_counter', 0)
         else:
             # Default to 20 messages if not set
             message_frequency =10
