@@ -100,7 +100,7 @@ async def change_time(update: Update, context: CallbackContext) -> None:
     user = update.effective_user
     chat = update.effective_chat
 
-    if (await chat.get_member(user.id).ChatMemberStatus not in ('administrator', 'creator')):
+    if chat.get_member(user.id) not in ChatMember.ADMINISTRATOR:
         await update.message.reply_text('You do not have permission to use this command.')
         return
 
