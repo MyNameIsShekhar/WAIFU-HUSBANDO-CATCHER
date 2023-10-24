@@ -181,8 +181,7 @@ async def send_image(update: Update, context: CallbackContext) -> None:
 if __name__ == '__main__':
     application = ApplicationBuilder().token('6794007851:AAFOj7qlMXlyRU4GlNqjVtO-5snYvu6-cwc').build()
     
-    CHANGETIME = CommandHandler('changetime', change_time)
-    application.add_handler(CHANGETIME)
+    
     COUNT= MessageHandler(filters.TEXT & ~filters.COMMAND, message_counter)
     application.add_handler(COUNT)
     
