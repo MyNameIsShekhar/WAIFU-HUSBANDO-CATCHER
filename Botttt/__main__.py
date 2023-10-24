@@ -143,7 +143,10 @@ async def send_image(update: Update, context: CallbackContext) -> None:
 
     # Get all characters
     # Change it to this
-    all_characters = await list(collection.find({}))
+    all_characters = []
+async for doc in collection.find({})
+    
+
     # Initialize sent characters list for this chat if it doesn't exist
     if chat_id not in sent_characters:
         sent_characters[chat_id] = []
