@@ -1,6 +1,7 @@
 from telethon import TelegramClient, events
 from motor.motor_asyncio import AsyncIOMotorClient
 import random
+import asyncio
 
 # Create instances of TelegramClient and Motor's AsyncIOMotorClient
 
