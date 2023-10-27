@@ -33,11 +33,11 @@ async def message_counter(event):
         # Get message frequency and counter for this chat from the database
         chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
-            message_frequency = chat_frequency.get('message_frequency', 100)
+            message_frequency = chat_frequency.get('message_frequency', 10)
             message_counter = chat_frequency.get('message_counter', 0)
         else:
             # Default to 20 messages if not set
-            message_frequency =100
+            message_frequency =10
             message_counter = 0
 
         # Increment counter for this chat
