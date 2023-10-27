@@ -16,7 +16,7 @@ db = client['Waifus_lol']
 #Your collections
 user_totals_collection = db['user_totals_lmaoooo']
 collection = db['anime_characters_lol']
-
+locks = {}
 # Your other global variables here...
 
 @app.on(events.NewMessage())
