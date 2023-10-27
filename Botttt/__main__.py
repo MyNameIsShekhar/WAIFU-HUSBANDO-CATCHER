@@ -60,8 +60,8 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
             message_counter = await chat_frequency.get('message_counter', 0)
         else:
             # Default to 20 messages if not set
-            await message_frequency =100
-            await message_counter = 0
+             message_frequency =100
+             message_counter = 0
 
         # Increment counter for this chat
         await message_counter += 1
