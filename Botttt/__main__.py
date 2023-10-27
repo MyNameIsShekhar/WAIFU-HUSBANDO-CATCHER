@@ -64,13 +64,13 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
              message_counter = 0
 
         # Increment counter for this chat
-        await message_counter += 1
+        message_counter += 1
 
         # Send image after every message_frequency messages
         if message_counter % message_frequency == 0:
             await send_image(update, context)
             # Reset counter for this chat
-            await message_counter = 0
+            message_counter = 0
 
         # Update counter in the database
         user_totals_collection.update_one(
