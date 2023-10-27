@@ -202,7 +202,7 @@ if __name__ == '__main__':
     
     COUNT= MessageHandler(filters.TEXT & ~filters.COMMAND, message_counter)
     application.add_handler(COUNT)
-    COUTT= MessageHandler("guess", message_counter)
+    COUTT= CommaHandler("guess", message_counter)
     application.add_handler(COUTT)
     
     application.run_polling()
