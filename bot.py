@@ -2,7 +2,7 @@ import importlib
 from telegram import InputMediaPhoto
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent, InputMediaPhoto
 from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
-
+import asyncio
 from itertools import groupby
 from telegram import Update
 from motor.motor_asyncio import AsyncIOMotorClient 
@@ -20,46 +20,43 @@ client = AsyncIOMotorClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@clus
 db = client['Waifus_lol']
 collection = db['anime_characters_lol']
 
-# Get the collection for user totals
+
 user_totals_collection = db['user_totals_lmaoooo']
 user_collection = db["user_collection_lmaoooo"]
 
 group_user_totals_collection = db['group_user_totalssssss']
 
 
-# List of sudo users
+
 sudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651', '5813998595', '5813403535', '6393627898', '5952787198', '6614280216','6248411931','5216262234','1608353423']
 
 
-# Create a dictionary of locks
+
 locks = {}
-# Counter for messages in each group
 message_counters = {}
 spam_counters = {}
-# Last sent character in each group
+
 last_characters = {}
 
-# Characters that have been sent in each group
 sent_characters = {}
 
-# Keep track of the user who guessed correctly first in each group
+
 first_correct_guesses = {}
 
-# Import asyncio
-import asyncio
+
 
     
 
-# Convert your function to async
+
 async def message_counter(update: Update, context: CallbackContext) -> None:
     chat_id = str(update.effective_chat.id)
 
-    # Get or create a lock for this chat
+    
     if chat_id not in locks:
         locks[chat_id] = asyncio.Lock()
     lock = locks[chat_id]
 
-    # Use the lock to ensure that only one instance of this function can run at a time for this chat
+     
     async with lock:
         # Get message frequency and counter for this chat from the database
         chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
@@ -388,7 +385,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                             thumbnail_url=character['img_url'],
                             id=character['id'],
                             photo_url=character['img_url'],
-                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a></b>'s Character\n\n<b>{character['name']}</b> " + (f"<b>(x{character.get('count', 1)})</b>" if character.get('count', 1) > 1 else "") + f"\n<b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n<b>{character['id']}</b>",
+                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a></b>'s Character\n\n <b>⟹ {character['name']}</b> " + (f"<b>(x{character.get('count', 1)})</b>" if character.get('count', 1) > 1 else "") + f"\n<b>⟹ {character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n\n<b>⟹ {rarity}</b>\n<b>⟹ {character['id']}</b>",
                             parse_mode='HTML'
                         )
                     )
