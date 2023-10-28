@@ -353,6 +353,81 @@ async def leaderboard_button(update: Update, context: CallbackContext) -> None:
     user_rank = sorted_counts.index({'total_count': user_total_count}) + 1
 
     await query.answer(f'Your rank is {user_rank}.', show_alert=True)
+async def inlinequery(update: Update, context: CallbackContext) -> None:
+    query = update.inline_query.query
+    offset = int(update.inline_query.offset) if update.inline_query.offset else 0
+
+    if query.isdigit():
+        user = await user_collection.find_one({'id': int(query)})
+
+        if user:
+            # Get the next batch of characters
+            characters = user['characters'][offset:offset+50]
+
+            # Check if there are more characters
+            if len(characters) > 50:
+                # If so, remove the extra character and set the next offset
+                characters = characters[:50]
+                next_offset = str(offset + 50)
+            else:
+                # If not, set next_offset to None to indicate no more results
+                next_offset = None
+
+            results = []
+            added_characters = set()
+            for character in characters:
+                if character['name'] not in added_characters:
+                    anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
+                    total_anime_characters = await collection.count_documents({'anime': character['anime']})
+
+                    # Get the character's rarity
+                    rarity = character.get('rarity', "Don't have rarity.. Coz u Guessed before implement rarity.. in this bot")
+
+                    results.append(
+                        InlineQueryResultPhoto(
+                            id=character['id'],
+                            photo_url=character['img_url'],
+                            thumb_url=character['img_url'],
+                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('username', user['id'])}</a></b>'s Character\n\n<b>Name:</b> {character['name']} " + (f"(x{character.get('count', 1)})" if character.get('count', 1) > 1 else "") + f"\n<b>Anime:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n<b>Rarity:</b> {rarity}\n🆔: {character['id']}",
+                            parse_mode='HTML'
+                        )
+                    )
+                    added_characters.add(character['name'])
+
+            await update.inline_query.answer(results, next_offset=next_offset)
+        else:
+            await update.inline_query.answer([InlineQueryResultArticle(
+                id='notfound', 
+                title="User not found", 
+                input_message_content=InputTextMessageContent("User not found")
+            )])
+    else:
+        cursor = collection.find({}).skip(offset).limit(51)
+        all_characters = await cursor.to_list(length=51)
+        if len(all_characters) > 50:
+            all_characters = all_characters[:50]
+            next_offset = str(offset + 50)
+        else:
+            next_offset = None
+
+        results = []
+        for character in all_characters:
+            users_with_character = await user_collection.find({'characters.id': character['id']}).to_list(length=100)
+            total_guesses = sum(character.get("count", 1) for user in users_with_character)
+
+            # Get the character's rarity
+            rarity = character.get('rarity', "Don't have rarity.. Coz u Guessed before implement rarity.. in this bot")
+
+            results.append(
+                InlineQueryResultPhoto(
+                    id=character['id'],
+                    photo_url=character['img_url'],
+                    thumb_url=character['img_url'],
+                    caption=f"<b>Look at this character!</b>\n\n⟹ <b>{character['name']}</b>\n⟹ <b>{character['anime']}</b>\n<b>Rarity:</b> {rarity}\n🆔: {character['id']}\n\n<b>Guessed {total_guesses} times In Globally</b>",
+                    parse_mode='HTML'
+                )
+            )
+        await update.inline_query.answer(results, next_offset=next_offset)
 
 def main() -> None:
     """Run bot."""
@@ -368,6 +443,7 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(group_leaderboard_button, pattern='^group_leaderboard_myrank$'))
     application.add_handler(CommandHandler('globaltop', leaderboard))
     application.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_'))
+    application.add_handler(InlineQueryHandler(inlinequery, block=False))
     
     # Run the bot until the user presses Ctrl-C
     application.run_polling(allowed_updates=Update.ALL_TYPES)
