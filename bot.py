@@ -122,6 +122,84 @@ async def upload(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text('Successfully uploaded.')
     except Exception as e:
         await update.message.reply_text('Unsuccessfully uploaded.')
+
+
+# Import asyncio
+
+
+# Convert your function to async
+async def message_counter(update: Update, context: CallbackContext) -> None:
+    chat_id = str(update.effective_chat.id)
+
+    # Get or create a lock for this chat
+    if chat_id not in locks:
+        locks[chat_id] = asyncio.Lock()
+    lock = locks[chat_id]
+
+    # Use the lock to ensure that only one instance of this function can run at a time for this chat
+    async with lock:
+        # Get message frequency and counter for this chat from the database
+        chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
+        if chat_frequency:
+            message_frequency = chat_frequency.get('message_frequency', 100)
+            message_counter = chat_frequency.get('message_counter', 0)
+        else:
+            # Default to 20 messages if not set
+            message_frequency =100
+            message_counter = 0
+
+        # Increment counter for this chat
+        message_counter += 1
+
+        # Send image after every message_frequency messages
+        if message_counter % message_frequency == 0:
+            await send_image(update, context)
+            # Reset counter for this chat
+            message_counter = 0
+
+        # Update counter in the database
+        await user_totals_collection.update_one(
+            {'chat_id': chat_id},
+            {'$set': {'message_counter': message_counter}},
+            upsert=True
+        )
+# Import asyncio
+
+
+# Convert your function to async
+async def send_image(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+
+    # Get all characters
+    all_characters = list(await collection.find({}).to_list(length=None))
+    
+    # Initialize sent characters list for this chat if it doesn't exist
+    if chat_id not in sent_characters:
+        sent_characters[chat_id] = []
+
+    # Reset sent characters list if all characters have been sent
+    if len(sent_characters[chat_id]) == len(all_characters):
+        sent_characters[chat_id] = []
+
+    # Select a random character that hasn't been sent yet
+    character = random.choice([c for c in all_characters if c['id'] not in sent_characters[chat_id]])
+
+    # Add character to sent characters list and set as last sent character
+    sent_characters[chat_id].append(character['id'])
+    last_characters[chat_id] = character
+
+    # Reset first correct guess when a new character is sent
+    if chat_id in first_correct_guesses:
+        del first_correct_guesses[chat_id]
+
+    # Send image with caption
+    await context.bot.send_photo(
+        chat_id=chat_id,
+        photo=character['img_url'],
+        caption="Use /Guess Command And.. Guess This Character Name.."
+            )
+
+
 def main() -> None:
     """Run bot."""
     # Create the Application and pass it your bot's token.
@@ -129,6 +207,7 @@ def main() -> None:
 
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler(["upload", "lmao"], upload))
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_counter, block=False))
     
     # Run the bot until the user presses Ctrl-C
     application.run_polling(allowed_updates=Update.ALL_TYPES)
