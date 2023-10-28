@@ -284,7 +284,8 @@ async def group_leaderboard_button(update: Update, context: CallbackContext) -> 
     user_total_count = user_total['total_count']
 
     # Get sorted list of total counts in this group
-    sorted_counts = sorted(await group_user_totals_collection.find({'group_id': query.message.chat.id}, {'total_count': 1, '_id': 0}), key=lambda x: x['total_count'], reverse=True)
+    cursor = group_user_totals_collection.find({'group_id': query.message.chat.id}, {'total_count': 1, '_id': 0})
+    sorted_counts = sorted(await cursor.to_list(length=100), key=lambda x: x['total_count'], reverse=True)
 
     # Get user's rank in this group
     user_rank = [i for i, x in enumerate(sorted_counts) if x['total_count'] == user_total_count][0] + 1
