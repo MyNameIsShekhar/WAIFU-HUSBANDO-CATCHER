@@ -1,11 +1,8 @@
 import importlib
 from itertools import groupby
-from telegram import InputMediaPhoto
-from telegram import Update
+
 from motor.motor_asyncio import AsyncIOMotorClient 
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters, ApplicationBuilder 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent, InputMediaPhoto
-from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
 from telegram.ext import InlineQueryHandler,CallbackQueryHandler, ChosenInlineResultHandler
 from pymongo import MongoClient, ReturnDocument
 import urllib.request
