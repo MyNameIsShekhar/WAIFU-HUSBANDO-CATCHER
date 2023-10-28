@@ -456,6 +456,68 @@ async def fav(update: Update, context: CallbackContext) -> None:
 
     await update.message.reply_text(f'Character {character["name"]} has been added to your favorites.')
 
+async def gift(update: Update, context: CallbackContext) -> None:
+    # Check if an ID and a character were provided
+    if len(context.args) < 2:
+        await update.message.reply_text('Please provide a user ID and a character ID.')
+        return
+
+    recipient_id = int(context.args[0])
+    character_id = context.args[1]
+
+    # Get the sender and recipient documents
+    sender = await user_collection.find_one({'id': update.effective_user.id})
+    recipient = await user_collection.find_one({'id': recipient_id})
+
+    if not sender:
+        await update.message.reply_text('You have not guessed any characters yet.')
+        return
+
+    if not recipient:
+        await update.message.reply_text('The recipient has not guessed any characters yet.')
+        return
+
+    # Check if the character is in the sender's collection
+    character = next((c for c in sender['characters'] if c['id'] == character_id), None)
+    if not character:
+        await update.message.reply_text('This character is not in your collection.')
+        return
+
+    # Send a message to the recipient with an accept button
+    keyboard = [[InlineKeyboardButton("Accept", callback_data=f"accept_gift {update.effective_user.id} {character_id}")]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+    await context.bot.send_message(recipient_id, f'User {update.effective_user.id} wants to gift you the character {character["name"]}. Do you accept?', reply_markup=reply_markup)
+
+async def accept_gift(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    sender_id, character_id = map(int, query.data.split()[1:])
+
+    # Get the sender and recipient documents
+    sender = await user_collection.find_one({'id': sender_id})
+    recipient = await user_collection.find_one({'id': query.from_user.id})
+
+    if not sender or not recipient:
+        await query.answer('An error occurred.')
+        return
+
+    # Check if the character is in the sender's collection
+    character = next((c for c in sender['characters'] if c['id'] == str(character_id)), None)
+    if not character:
+        await query.answer('An error occurred.')
+        return
+
+    # Remove the character from the sender's collection
+    sender['characters'].remove(character)
+
+    # Add the character to the recipient's collection
+    recipient['characters'].append(character)
+
+    # Update sender and recipient documents
+    await user_collection.update_one({'id': sender_id}, {'$set': {'characters': sender['characters']}})
+    await user_collection.update_one({'id': query.from_user.id}, {'$set': {'characters': recipient['characters']}})
+
+    await query.answer(f'Character {character["name"]} has been added to your collection.')
+
 def main() -> None:
     """Run bot."""
     # Create the Application and pass it your bot's token.
@@ -472,8 +534,9 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_',block=False))
     application.add_handler(InlineQueryHandler(inlinequery, block=False))
     application.add_handler(CommandHandler('fav', fav, block=False))
-    
-    # Run the bot until the user presses Ctrl-C
+    application.add_handler(CommandHandler("gift", gift,block=False))
+
+    application.add_handler(CallbackQueryHandler(accept_gift, pattern='^accept_gift',block=False))
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
