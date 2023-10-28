@@ -1,7 +1,7 @@
 motor
 aiohttp
 requests
-telethon
+python-telegram-bot 
 pymongo 
 pyrate-limiter==3.1.0
 apscheduler==3.6.3
