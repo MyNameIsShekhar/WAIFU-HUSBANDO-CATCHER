@@ -61,11 +61,11 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
         # Get message frequency and counter for this chat from the database
         chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
-            message_frequency = chat_frequency.get('message_frequency', 10)
+            message_frequency = chat_frequency.get('message_frequency', 100)
             message_counter = chat_frequency.get('message_counter', 0)
         else:
             # Default to 20 messages if not set
-            message_frequency =10
+            message_frequency =100
             message_counter = 0
 
         # Increment counter for this chat
@@ -350,6 +350,7 @@ async def leaderboard_button(update: Update, context: CallbackContext) -> None:
     user_rank = sorted_counts.index({'total_count': user_total_count}) + 1
 
     await query.answer(f'Your rank is {user_rank}.', show_alert=True)
+    
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
     offset = int(update.inline_query.offset) if update.inline_query.offset else 0
@@ -459,8 +460,15 @@ async def fav(update: Update, context: CallbackContext) -> None:
 
 
 async def gift(update: Update, context: CallbackContext) -> None:
-    # Get the sender and receiver's user IDs
+    # Get the sender's user ID
     sender_id = update.effective_user.id
+
+    # Check if the user has replied to a message
+    if not update.message.reply_to_message:
+        await update.message.reply_text("You need to reply to a user's message to gift a character!")
+        return
+
+    # Get the receiver's user ID
     receiver_id = update.message.reply_to_message.from_user.id
 
     # Check if the sender and receiver are the same person
@@ -504,7 +512,7 @@ async def gift(update: Update, context: CallbackContext) -> None:
         })
 
     await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
-    
+
 async def harem(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
@@ -565,7 +573,7 @@ async def harem(update: Update, context: CallbackContext) -> None:
 def main() -> None:
     """Run bot."""
     # Create the Application and pass it your bot's token.
-    application = Application.builder().token("6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg").build()
+    application = Application.builder().token("6420751168:AAEtf-OyEYLLTZM2c4LrhIroXPfvsW7KlM8").build()
 
     # on different commands - answer in Telegram
     
