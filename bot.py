@@ -261,7 +261,7 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
         if len(first_name) > 7:
             first_name = first_name[:7] + '...'
         count = user['total_count']
-        leaderboard_message += f'➟ {i}. {first_name} - {count}\n'
+        leaderboard_message += f'{i} [{first_name}](https://t.me/{username})- {count}\n'
 
     # Choose a random photo URL
     photo_urls = [
@@ -275,12 +275,17 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
 
     # Send photo with caption
     await update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
-
+    
 async def group_leaderboard_button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 
     # Get user's total count in this group
     user_total = await group_user_totals_collection.find_one({'group_id': query.message.chat.id, 'user_id': query.from_user.id})
+    
+    if user_total is None:
+        await query.answer('You are not in this rank.', show_alert=True)
+        return
+
     user_total_count = user_total['total_count']
 
     # Get sorted list of total counts in this group
@@ -288,9 +293,13 @@ async def group_leaderboard_button(update: Update, context: CallbackContext) -> 
     sorted_counts = sorted(await cursor.to_list(length=100), key=lambda x: x['total_count'], reverse=True)
 
     # Get user's rank in this group
-    user_rank = [i for i, x in enumerate(sorted_counts) if x['total_count'] == user_total_count][0] + 1
+    user_rank = [i for i, x in enumerate(sorted_counts) if x['total_count'] == user_total_count]
 
-    await query.answer(f'Your rank in this group is {user_rank}.', show_alert=True)
+    if not user_rank:
+        await query.answer('You are not in this rank.', show_alert=True)
+    else:
+        await query.answer(f'Your rank in this group is {user_rank[0] + 1}.', show_alert=True)
+
 
 def main() -> None:
     """Run bot."""
