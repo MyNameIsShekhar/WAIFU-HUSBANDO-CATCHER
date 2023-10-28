@@ -198,6 +198,86 @@ async def send_image(update: Update, context: CallbackContext) -> None:
         photo=character['img_url'],
         caption="Use /Guess Command And.. Guess This Character Name.."
             )
+async def guess(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+    user_id = update.effective_user.id
+
+    # Check if a character has been sent in this chat yet
+    if chat_id not in last_characters:
+        return
+
+    # If someone has already guessed correctly
+    if chat_id in first_correct_guesses:
+        await update.message.reply_text(f'❌️ Already guessed by Someone..So Try Next Time Bruhh')
+        return
+
+    # Check if guess is correct
+    guess = ' '.join(context.args).lower() if context.args else ''
+    
+    if guess and guess in last_characters[chat_id]['name'].lower():
+        # Set the flag that someone has guessed correctly
+        first_correct_guesses[chat_id] = user_id
+
+        # Increment global count
+        global_count = await user_totals_collection.find_one_and_update(
+            {'id': 'global'},
+            {'$inc': {'count': 1}},
+            upsert=True,
+            return_document=ReturnDocument.AFTER
+        )
+
+        # Increment user's count in this group
+        group_user = await group_user_totals_collection.find_one({'group_id': chat_id, 'user_id': user_id})
+        if group_user:
+            # Update username and first_name if they have changed
+            update_fields = {}
+            if hasattr(update.effective_user, 'username') and update.effective_user.username != group_user.get('username'):
+                update_fields['username'] = update.effective_user.username
+            if update.effective_user.first_name != group_user.get('first_name'):
+                update_fields['first_name'] = update.effective_user.first_name
+            if update_fields:
+                await group_user_totals_collection.update_one({'group_id': chat_id, 'user_id': user_id}, {'$set': update_fields})
+            await group_user_totals_collection.update_one({'group_id': chat_id, 'user_id': user_id}, {'$inc': {'total_count': 1}})
+        elif hasattr(update.effective_user, 'username'):
+            # Create new user document with total_count initialized to 1
+            await group_user_totals_collection.insert_one({
+                'group_id': chat_id,
+                'user_id': user_id,
+                'username': update.effective_user.username,
+                'first_name': update.effective_user.first_name,
+                'total_count': 1  # Initialize total_count
+            })
+
+        # Add character to user's collection
+        user = await user_collection.find_one({'id': user_id})
+        if user:
+            # Update username and first_name if they have changed
+            update_fields = {}
+            if hasattr(update.effective_user, 'username') and update.effective_user.username != user.get('username'):
+                update_fields['username'] = update.effective_user.username
+            if update.effective_user.first_name != user.get('first_name'):
+                update_fields['first_name'] = update.effective_user.first_name
+            if update_fields:
+                await user_collection.update_one({'id': user_id}, {'$set': update_fields})
+            await user_collection.update_one({'id': user_id}, {'$inc': {'total_count': 1}})
+            
+            # Add character to user's collection if not already present
+            if not any(character['id'] == last_characters[chat_id]['id'] for character in user['characters']):
+                await user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
+                
+        elif hasattr(update.effective_user, 'username'):
+            # Create new user document with total_count initialized to 1
+            await user_collection.insert_one({
+                'id': user_id,
+                'username': update.effective_user.username,
+                'first_name': update.effective_user.first_name,
+                'characters': [last_characters[chat_id]],
+                'total_count': 1  # Initialize total_count
+            })
+        await update.message.reply_text(f'Congooo ✅️! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
+
+    else:
+        await update.message.reply_text('Incorrect guess. Try again.')
 
 
 def main() -> None:
@@ -208,6 +288,7 @@ def main() -> None:
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler(["upload", "lmao"], upload))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_counter, block=False))
+    application.add_handler(CommandHandler(["guess", "grab", "protecc"], upload))
     
     # Run the bot until the user presses Ctrl-C
     application.run_polling(allowed_updates=Update.ALL_TYPES)
