@@ -523,7 +523,6 @@ def main() -> None:
     application.add_handler(CommandHandler('fav', fav, block=False))
     application.add_handler(CommandHandler("gift", gift,block=False))
 
-    application.add_handler(CallbackQueryHandler(accept_gift, pattern='^accept_gift',block=False))
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
 
