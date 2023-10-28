@@ -457,10 +457,11 @@ async def fav(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text(f'Character {character["name"]} has been added to your favorites.')
 
 
-async def fav(update: Update, context: CallbackContext) -> None:
+
+async def gift(update: Update, context: CallbackContext) -> None:
     # Check if a character ID was provided
     if not context.args or not update.message.reply_to_message:
-        await update.message.reply_text('Please reply to a user with /fav <character_id>.')
+        await update.message.reply_text('Please reply to a user with /gift <character_id>.')
         return
 
     recipient_id = update.message.reply_to_message.from_user.id
@@ -485,13 +486,13 @@ async def fav(update: Update, context: CallbackContext) -> None:
         return
 
     # Send a message to the recipient with an accept button
-    keyboard = [[InlineKeyboardButton("Accept", callback_data=f"accept_fav {update.effective_user.id} {character_id}")]]
+    keyboard = [[InlineKeyboardButton("Accept", callback_data=f"accept_gift {update.effective_user.id} {character_id}")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     
     first_name = update.message.reply_to_message.from_user.first_name
-    await context.bot.send_message(update.effective_chat.id, f'<a href="tg://user?id={recipient_id}">{first_name}</a>, user {update.effective_user.id} wants to add the character {character["name"]} to your favorites. Do you accept?', reply_markup=reply_markup, parse_mode='HTML')
+    await context.bot.send_message(update.effective_chat.id, f'<a href="tg://user?id={recipient_id}">{first_name}</a>, user {update.effective_user.id} wants to gift you the character {character["name"]}. Do you accept?', reply_markup=reply_markup, parse_mode='HTML')
 
-async def accept_fav(update: Update, context: CallbackContext) -> None:
+async def accept_gift(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     sender_id, character_id = map(int, query.data.split()[1:])
 
@@ -509,13 +510,17 @@ async def accept_fav(update: Update, context: CallbackContext) -> None:
         await query.answer('An error occurred.')
         return
 
-    # Add the character to the recipient's favorites
-    recipient['favorites'].append(character_id)
+    # Remove the character from the sender's collection
+    sender['characters'].remove(character)
 
-    # Update recipient document
-    await user_collection.update_one({'id': query.from_user.id}, {'$set': {'favorites': recipient['favorites']}})
+    # Add the character to the recipient's collection
+    recipient['characters'].append(character)
 
-    await query.answer(f'Character {character["name"]} has been added to your favorites.')
+    # Update sender and recipient documents
+    await user_collection.update_one({'id': sender_id}, {'$set': {'characters': sender['characters']}})
+    await user_collection.update_one({'id': query.from_user.id}, {'$set': {'characters': recipient['characters']}})
+
+    await query.answer(f'Character {character["name"]} has been added to your collection.')
 
 def main() -> None:
     """Run bot."""
