@@ -199,6 +199,39 @@ async def guess(update: Update, context: CallbackContext) -> None:
     else:
         await update.message.reply_text('Incorrect guess. Try again.')
 
+async def change_time(update: Update, context: CallbackContext) -> None:
+    # Check if user is a group admin
+    user = update.effective_user
+    chat = update.effective_chat
+
+    if chat.get_member(user.id).status not in ('administrator', 'creator'):
+        await update.message.reply_text('You do not have permission to use this command.')
+        return
+
+    try:
+        # Extract arguments
+        args = context.args
+        if len(args) != 1:
+            await update.message.reply_text('Incorrect format. Please use: /changetime NUMBER')
+            return
+
+        # Check if the provided number is greater than or equal to 100
+        new_frequency = int(args[0])
+        if new_frequency < 100:
+            await update.message.reply_text('The message frequency must be greater than or equal to 100.')
+            return
+
+        # Change message frequency for this chat in the database
+        chat_frequency = await user_totals_collection.find_one_and_update(
+            {'chat_id': str(chat.id)},
+            {'$set': {'message_frequency': new_frequency}},
+            upsert=True,
+            return_document=ReturnDocument.AFTER
+        )
+
+        await update.message.reply_text(f'Successfully changed character appearance frequency to every {new_frequency} messages.')
+    except Exception as e:
+        await update.message.reply_text('Failed to change character appearance frequency.')
 
 def main() -> None:
     """Run bot."""
@@ -209,6 +242,7 @@ def main() -> None:
     
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_counter, block=False))
     application.add_handler(CommandHandler(["guess", "grab", "protecc", "collect"], guess, block=False))
+    application.add_handler(CommandHandler(["changetime"], changetime, block=False))
     
     # Run the bot until the user presses Ctrl-C
     application.run_polling(allowed_updates=Update.ALL_TYPES)
