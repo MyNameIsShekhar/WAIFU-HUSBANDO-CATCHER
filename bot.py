@@ -249,7 +249,8 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     # Get group leaderboard data
-    leaderboard_data = await group_user_totals_collection.find({'group_id': chat_id}).sort('total_count', -1).limit(10)
+    cursor = group_user_totals_collection.find({'group_id': chat_id}).sort('total_count', -1).limit(10)
+    leaderboard_data = await cursor.to_list(length=10)
 
     # Start of the leaderboard message
     leaderboard_message = "***TOP 10 MOST GUESSED USERS IN THIS GROUP***\n\n"
@@ -257,12 +258,9 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
     for i, user in enumerate(leaderboard_data, start=1):
         username = user.get('username', 'Unknown')
         first_name = user.get('first_name', 'Unknown')
-        count = user['total_count']
-
-        # Truncate the first_name if it has more than 7 letters
         if len(first_name) > 7:
             first_name = first_name[:7] + '...'
-
+        count = user['total_count']
         leaderboard_message += f'➟ {i}. {first_name} - {count}\n'
 
     # Choose a random photo URL
@@ -277,7 +275,7 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
 
     # Send photo with caption
     await update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
-    
+
 async def group_leaderboard_button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 
