@@ -425,6 +425,36 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 )
             )
         await update.inline_query.answer(results, next_offset=next_offset)
+        
+async def fav(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
+
+    # Check if an ID was provided
+    if not context.args:
+        await update.message.reply_text('Please provide a character ID.')
+        return
+
+    character_id = context.args[0]
+
+    # Get the user document
+    user = await user_collection.find_one({'id': user_id})
+    if not user:
+        await update.message.reply_text('You have not guessed any characters yet.')
+        return
+
+    # Check if the character is in the user's collection
+    character = next((c for c in user['characters'] if c['id'] == character_id), None)
+    if not character:
+        await update.message.reply_text('This character is not in your collection.')
+        return
+
+    # Replace the old favorite with the new one
+    user['favorites'] = [character_id]
+
+    # Update user document
+    await user_collection.update_one({'id': user_id}, {'$set': {'favorites': user['favorites']}})
+
+    await update.message.reply_text(f'Character {character["name"]} has been added to your favorites.')
 
 def main() -> None:
     """Run bot."""
@@ -436,11 +466,12 @@ def main() -> None:
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_counter, block=False))
     application.add_handler(CommandHandler(["guess", "grab", "protecc", "collect"], guess, block=False))
     application.add_handler(CommandHandler(["changetime"], change_time, block=False))
-    application.add_handler(CommandHandler('grouptop', group_leaderboard))
-    application.add_handler(CallbackQueryHandler(group_leaderboard_button, pattern='^group_leaderboard_myrank$'))
-    application.add_handler(CommandHandler('globaltop', leaderboard))
-    application.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_'))
+    application.add_handler(CommandHandler('grouptop', group_leaderboard, block=False))
+    application.add_handler(CallbackQueryHandler(group_leaderboard_button, pattern='^group_leaderboard_myrank$', block=False))
+    application.add_handler(CommandHandler('globaltop', leaderboard, block=False))
+    application.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_',block=False))
     application.add_handler(InlineQueryHandler(inlinequery, block=False))
+    application.add_handler(CommandHandler('fav', fav, block=False))
     
     # Run the bot until the user presses Ctrl-C
     application.run_polling(allowed_updates=Update.ALL_TYPES)
