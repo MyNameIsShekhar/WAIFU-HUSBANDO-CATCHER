@@ -523,16 +523,16 @@ async def harem(update: Update, context: CallbackContext) -> None:
     # Start of the harem message
     harem_message = f"<a href='tg://user?id={user_id}'>{update.effective_user.first_name}</a>'s Collection\n\n"
 
-    # Iterate over the grouped characters
-    for anime, characters in grouped_characters.items():
+    # Iterate over the first five grouped characters
+    for anime, characters in list(grouped_characters.items())[:5]:
         # Get the total number of characters from this anime
         total_characters = await collection.count_documents({'anime': anime})
 
         # Add the anime name and the number of collected characters to the message
         harem_message += f'{anime} - {len(characters)} / {total_characters}\n'
 
-        # Sort the characters by ID and take only the first five
-        characters = sorted(characters, key=lambda x: x['id'])[:5]
+        # Sort the characters by ID and take only the first two
+        characters = sorted(characters, key=lambda x: x['id'])[:2]
 
         # Add the character details to the message
         for character in characters:
