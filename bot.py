@@ -118,6 +118,7 @@ async def send_image(update: Update, context: CallbackContext) -> None:
         caption="""***A New Character Has Just Appeared Use /guess [name]!👒
 And Add This Character In You Collection***""",
         parse_mode='Markdown')
+    
 async def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
@@ -203,6 +204,7 @@ async def change_time(update: Update, context: CallbackContext) -> None:
     # Check if user is a group admin
     user = update.effective_user
     chat = update.effective_chat
+    member = await chat.get_member(user.id)
 
     if member.status not in ('administrator', 'creator'):
         await update.message.reply_text('You do not have permission to use this command.')
