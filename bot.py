@@ -292,14 +292,11 @@ async def group_leaderboard_button(update: Update, context: CallbackContext) -> 
     cursor = group_user_totals_collection.find({'group_id': query.message.chat.id}, {'total_count': 1, '_id': 0})
     sorted_counts = sorted(await cursor.to_list(length=100), key=lambda x: x['total_count'], reverse=True)
 
-    # Get user's rank in this group
-    user_rank = [i for i, x in enumerate(sorted_counts) if x['total_count'] == user_total_count]
+    # Get user's rank
+    user_rank = sorted_counts.index({'total_count': user_total_count}) + 1
 
-    if not user_rank:
-        await query.answer('You are not in this rank.', show_alert=True)
-    else:
-        await query.answer(f'Your rank in this group is {user_rank[0] + 1}.', show_alert=True)
-        
+    await query.answer(f'Your rank in this group is {user_rank}.', show_alert=True)
+
 async def leaderboard(update: Update, context: CallbackContext) -> None:
     # Create inline keyboard
     keyboard = [
@@ -353,13 +350,9 @@ async def leaderboard_button(update: Update, context: CallbackContext) -> None:
     sorted_counts = sorted(await cursor.to_list(length=100), key=lambda x: x['total_count'], reverse=True)
 
     # Get user's rank
-    user_rank = [i for i, x in enumerate(sorted_counts) if x['total_count'] == user_total_count]
+    user_rank = sorted_counts.index({'total_count': user_total_count}) + 1
 
-    if not user_rank:
-        await query.answer('You are not in this rank.', show_alert=True)
-    else:
-        await query.answer(f'Your rank is {user_rank[0] + 1}.', show_alert=True)
-
+    await query.answer(f'Your rank is {user_rank}.', show_alert=True)
 
 def main() -> None:
     """Run bot."""
