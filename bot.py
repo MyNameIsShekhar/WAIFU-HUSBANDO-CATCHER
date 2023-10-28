@@ -539,14 +539,14 @@ async def harem(update: Update, context: CallbackContext) -> None:
             count = character.get('count')
             rarity = character.get('rarity', "Don't have rarity...") # Get the character's rarity
             if count is not None:
-                harem_message += f'<b>🆔️: {character["id"]} - 🪼 {character["name"]} × {count} - {rarity}</b>\n'
+                harem_message += f'<b>🆔️: {character["id"]}</b>\n<b>{character["name"]} × {count}</b>\n<b>{rarity}</b>\n'
             else:
-                harem_message += f'<b>🆔️: {character["id"]} - 🪼 {character["name"]} - {rarity}</b>\n'
+                harem_message += f'<b>🆔️: {character["id"]}</b>\n<b>{character["name"]}</b>\n<b>{rarity}</b>\n'
 
         harem_message += '\n'
         total_count = len(user['characters'])
     # Create an InlineKeyboardButton named 'All Characters'
-    keyboard = [[InlineKeyboardButton(f"<b>See All Characters ({total_count})</b>", switch_inline_query_current_chat=str(user_id))]]
+    keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
