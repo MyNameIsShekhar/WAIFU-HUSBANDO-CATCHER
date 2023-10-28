@@ -504,6 +504,63 @@ async def gift(update: Update, context: CallbackContext) -> None:
         })
 
     await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
+    
+async def harem(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
+
+    # Get the user's collection
+    user = await user_collection.find_one({'id': user_id})
+    if not user:
+        await update.message.reply_text('You have not guessed any characters yet.')
+        return
+
+    # Get the list of characters and sort by anime name
+    characters = sorted(user['characters'], key=lambda x: x['anime'])
+
+    # Group the characters by anime
+    grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['anime'])}
+
+    # Start of the harem message
+    harem_message = f"<a href='tg://user?id={user_id}'>{update.effective_user.first_name}</a>'s Collection\n\n"
+
+    # Iterate over the grouped characters
+    for anime, characters in grouped_characters.items():
+        # Get the total number of characters from this anime
+        total_characters = await collection.count_documents({'anime': anime})
+
+        # Add the anime name and the number of collected characters to the message
+        harem_message += f'{anime} - {len(characters)} / {total_characters}\n'
+
+        # Sort the characters by ID and take only the first five
+        characters = sorted(characters, key=lambda x: x['id'])[:5]
+
+        # Add the character details to the message
+        for character in characters:
+            count = character.get('count')
+            rarity = character.get('rarity', "Don't have rarity...") # Get the character's rarity
+            if count is not None:
+                harem_message += f'ID: {character["id"]} - {character["name"]} × {count} - {rarity}\n'
+            else:
+                harem_message += f'ID: {character["id"]} - {character["name"]} - {rarity}\n'
+
+        harem_message += '\n'
+        total_count = len(user['characters'])
+    # Create an InlineKeyboardButton named 'All Characters'
+    keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
+
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # If a favorite character is set, send its image with harem message as caption
+    if 'favorites' in user and user['favorites']:
+        fav_character_id = user['favorites'][0]
+        fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
+        
+        if fav_character and 'img_url' in fav_character:
+            await update.message.reply_photo(photo=fav_character['img_url'], parse_mode='HTML', caption=harem_message, reply_markup=reply_markup)
+        else:
+            await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+    else:
+        await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
 
 def main() -> None:
     """Run bot."""
@@ -522,6 +579,7 @@ def main() -> None:
     application.add_handler(InlineQueryHandler(inlinequery, block=False))
     application.add_handler(CommandHandler('fav', fav, block=False))
     application.add_handler(CommandHandler("gift", gift,block=False))
+    application.add_handler(CommandHandler("collection", harem,block=False))
 
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
