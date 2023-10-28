@@ -385,6 +385,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
 
                     results.append(
                         InlineQueryResultPhoto(
+                            thumbnail_url=character['img_url'],
                             id=character['id'],
                             photo_url=character['img_url'],
                             caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('username', user['id'])}</a></b>'s Character\n\n<b>Name:</b> {character['name']} " + (f"(x{character.get('count', 1)})" if character.get('count', 1) > 1 else "") + f"\n<b>Anime:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n<b>Rarity:</b> {rarity}\n🆔: {character['id']}",
@@ -419,6 +420,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
 
             results.append(
                 InlineQueryResultPhoto(
+                    thumbnail_url=character['img_url'],
                     id=character['id'],
                     photo_url=character['img_url'],
                     caption=f"<b>Look at this character!</b>\n\n⟹ <b>{character['name']}</b>\n⟹ <b>{character['anime']}</b>\n<b>Rarity:</b> {rarity}\n🆔: {character['id']}\n\n<b>Guessed {total_guesses} times In Globally</b>",
