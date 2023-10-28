@@ -1,4 +1,5 @@
-import importlibfrom itertools import groupby
+import lib from itertools 
+import groupby
 from telegram import InputMediaPhoto
 from telegram import Update
 from motor.motor_asyncio import AsyncIOMotorClient 
@@ -124,3 +125,17 @@ async def upload(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text('Successfully uploaded.')
     except Exception as e:
         await update.message.reply_text('Unsuccessfully uploaded.')
+def main() -> None:
+    """Run bot."""
+    # Create the Application and pass it your bot's token.
+    application = Application.builder().token("6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg").build()
+
+    # on different commands - answer in Telegram
+    application.add_handler(CommandHandler(["upload", "lmao"], upload))
+    
+    # Run the bot until the user presses Ctrl-C
+    application.run_polling(allowed_updates=Update.ALL_TYPES)
+
+
+if __name__ == "__main__":
+    main()
