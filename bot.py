@@ -385,7 +385,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                             thumbnail_url=character['img_url'],
                             id=character['id'],
                             photo_url=character['img_url'],
-                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a></b>'s Character\n\n<b>⟹ {character['name']}</b> " + (f"<b>(x{character.get('count', 1)})</b>" if character.get('count', 1) > 1 else "") + f"\n<b>⟹ {character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n\n<b>⟹ {rarity}</b>\n<b>⟹ {character['id']}</b>",
+                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a>'s Character</b>'\n\n<b>⟹ {character['name']}</b> " + (f"<b>(x{character.get('count', 1)})</b>" if character.get('count', 1) > 1 else "") + f"\n<b>⟹ {character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n\n<b>Rarity: {rarity}</b>\n<b>🆔: {character['id']}</b>",
                             parse_mode='HTML'
                         )
                     )
@@ -413,7 +413,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
             total_guesses = sum(character.get("count", 1) for user in users_with_character)
 
             # Get the character's rarity
-            rarity = character.get('rarity', "Don't have rarity.. Coz u Guessed before implement rarity.. in this bot")
+            rarity = character.get('rarity', "Don't have rarity...")
 
             results.append(
                 InlineQueryResultPhoto(
