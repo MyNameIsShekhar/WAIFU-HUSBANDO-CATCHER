@@ -242,7 +242,7 @@ def main() -> None:
     
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_counter, block=False))
     application.add_handler(CommandHandler(["guess", "grab", "protecc", "collect"], guess, block=False))
-    application.add_handler(CommandHandler(["changetime"], changetime, block=False))
+    application.add_handler(CommandHandler(["changetime"], change_time, block=False))
     
     # Run the bot until the user presses Ctrl-C
     application.run_polling(allowed_updates=Update.ALL_TYPES)
