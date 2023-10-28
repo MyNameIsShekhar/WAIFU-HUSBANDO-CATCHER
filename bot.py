@@ -235,7 +235,7 @@ async def change_time(update: Update, context: CallbackContext) -> None:
 def main() -> None:
     """Run bot."""
     # Create the Application and pass it your bot's token.
-    application = Application.builder().token("6420751168:AAEtf-OyEYLLTZM2c4LrhIroXPfvsW7KlM8").build()
+    application = Application.builder().token("6656458442:AAGJ1nKC2qil9SMU3NbElluHSmHJrN8oZsg").build()
 
     # on different commands - answer in Telegram
     
