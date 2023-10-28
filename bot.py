@@ -459,68 +459,51 @@ async def fav(update: Update, context: CallbackContext) -> None:
 
 
 async def gift(update: Update, context: CallbackContext) -> None:
-    # Check if a character ID was provided
-    if not context.args or not update.message.reply_to_message:
-        await update.message.reply_text('Please reply to a user with /gift <character_id>.')
+    # Get the sender and receiver's user IDs
+    sender_id = update.effective_user.id
+    receiver_id = update.message.reply_to_message.from_user.id
+
+    # Check if the sender and receiver are the same person
+    if sender_id == receiver_id:
+        await update.message.reply_text("You can't gift a character to yourself!")
         return
 
-    recipient_id = update.message.reply_to_message.from_user.id
+    # Check if a character ID was provided
+    if not context.args:
+        await update.message.reply_text("You need to provide a character ID!")
+        return
+
     character_id = context.args[0]
 
-    # Get the sender and recipient documents
-    sender = await user_collection.find_one({'id': update.effective_user.id})
-    recipient = await user_collection.find_one({'id': recipient_id})
-
-    if not sender:
-        await update.message.reply_text('You have not guessed any characters yet.')
-        return
-
-    if not recipient:
-        await update.message.reply_text('The recipient has not guessed any characters yet.')
-        return
-
-    # Check if the character is in the sender's collection
-    character = next((c for c in sender['characters'] if c['id'] == character_id), None)
-    if not character:
-        await update.message.reply_text('This character is not in your collection.')
-        return
-
-    # Send a message to the recipient with an accept button
-    keyboard = [[InlineKeyboardButton("Accept", callback_data=f"accept_gift {update.effective_user.id} {character_id}")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
-    first_name = update.message.reply_to_message.from_user.first_name
-    await context.bot.send_message(update.effective_chat.id, f'<a href="tg://user?id={recipient_id}">{first_name}</a>, user {update.effective_user.id} wants to gift you the character {character["name"]}. Do you accept?', reply_markup=reply_markup, parse_mode='HTML')
-
-async def accept_gift(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-    sender_id, character_id = map(int, query.data.split()[1:])
-
-    # Get the sender and recipient documents
+    # Get the sender's characters
     sender = await user_collection.find_one({'id': sender_id})
-    recipient = await user_collection.find_one({'id': query.from_user.id})
 
-    if not sender or not recipient:
-        await query.answer('An error occurred.')
-        return
-
-    # Check if the character is in the sender's collection
-    character = next((c for c in sender['characters'] if c['id'] == str(character_id)), None)
+    # Check if the sender has the character in their collection
+    character = next((character for character in sender['characters'] if character['id'] == character_id), None)
+    
     if not character:
-        await query.answer('An error occurred.')
+        await update.message.reply_text("You don't have this character in your collection!")
         return
 
     # Remove the character from the sender's collection
-    sender['characters'].remove(character)
+    await user_collection.update_one({'id': sender_id}, {'$pull': {'characters': {'id': character_id}}})
 
-    # Add the character to the recipient's collection
-    recipient['characters'].append(character)
+    # Add the character to the receiver's collection
+    receiver = await user_collection.find_one({'id': receiver_id})
+    
+    if receiver:
+        await user_collection.update_one({'id': receiver_id}, {'$push': {'characters': character}})
+    else:
+        # Create new user document with total_count initialized to 1
+        await user_collection.insert_one({
+            'id': receiver_id,
+            'username': update.message.reply_to_message.from_user.username,
+            'first_name': update.message.reply_to_message.from_user.first_name,
+            'characters': [character],
+            'total_count': 1  # Initialize total_count
+        })
 
-    # Update sender and recipient documents
-    await user_collection.update_one({'id': sender_id}, {'$set': {'characters': sender['characters']}})
-    await user_collection.update_one({'id': query.from_user.id}, {'$set': {'characters': recipient['characters']}})
-
-    await query.answer(f'Character {character["name"]} has been added to your collection.')
+    await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
 
 def main() -> None:
     """Run bot."""
