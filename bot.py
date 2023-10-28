@@ -299,6 +299,66 @@ async def group_leaderboard_button(update: Update, context: CallbackContext) -> 
         await query.answer('You are not in this rank.', show_alert=True)
     else:
         await query.answer(f'Your rank in this group is {user_rank[0] + 1}.', show_alert=True)
+        
+async def leaderboard(update: Update, context: CallbackContext) -> None:
+    # Create inline keyboard
+    keyboard = [
+        [InlineKeyboardButton('My Rank', callback_data='leaderboard_myrank')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Get global leaderboard data
+    cursor = user_collection.find().sort('total_count', -1).limit(10)
+    leaderboard_data = await cursor.to_list(length=10)
+
+    # Start of the leaderboard message
+    leaderboard_message = "***TOP 10 MOST GUESSED USERS***\n\n"
+
+    for i, user in enumerate(leaderboard_data, start=1):
+        username = user.get('username', 'Unknown')
+        first_name = user.get('first_name', 'Unknown')
+        if len(first_name) > 7:
+            first_name = first_name[:7] + '...'
+        count = user['total_count']
+        leaderboard_message += f'➟ {i}. {first_name} - {count}\n'
+
+    # Choose a random photo URL
+    photo_urls = [
+        "https://graph.org/file/38767e79402baa8b04125.jpg",
+        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
+        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg",
+        "https://graph.org//file/e65e9605f3beb5c76026b.jpg",
+        "https://graph.org//file/88c0fc2309930c591d98b.jpg"
+    ]
+    photo_url = random.choice(photo_urls)
+
+    # Send photo with caption
+    await update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
+
+
+async def leaderboard_button(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+
+    # Get user's total count
+    user_total = await user_collection.find_one({'id': query.from_user.id})
+    
+    if user_total is None:
+        await query.answer('You are not in this rank.', show_alert=True)
+        return
+
+    user_total_count = user_total['total_count']
+
+    # Get sorted list of total counts
+    cursor = user_collection.find({}, {'total_count': 1, '_id': 0})
+    sorted_counts = sorted(await cursor.to_list(length=100), key=lambda x: x['total_count'], reverse=True)
+
+    # Get user's rank
+    user_rank = [i for i, x in enumerate(sorted_counts) if x['total_count'] == user_total_count]
+
+    if not user_rank:
+        await query.answer('You are not in this rank.', show_alert=True)
+    else:
+        await query.answer(f'Your rank is {user_rank[0] + 1}.', show_alert=True)
 
 
 def main() -> None:
@@ -313,6 +373,8 @@ def main() -> None:
     application.add_handler(CommandHandler(["changetime"], change_time, block=False))
     application.add_handler(CommandHandler('grouptop', group_leaderboard))
     application.add_handler(CallbackQueryHandler(group_leaderboard_button, pattern='^group_leaderboard_myrank$'))
+    application.add_handler(CommandHandler('globaltop', leaderboard))
+    application.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_'))
     
     # Run the bot until the user presses Ctrl-C
     application.run_polling(allowed_updates=Update.ALL_TYPES)
