@@ -141,11 +141,11 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
         # Get message frequency and counter for this chat from the database
         chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
-            message_frequency = chat_frequency.get('message_frequency', 100)
+            message_frequency = chat_frequency.get('message_frequency', 10)
             message_counter = chat_frequency.get('message_counter', 0)
         else:
             # Default to 20 messages if not set
-            message_frequency =100
+            message_frequency =10
             message_counter = 0
 
         # Increment counter for this chat
@@ -288,7 +288,7 @@ def main() -> None:
     # on different commands - answer in Telegram
     application.add_handler(CommandHandler(["upload", "lmao"], upload))
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_counter, block=False))
-    application.add_handler(CommandHandler(["guess", "grab", "protecc"], upload))
+    application.add_handler(CommandHandler(["guess", "grab", "protecc"], guess))
     
     # Run the bot until the user presses Ctrl-C
     application.run_polling(allowed_updates=Update.ALL_TYPES)
