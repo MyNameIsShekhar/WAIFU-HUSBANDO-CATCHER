@@ -315,9 +315,9 @@ async def leaderboard(update: Update, context: CallbackContext) -> None:
         username = user.get('username', 'Unknown')
         first_name = user.get('first_name', 'Unknown')
         if len(first_name) > 7:
-            first_name = first_name[:7] + '...'
+            first_name = first_name[:10] + '...'
         count = user['total_count']
-        leaderboard_message += f'➟ {i}. {first_name} - {count}\n'
+        leaderboard_message += f'{i}. [{first_name}](https://t.me/{username})- {count}\n'
 
     # Choose a random photo URL
     photo_urls = [
