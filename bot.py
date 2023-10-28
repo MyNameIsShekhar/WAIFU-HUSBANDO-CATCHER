@@ -1,4 +1,8 @@
 import importlib
+from telegram import InputMediaPhoto
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent, InputMediaPhoto
+from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
+
 from itertools import groupby
 from telegram import Update
 from motor.motor_asyncio import AsyncIOMotorClient 
@@ -233,6 +237,60 @@ async def change_time(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text(f'Successfully changed character appearance frequency to every {new_frequency} messages.')
     except Exception as e:
         await update.message.reply_text('Failed to change character appearance frequency.')
+        
+async def group_leaderboard(update: Update, context: CallbackContext) -> None:
+    # Get the chat ID
+    chat_id = update.effective_chat.id
+
+    # Create inline keyboard
+    keyboard = [
+        [InlineKeyboardButton('My Group Rank', callback_data='group_leaderboard_myrank')]
+    ]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Get group leaderboard data
+    leaderboard_data = await group_user_totals_collection.find({'group_id': chat_id}).sort('total_count', -1).limit(10)
+
+    # Start of the leaderboard message
+    leaderboard_message = "***TOP 10 MOST GUESSED USERS IN THIS GROUP***\n\n"
+
+    for i, user in enumerate(leaderboard_data, start=1):
+        username = user.get('username', 'Unknown')
+        first_name = user.get('first_name', 'Unknown')
+        count = user['total_count']
+
+        # Truncate the first_name if it has more than 7 letters
+        if len(first_name) > 7:
+            first_name = first_name[:7] + '...'
+
+        leaderboard_message += f'➟ {i}. {first_name} - {count}\n'
+
+    # Choose a random photo URL
+    photo_urls = [
+        "https://graph.org/file/38767e79402baa8b04125.jpg",
+        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
+        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg",
+        "https://graph.org//file/e65e9605f3beb5c76026b.jpg",
+        "https://graph.org//file/88c0fc2309930c591d98b.jpg"
+    ]
+    photo_url = random.choice(photo_urls)
+
+    # Send photo with caption
+    await update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
+    
+async def group_leaderboard_button(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+
+    # Get user's total count in this group
+    user_total_count = await group_user_totals_collection.find_one({'group_id': query.message.chat.id, 'user_id': query.from_user.id})['total_count']
+
+    # Get sorted list of total counts in this group
+    sorted_counts = sorted(await group_user_totals_collection.find({'group_id': query.message.chat.id}, {'total_count': 1, '_id': 0}), key=lambda x: x['total_count'], reverse=True)
+
+    # Get user's rank in this group
+    user_rank = [i for i, x in enumerate(sorted_counts) if x['total_count'] == user_total_count][0] + 1
+
+    await query.answer(f'Your rank in this group is {user_rank}.', show_alert=True)
 
 def main() -> None:
     """Run bot."""
@@ -244,6 +302,8 @@ def main() -> None:
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_counter, block=False))
     application.add_handler(CommandHandler(["guess", "grab", "protecc", "collect"], guess, block=False))
     application.add_handler(CommandHandler(["changetime"], change_time, block=False))
+    application.add_handler(CommandHandler('grouptop', group_leaderboard))
+    application.add_handler(CallbackQueryHandler(group_leaderboard_button, pattern='^group_leaderboard_myrank$'))
     
     # Run the bot until the user presses Ctrl-C
     application.run_polling(allowed_updates=Update.ALL_TYPES)
