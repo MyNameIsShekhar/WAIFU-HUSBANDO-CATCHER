@@ -404,7 +404,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                             thumbnail_url=character['img_url'],
                             id=character['id'],
                             photo_url=character['img_url'],
-                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a></b>'s Character\n\n🌸:<b> {character['name']}</b> " + (f"(x{character.get('count', 'only one')})) + f"\n🏖️: <b>{character['anime']} (f'{anime_characters_guessed}/{total_anime_characters}')</b>\n<b>{rarity}</b>\n🆔: {character['id']}",
+                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a></b>'s Character\n\n🌸:<b> {character['name']}</b> " + (f"(x{character.get('count', 'only one')})) + \n🏖️: <b>{character['anime']} ('{anime_characters_guessed}/{total_anime_characters}')</b>\n<b>{rarity}</b>\n🆔: {character['id']}",
                             parse_mode='HTML'
                         )
                     )
