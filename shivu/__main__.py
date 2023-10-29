@@ -15,9 +15,9 @@ from datetime import datetime, timedelta
 from threading import Lock
 import time
 from shivu.modules import ALL_MODULES
+from shivu import application 
+from shivu import db
 
-client = AsyncIOMotorClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
-db = client['Waifus_lol']
 collection = db['anime_characters_lol']
 
 
@@ -595,8 +595,7 @@ async def harem(update: Update, context: CallbackContext) -> None:
 def main() -> None:
     """Run bot."""
     
-    application = Application.builder().token("6420751168:AAEtf-OyEYLLTZM2c4LrhIroXPfvsW7KlM8").build()
-
+    
     
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_counter, block=False))
     application.add_handler(CommandHandler(["guess", "grab", "protecc", "collect"], guess, block=False))
