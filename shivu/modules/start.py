@@ -51,8 +51,6 @@ async def start(update: Update, context: CallbackContext) -> None:
 async def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
-
-    if query.data == 'help':
     help_text = """
     Help Section : 
 
@@ -65,8 +63,14 @@ async def button(update: Update, context: CallbackContext) -> None:
     /changetime: Change Character appear time (only works in Groups)
 
     """
-    await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=help_text)
 
+    if query.data == 'help':
+        await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=help_text)
+
+        
+        
+    
+    
 
 button_handler = CallbackQueryHandler(button)
 application.add_handler(button_handler)
