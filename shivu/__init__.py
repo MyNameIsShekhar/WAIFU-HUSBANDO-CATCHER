@@ -1,5 +1,6 @@
 import telegram.ext as tg
 import logging 
+from motor.motor_asyncio import AsyncIOMotorClient 
 
 
 logging.basicConfig(
@@ -17,3 +18,5 @@ TOKEN = "6420751168:AAEtf-OyEYLLTZM2c4LrhIroXPfvsW7KlM8"
 
 application = Application.builder().token(TOKEN).build()
 
+client = AsyncIOMotorClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
+db = client['Waifus_lol']
