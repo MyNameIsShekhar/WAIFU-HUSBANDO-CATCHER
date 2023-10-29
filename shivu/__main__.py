@@ -605,7 +605,7 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_',block=False))
     application.add_handler(InlineQueryHandler(inlinequery, block=False))
     application.add_handler(CommandHandler('fav', fav, block=False))
-    application.add_handler(CommandHandler("gift", gift,block=False))
+    application.add_handler(CommandHandler("give", gift,block=False))
     application.add_handler(CommandHandler("collection", harem,block=False))
 
     application.run_polling(allowed_updates=Update.ALL_TYPES)
