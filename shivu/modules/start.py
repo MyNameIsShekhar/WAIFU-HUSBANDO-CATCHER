@@ -1,9 +1,11 @@
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import CallbackContext, CallbackQueryHandler
 from motor.motor_asyncio import AsyncIOMotorClient
 from telegram.ext import CommandHandler
 from shivu import application 
 
-# Connect to your MongoDB
+
 client = AsyncIOMotorClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
 db = client['your_database_name']  # replace with your database name
 collection = db['your_collection_name']  # replace with your collection name
@@ -29,7 +31,7 @@ async def start(update: Update, context: CallbackContext) -> None:
             user_data['username'] = username
         await collection.insert_one(user_data)
 
-    # Send a random photo from the list
+    
     photo_url = random.choice(photo_url_list)
     
     caption = """
@@ -63,6 +65,7 @@ async def button(update: Update, context: CallbackContext) -> None:
         
         """
         await query.message.edit_text(help_text)
+
 
 button_handler = CallbackQueryHandler(button)
 application.add_handler(button_handler)
