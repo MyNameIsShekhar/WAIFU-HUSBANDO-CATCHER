@@ -120,7 +120,7 @@ async def send_image(update: Update, context: CallbackContext) -> None:
 And Add This Character In Your Collection***""",
         parse_mode='Markdown')
     
-async def guess(update: Update, context: CallbackContext) -> None:
+  def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
 
@@ -183,10 +183,18 @@ async def guess(update: Update, context: CallbackContext) -> None:
                 await user_collection.update_one({'id': user_id}, {'$set': update_fields})
             await user_collection.update_one({'id': user_id}, {'$inc': {'total_count': 1}})
             
-            # Add character to user's collection if not already present
-            if not any(character['id'] == last_characters[chat_id]['id'] for character in user['characters']):
+            
+            character_in_collection = next((character for character in user['characters'] if character['id'] == last_characters[chat_id]['id']), None)
+        
+            if character_in_collection:
+            # If the character is already in the collection, increment its count
+                await user_collection.update_one({'id': user_id, 'characters.id': last_characters[chat_id]['id']}, {'$inc': {'characters.$.count': 1}})
+            else:
+            # If the character is not in the collection, add it with a count of 1
+                 last_characters[chat_id]['count'] = 1
                 await user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
-                
+
+      
         elif hasattr(update.effective_user, 'username'):
             # Create new user document with total_count initialized to 1
             await user_collection.insert_one({
@@ -386,7 +394,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                             thumbnail_url=character['img_url'],
                             id=character['id'],
                             photo_url=character['img_url'],
-                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a>'s Character</b>'\n\n<b>⟹ {character['name']}</b> " + (f"<b>(x{character.get('count', 1)})</b>" if character.get('count', 1) > 1 else "") + f"\n<b>⟹ {character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n\n<b>Rarity: {rarity}</b>\n<b>🆔: {character['id']}</b>",
+                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a>'s Character</b>'\n\n<b>⟹ {character['name']}</b> " + (f"<b>(x{character.get('count', 1)})</b>" if character.get('count', 1)  + f"\n<b>⟹ {character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n\n<b>Rarity: {rarity}</b>\n<b>🆔: {character['id']}</b>",
                             parse_mode='HTML'
                         )
                     )
