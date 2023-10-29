@@ -529,6 +529,7 @@ async def gift(update: Update, context: CallbackContext) -> None:
 
     await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
 
+
 async def harem(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
@@ -545,7 +546,7 @@ async def harem(update: Update, context: CallbackContext) -> None:
     grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['anime'])}
 
     # Start of the harem message
-    harem_message = f"<b>See <a href='tg://user?id={user_id}'>{update.effective_user.first_name}</a>'s Letest 5 Characters</b>\n\n"
+    harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
 
     # Iterate over the first five grouped characters
     for anime, characters in list(grouped_characters.items())[:5]:
@@ -553,7 +554,8 @@ async def harem(update: Update, context: CallbackContext) -> None:
         total_characters = await collection.count_documents({'anime': anime})
 
         # Add the anime name and the number of collected characters to the message
-        harem_message += f'<b>{anime} - ({len(characters)} / {total_characters})</b>\n'
+        harem_message += f'🪼 <b>{anime} - ({len(characters)} / {total_characters})</b>\n'
+        harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
         # Sort the characters by ID and take only the first two
         characters = sorted(characters, key=lambda x: x['id'])[:2]
@@ -563,12 +565,15 @@ async def harem(update: Update, context: CallbackContext) -> None:
             count = character.get('count')
             rarity = character.get('rarity', "Don't have rarity...") # Get the character's rarity
             if count is not None:
-                harem_message += f'<b>🆔️: {character["id"]}</b>\n<b>{character["name"]} × {count}</b>\n<b>{rarity}</b>\n'
+                harem_message += f'🆔️ <b>{character["id"]} | {rarity} | {character["name"]} × {count}</b>\n'
             else:
-                harem_message += f'<b>🆔️: {character["id"]}</b>\n<b>{character["name"]}</b>\n<b>{rarity}</b>\n'
+                harem_message += f'🆔️ <b>{character["id"]} | {rarity} | {character["name"]}</b>\n'
+
+            harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
         harem_message += '\n'
         total_count = len(user['characters'])
+    
     # Create an InlineKeyboardButton named 'All Characters'
     keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
 
@@ -585,6 +590,7 @@ async def harem(update: Update, context: CallbackContext) -> None:
             await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
     else:
         await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+
 
 def main() -> None:
     """Run bot."""
