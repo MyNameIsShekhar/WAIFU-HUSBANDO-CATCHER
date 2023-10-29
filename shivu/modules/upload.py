@@ -7,6 +7,7 @@ import urllib.request
 import random
 from shivu import application 
 from shivu import db
+from shivu import sudo_users 
 
 collection = db['anime_characters_lol']
 
