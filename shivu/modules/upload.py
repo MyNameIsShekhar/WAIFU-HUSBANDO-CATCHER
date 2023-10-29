@@ -89,4 +89,4 @@ def upload(update: Update, context: CallbackContext) -> None:
     except Exception as e:
         update.message.reply_text('Unsuccessfully uploaded')
       
-application.add_handler(CommandHandler("upload", upload)  
+application.add_handler(CommandHandler("upload", upload))
