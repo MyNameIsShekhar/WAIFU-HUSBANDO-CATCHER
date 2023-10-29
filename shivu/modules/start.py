@@ -52,7 +52,7 @@ async def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
 
-if query.data == 'help':
+    if query.data == 'help':
     help_text = """
     Help Section : 
 
