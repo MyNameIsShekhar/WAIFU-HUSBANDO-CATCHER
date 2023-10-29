@@ -50,7 +50,7 @@ async def start(update: Update, context: CallbackContext) -> None:
 
 async def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
-   await query.answer()
+    query.answer()
 
     if query.data == 'help':
         help_text = """
