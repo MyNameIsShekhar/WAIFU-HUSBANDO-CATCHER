@@ -83,36 +83,36 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
             {'$set': {'message_counter': message_counter}},
             upsert=True
         )
-# Import asyncio
 
 
-# Convert your function to async
+
+
 async def send_image(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
 
-    # Get all characters
+
     all_characters = list(await collection.find({}).to_list(length=None))
     
-    # Initialize sent characters list for this chat if it doesn't exist
+    
     if chat_id not in sent_characters:
         sent_characters[chat_id] = []
 
-    # Reset sent characters list if all characters have been sent
+    
     if len(sent_characters[chat_id]) == len(all_characters):
         sent_characters[chat_id] = []
 
-    # Select a random character that hasn't been sent yet
+    
     character = random.choice([c for c in all_characters if c['id'] not in sent_characters[chat_id]])
 
-    # Add character to sent characters list and set as last sent character
+    
     sent_characters[chat_id].append(character['id'])
     last_characters[chat_id] = character
 
-    # Reset first correct guess when a new character is sent
+    
     if chat_id in first_correct_guesses:
         del first_correct_guesses[chat_id]
 
-    # Send image with caption
+    
     await context.bot.send_photo(
         chat_id=chat_id,
         photo=character['img_url'],
@@ -124,11 +124,10 @@ async def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
 
-    # Check if a character has been sent in this chat yet
     if chat_id not in last_characters:
         return
 
-    # If someone has already guessed correctly
+    # RED FLAG
     if chat_id in first_correct_guesses:
         await update.message.reply_text(f'❌️ Already guessed by Someone..So Try Next Time Bruhh')
         return
@@ -140,7 +139,7 @@ async def guess(update: Update, context: CallbackContext) -> None:
         # Set the flag that someone has guessed correctly
         first_correct_guesses[chat_id] = user_id
 
-        # Increment global count
+        # global count
         global_count = await user_totals_collection.find_one_and_update(
             {'id': 'global'},
             {'$inc': {'count': 1}},
@@ -148,10 +147,10 @@ async def guess(update: Update, context: CallbackContext) -> None:
             return_document=ReturnDocument.AFTER
         )
 
-        # Increment user's count in this group
+        # group count 
         group_user = await group_user_totals_collection.find_one({'group_id': chat_id, 'user_id': user_id})
         if group_user:
-            # Update username and first_name if they have changed
+            
             update_fields = {}
             if hasattr(update.effective_user, 'username') and update.effective_user.username != group_user.get('username'):
                 update_fields['username'] = update.effective_user.username
