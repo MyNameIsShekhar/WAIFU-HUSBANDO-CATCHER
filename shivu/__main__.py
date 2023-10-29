@@ -404,7 +404,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                             thumbnail_url=character['img_url'],
                             id=character['id'],
                             photo_url=character['img_url'],
-                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a></b>'s Character\n\n🌸:<b> {character['name']}</b> " + (f"(x{character.get('count', 1)})") + f"\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>Rarity: {rarity}</b>\n🆔: {character['id']}",
+                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a></b>'s Character\n\n🌸:<b> {character['name']}</b> " + (f"(x{character.get('count', 0)})") + f"\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n🆔: {character['id']}",
                             parse_mode='HTML'
                         )
                     )
@@ -563,13 +563,11 @@ async def harem(update: Update, context: CallbackContext) -> None:
         
         
         for character in characters:
-            count = character.get('count')
+            count = character.get('count', 1)
             rarity = character.get('rarity', "Don't have rarity...") # Get the character's rarity
-            if count is not None:
-                harem_message += f'🆔️ <b>{character["id"]}</b>| 🫧 {rarity} | <b>🌸 {character["name"]} × {count}</b>\n'
-            else:
-                harem_message += f'🆔️ <b>{character["id"]}</b>| 🫧 {rarity} | <b>🌸 {character["name"]}</b>\n'
-
+            
+            harem_message += f'🆔️ <b>{character["id"]}</b>| 🫧 {rarity} | <b>🌸 {character["name"]} × {count}</b>\n'
+            
             harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
         harem_message += '\n'
