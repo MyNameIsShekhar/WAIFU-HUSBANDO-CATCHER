@@ -53,19 +53,13 @@ async def button(update: Update, context: CallbackContext) -> None:
     query.answer()
     help_text = """
     ***Help Section :***
-
+    
 ***/guess:*** To Guess character (only works in group)
-
 ***/fav:*** Add Your fav
-
 ***/give:*** Give any Character from Your Collection to another user.. (only works in groups)
-
 ***/collection:*** to see Your Collection
- 
 ***/grouptop:*** See Top Group users in group (only Works in Groups)
-
 ***/globaltop:*** To See Top Global Users
-
 ***/changetime:*** Change Character appear time (only works in Groups)
     """
 
