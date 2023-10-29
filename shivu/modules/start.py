@@ -63,8 +63,9 @@ async def start(update: Update, context: CallbackContext) -> None:
 async def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
-    keyboard_backk = [[InlineKeyboardButton("Back", callback_data='back')]]
-    help_text = """
+
+    if query.data == 'help':
+        help_text = """
     ***Help Section :***
     
 ***/guess:*** To Guess character (only works in group)
@@ -74,20 +75,22 @@ async def button(update: Update, context: CallbackContext) -> None:
 ***/grouptop:*** See Top Group users in group (only Works in Groups)
 ***/globaltop:*** To See Top Global Users
 ***/changetime:*** Change Character appear time (only works in Groups)
-   """
-   if query.data == 'help':
-   
-        reply_markup = InlineKeyboardMarkup(keyboard_backk)
+
+        """
+        keyboard = [[InlineKeyboardButton("Back", callback_data='back')]]
+        reply_markup = InlineKeyboardMarkup(keyboard)
         
         await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=help_text, reply_markup=reply_markup)
 
+    elif query.data == 'back':
+        caption = """
+            Hey.. Tap On help To See All my Commands
+            """
+        keyboard = [
+            [InlineKeyboardButton("Help", callback_data='help')],
+            [InlineKeyboardButton("Support", url=f'https://t.me/collect_em_all')],
+        ]
 
-   elif query.data == 'back':
-    
-    keyboard = [
-        [InlineKeyboardButton("Help", callback_data='help')],
-        [InlineKeyboardButton("Support", url=f'https://t.me/collect_em_all')],
-    ]
     
     reply_markup = InlineKeyboardMarkup(keyboard)
     
