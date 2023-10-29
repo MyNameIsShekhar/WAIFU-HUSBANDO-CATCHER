@@ -4,6 +4,7 @@ from telegram.ext import CallbackContext, CallbackQueryHandler
 from motor.motor_asyncio import AsyncIOMotorClient
 from telegram.ext import CommandHandler
 from shivu import application 
+import random
 
 
 client = AsyncIOMotorClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
