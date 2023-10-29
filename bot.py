@@ -187,13 +187,17 @@ async def guess(update: Update, context: CallbackContext) -> None:
             character_in_collection = next((character for character in user['characters'] if character['id'] == last_characters[chat_id]['id']), None)
         
             if character_in_collection:
-            # If the character is already in the collection, increment its count
                 await user_collection.update_one({'id': user_id, 'characters.id': last_characters[chat_id]['id']}, {'$inc': {'characters.$.count': 1}})
+                
+            # If the character is already in the collection, increment        
             else:
-            # If the character is not in the collection, add it with a count of 1
-                 last_characters[chat_id]['count'] = 1
+                
+                last_characters[chat_id]['count'] = 1
                 await user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
 
+                
+            # If the character is not in the collection, add it with a count of 1
+                 
       
         elif hasattr(update.effective_user, 'username'):
             # Create new user document with total_count initialized to 1
