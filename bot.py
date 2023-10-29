@@ -61,11 +61,11 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
         # Get message frequency and counter for this chat from the database
         chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
-            message_frequency = chat_frequency.get('message_frequency', 100)
+            message_frequency = chat_frequency.get('message_frequency', 10)
             message_counter = chat_frequency.get('message_counter', 0)
         else:
             # Default to 20 messages if not set
-            message_frequency =100
+            message_frequency =10
             message_counter = 0
 
         # Increment counter for this chat
@@ -208,7 +208,7 @@ async def guess(update: Update, context: CallbackContext) -> None:
                 'characters': [last_characters[chat_id]],
                 'total_count': 1  # Initialize total_count
             })
-        await update.message.reply_text(f'Congooo ✅️! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> guessed it right. The character is {last_characters[chat_id]["name"]} from {last_characters[chat_id]["anime"]}.', parse_mode='HTML')
+        await update.message.reply_text(f'<b>Congratulations 🪼! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> You Got New Character 💮</b> \n\n<b>👒 Character name: {last_characters[chat_id]["name"]}</b> \n<b>♋ Anime: {last_characters[chat_id]["anime"]}</b> \n<b>🫧 Rairty: {last_characters[chat_id]["rarity"]}</b>\n\n<b>This character has been added to your harem now do /collection to check your new character</b>', parse_mode='HTML')
 
     else:
         await update.message.reply_text('Incorrect guess. Try again.')
@@ -399,7 +399,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                             thumbnail_url=character['img_url'],
                             id=character['id'],
                             photo_url=character['img_url'],
-                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a></b>'s Character\n\n<b>Name:</b> {character['name']} " + (f"(x{character.get('count', 1)})") + f"\n<b>Anime:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n\n🆔: {character['id']}",
+                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a></b>'s Character\n\n<b>Name:</b> {character['name']} " + (f"(x{character.get('count', 1)})") + f"\n<b>Anime:</b> {character['anime']} ({anime_characters_guessed}/{total_anime_characters})\n<b>Rarity:<b> {rarity}</b>\n🆔: {character['id']}",
                             parse_mode='HTML'
                         )
                     )
