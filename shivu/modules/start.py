@@ -75,8 +75,7 @@ async def button(update: Update, context: CallbackContext) -> None:
 ***/grouptop:*** See Top Group users in group (only Works in Groups)
 ***/globaltop:*** To See Top Global Users
 ***/changetime:*** Change Character appear time (only works in Groups)
-
-        """
+   """
         keyboard = [[InlineKeyboardButton("Back", callback_data='back')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
@@ -90,12 +89,10 @@ async def button(update: Update, context: CallbackContext) -> None:
             [InlineKeyboardButton("Help", callback_data='help')],
             [InlineKeyboardButton("Support", url=f'https://t.me/collect_em_all')],
         ]
-
-    
-    reply_markup = InlineKeyboardMarkup(keyboard)
-    
+        
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        
         await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=caption, reply_markup=reply_markup)
-
 
 
         
