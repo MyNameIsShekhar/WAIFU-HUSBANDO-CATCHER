@@ -138,6 +138,10 @@ async def guess(update: Update, context: CallbackContext) -> None:
     # Check if guess is correct
     guess = ' '.join(context.args).lower() if context.args else ''
     
+    if "&" in guess or "and" in guess.lower():
+        await update.message.reply_text("You can't use '&' or 'and' in your guess.")
+        return
+        
     if guess and guess in last_characters[chat_id]['name'].lower():
         # Set the flag that someone has guessed correctly
         first_correct_guesses[chat_id] = user_id
