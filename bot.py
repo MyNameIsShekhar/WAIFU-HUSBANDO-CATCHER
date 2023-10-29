@@ -120,7 +120,7 @@ async def send_image(update: Update, context: CallbackContext) -> None:
 And Add This Character In Your Collection***""",
         parse_mode='Markdown')
     
-  def guess(update: Update, context: CallbackContext) -> None:
+ async def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
 
