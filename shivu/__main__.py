@@ -14,7 +14,7 @@ import random
 from datetime import datetime, timedelta
 from threading import Lock
 import time
-
+from shivu.modules import ALL_MODULES
 
 client = AsyncIOMotorClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
 db = client['Waifus_lol']
@@ -44,6 +44,9 @@ sent_characters = {}
 first_correct_guesses = {}
 
 
+
+for module_name in ALL_MODULES:
+    imported_module = importlib.import_module("shivu.modules." + module_name)
 
     
 
