@@ -50,7 +50,7 @@ async def start(update: Update, context: CallbackContext) -> None:
 
 async def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
-    query.answer()
+   await query.answer()
 
     if query.data == 'help':
         help_text = """
@@ -65,7 +65,7 @@ async def button(update: Update, context: CallbackContext) -> None:
         /changetime: Change Character appear time (only works in Groups)
         
         """
-        await query.message.edit_text(help_text)
+        await query.message.edit_photo(help_text)
 
 
 button_handler = CallbackQueryHandler(button)
