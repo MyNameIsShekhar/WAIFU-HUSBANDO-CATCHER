@@ -568,7 +568,7 @@ async def harem(update: Update, context: CallbackContext) -> None:
             if count is not None:
                 harem_message += f'🆔️ <b>{character["id"]} | 🫧 {rarity} | <b>🌸 {character["name"]} × {count}</b>\n'
             else:
-                harem_message += f'🆔️ {character["id"]} | 🫧 {rarity} | <b>🌸 {character["name"]}</b>\n'
+                harem_message += f'🆔️ <b>{character["id"]} | 🫧 {rarity} | <b>🌸 {character["name"]}</b>\n'
 
             harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
