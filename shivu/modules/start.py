@@ -52,25 +52,25 @@ async def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
     help_text = """
-    Help Section : 
+    ***Help Section :***
 
-/guess: To Guess character (only works in group)
+***/guess:*** To Guess character (only works in group)
 
-/fav: Add Your fav
+***/fav:*** Add Your fav
 
-/give: Give any Character from Your Collection to another user.. (only works in groups)
+***/give:*** Give any Character from Your Collection to another user.. (only works in groups)
 
-/collection: to see Your Collection
+***/collection:*** to see Your Collection
  
-/grouptop: See Top Group users in group (only Works in Groups)
+***/grouptop:*** See Top Group users in group (only Works in Groups)
 
-/globaltop: To See Top Global Users
+***/globaltop:*** To See Top Global Users
 
-/changetime: Change Character appear time (only works in Groups)
+***/changetime:*** Change Character appear time (only works in Groups)
     """
 
     if query.data == 'help':
-        await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=help_text)
+        await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=help_text, parse_mode='markdown')
 
         
         
