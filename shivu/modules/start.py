@@ -6,6 +6,9 @@ from telegram.ext import CommandHandler
 from shivu import application 
 import random
 
+caption = """
+        Hey.. Tap On help To See All my Commands
+        """
 
 client = AsyncIOMotorClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
 db = client['your_database_name']  # replace with your database name
@@ -35,9 +38,18 @@ async def start(update: Update, context: CallbackContext) -> None:
     
     photo_url = random.choice(photo_url_list)
     
-    caption = """
-        Hey.. Tap On help To See All my Commands
-        """
+    
+    start_keyboard = [
+        [InlineKeyboardButton("Help", callback_data='help')],
+        [InlineKeyboardButton("Support", url=f'https://t.me/collect_em_all')],
+    ]
+    
+    reply_markup = InlineKeyboardMarkup(start_keyboard)
+    
+    await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_url, caption=caption, reply_markup=reply_markup)
+    
+    elif query.data == 'back':
+    
     keyboard = [
         [InlineKeyboardButton("Help", callback_data='help')],
         [InlineKeyboardButton("Support", url=f'https://t.me/collect_em_all')],
@@ -45,7 +57,7 @@ async def start(update: Update, context: CallbackContext) -> None:
     
     reply_markup = InlineKeyboardMarkup(keyboard)
     
-    await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_url, caption=caption, reply_markup=reply_markup)
+    await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=caption, reply_markup=reply_markup)
 
 
 async def button(update: Update, context: CallbackContext) -> None:
@@ -66,7 +78,7 @@ async def button(update: Update, context: CallbackContext) -> None:
     if query.data == 'help':
         await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=help_text, parse_mode='markdown')
 
-        
+
         
     
     
