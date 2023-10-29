@@ -15,4 +15,5 @@ LOGGER = logging.getLogger(__name__)
 
 TOKEN = "6420751168:AAEtf-OyEYLLTZM2c4LrhIroXPfvsW7KlM8"
 
+application = Application.builder().token(TOKEN).build()
 
