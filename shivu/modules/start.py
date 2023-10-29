@@ -52,20 +52,20 @@ async def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
 
-    if query.data == 'help':
-        help_text = """
-        Help Section : 
-      
-        /guess: To Guess character (only works in group)
-        /fav: Add Your fav
-        /give: Give any Character from Your Collection to another user.. (only works in groups)
-        /collection: to see Your Collection 
-        /grouptop: See Top Group users in group (only Works in Groups)
-        /globaltop: To See Top Global Users
-        /changetime: Change Character appear time (only works in Groups)
-        
-        """
-        await query.message.edit_photo(help_text)
+if query.data == 'help':
+    help_text = """
+    Help Section : 
+
+    /guess: To Guess character (only works in group)
+    /fav: Add Your fav
+    /give: Give any Character from Your Collection to another user.. (only works in groups)
+    /collection: to see Your Collection 
+    /grouptop: See Top Group users in group (only Works in Groups)
+    /globaltop: To See Top Global Users
+    /changetime: Change Character appear time (only works in Groups)
+
+    """
+    await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=help_text)
 
 
 button_handler = CallbackQueryHandler(button)
