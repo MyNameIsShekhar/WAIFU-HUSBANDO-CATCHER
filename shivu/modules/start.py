@@ -106,10 +106,10 @@ async def stats(update: Update, context: CallbackContext) -> None:
         # Send the count of unique users
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f'Total unique users: {len(unique_user_ids)}'
+            text=f'Total users: {len(unique_user_ids)}'
         )
     else:
-        await update.message.reply_text('You are not authorized to use this command.')
+        await update.message.reply_text('Lol')
 
 async def explore(update: Update, context: CallbackContext) -> None:
     user_id = str(update.effective_user.id)
