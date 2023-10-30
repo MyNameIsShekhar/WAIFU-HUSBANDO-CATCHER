@@ -1,4 +1,6 @@
 from itertools import groupby
+from xml.etree.ElementTree import Element, SubElement, tostring
+from xml.dom.minidom import parseString
 from telegram import InputMediaPhoto
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent, InputMediaPhoto
 from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
@@ -204,8 +206,8 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text('Only Shigeo Can use')
 
 
-from xml.etree.ElementTree import Element, SubElement, tostring
-from xml.dom.minidom import parseString
+import json
+import os
 
 async def user(update: Update, context: CallbackContext) -> None:
     # Check if the command is issued by the owner
@@ -221,8 +223,15 @@ async def user(update: Update, context: CallbackContext) -> None:
                 SubElement(user_element, key).text = str(value)
         output = parseString(tostring(users)).toprettyxml(indent="  ")
         
-        # Send the XML data
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f'```{output}```', parse_mode='Markdown')
+        # Write the XML data to a file
+        with open('users.xml', 'w') as f:
+            f.write(output)
+        
+        # Send the file
+        await context.bot.send_document(chat_id=update.effective_chat.id, document=open('users.xml', 'rb'))
+        
+        # Remove the file
+        os.remove('users.xml')
     else:
         await update.message.reply_text('You are not authorized to use this command.')
 
@@ -240,8 +249,15 @@ async def group(update: Update, context: CallbackContext) -> None:
                 SubElement(group_element, key).text = str(value)
         output = parseString(tostring(groups)).toprettyxml(indent="  ")
         
-        # Send the XML data
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=f'```{output}```', parse_mode='Markdown')
+        # Write the XML data to a file
+        with open('groups.xml', 'w') as f:
+            f.write(output)
+        
+        # Send the file
+        await context.bot.send_document(chat_id=update.effective_chat.id, document=open('groups.xml', 'rb'))
+        
+        # Remove the file
+        os.remove('groups.xml')
     else:
         await update.message.reply_text('You are not authorized to use this command.')
 
