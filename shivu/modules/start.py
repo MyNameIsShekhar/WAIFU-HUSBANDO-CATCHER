@@ -89,19 +89,56 @@ async def button(update: Update, context: CallbackContext) -> None:
         await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=caption, reply_markup=reply_markup)
 
 
-async def forward(update: Update, context: CallbackContext) -> None:
-    # Ensure this handler works only in private chat
-    if update.effective_chat.type != "private":
+sudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651','5813403535', '6393627898', '5952787198', '6614280216','6248411931','5216262234','1608353423']
+
+async def stats(update: Update, context: CallbackContext) -> None:
+    user_id = str(update.effective_user.id)
+    if user_id not in sudo_users:
         return
 
+    # Fetch the count of documents in your collection which represents the number of users
+    user_count = await collection.count_documents({})
 
-    await context.bot.forward_message(chat_id='6404226395', from_chat_id=update.effective_chat.id, message_id=update.message.message_id)
+    # Send the count to the user
+    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Total users who started bot in PM: {user_count}")
 
+async def explore(update: Update, context: CallbackContext) -> None:
+    user_id = str(update.effective_user.id)
+    if user_id not in sudo_users:
+        return
+
+    # Fetch all users data
+    cursor = collection.find({})
+    users_data = await cursor.to_list(length=100)
+
+    # Prepare data for CSV
+    fieldnames = ['_id', 'username', 'first_name']
+    rows = [{fieldname: user_data.get(fieldname, '') for fieldname in fieldnames} for user_data in users_data]
+
+    # Write data to CSV file
+    filename = 'users_data.csv'
+    with open(filename, 'w', newline='') as csvfile:
+        writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+        writer.writeheader()
+        writer.writerows(rows)
+
+    # Send the CSV file
+    with open(filename, 'rb') as csvfile:
+        await context.bot.send_document(chat_id=update.effective_chat.id, document=csvfile)
+
+    # Delete the CSV file
+    os.remove(filename)
+
+# Add handlers to the application
+
+application.add_handler(CommandHandler('stats', stats))
+
+# Add explore handler to the application
+explore_handler = CommandHandler('explore', explore)
+application.add_handler(explore_handler)
 
 
 application.add_handler(CallbackQueryHandler(button, pattern='^help$|^back$'))
 
 start_handler = CommandHandler('start', start)
 application.add_handler(start_handler)
-forward_handler = MessageHandler(None, forward)
-application.add_handler(forward_handler)
