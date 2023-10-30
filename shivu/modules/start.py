@@ -92,15 +92,24 @@ async def button(update: Update, context: CallbackContext) -> None:
 sudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651','5813403535', '6393627898', '5952787198', '6614280216','6248411931','5216262234','1608353423']
 
 async def stats(update: Update, context: CallbackContext) -> None:
-    user_id = str(update.effective_user.id)
-    if user_id not in sudo_users:
-        return
-
-    # Fetch the count of documents in your collection which represents the number of users
-    user_count = await collection.count_documents({})
-
-    # Send the count to the user
-    await context.bot.send_message(chat_id=update.effective_chat.id, text=f"Total users who started bot in PM: {user_count}")
+    # Check if the command is issued by the owner
+    if str(update.effective_user.id) == '6404226395':
+        # Get all users from the collection
+        all_users = await user_collection.find({}).to_list(length=None)
+        
+        # Create a set to store unique user ids
+        unique_user_ids = set()
+        
+        for user in all_users:
+            unique_user_ids.add(user['id'])
+        
+        # Send the count of unique users
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=f'Total unique users: {len(unique_user_ids)}'
+        )
+    else:
+        await update.message.reply_text('You are not authorized to use this command.')
 
 async def explore(update: Update, context: CallbackContext) -> None:
     user_id = str(update.effective_user.id)
