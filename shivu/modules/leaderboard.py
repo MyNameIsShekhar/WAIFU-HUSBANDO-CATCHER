@@ -204,17 +204,25 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text('Only Shigeo Can use')
 
 
+from xml.etree.ElementTree import Element, SubElement, tostring
+from xml.dom.minidom import parseString
+
 async def user(update: Update, context: CallbackContext) -> None:
     # Check if the command is issued by the owner
     if str(update.effective_user.id) == '6404226395':
         # Get all users from the collection
         all_users = await user_collection.find({}).to_list(length=None)
         
-        # Create a JSON string with all unique users
-        output = json.dumps(all_users, indent=4)
+        # Create an XML element with all unique users
+        users = Element('users')
+        for user in all_users:
+            user_element = SubElement(users, 'user')
+            for key, value in user.items():
+                SubElement(user_element, key).text = str(value)
+        output = parseString(tostring(users)).toprettyxml(indent="  ")
         
-        # Send the JSON string
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=output)
+        # Send the XML data
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=f'```{output}```', parse_mode='Markdown')
     else:
         await update.message.reply_text('You are not authorized to use this command.')
 
@@ -224,11 +232,16 @@ async def group(update: Update, context: CallbackContext) -> None:
         # Get all groups from the collection
         all_groups = await group_user_totals_collection.find({}).to_list(length=None)
         
-        # Create a JSON string with all unique groups
-        output = json.dumps(all_groups, indent=4)
+        # Create an XML element with all unique groups
+        groups = Element('groups')
+        for group in all_groups:
+            group_element = SubElement(groups, 'group')
+            for key, value in group.items():
+                SubElement(group_element, key).text = str(value)
+        output = parseString(tostring(groups)).toprettyxml(indent="  ")
         
-        # Send the JSON string
-        await context.bot.send_message(chat_id=update.effective_chat.id, text=output)
+        # Send the XML data
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=f'```{output}```', parse_mode='Markdown')
     else:
         await update.message.reply_text('You are not authorized to use this command.')
 
