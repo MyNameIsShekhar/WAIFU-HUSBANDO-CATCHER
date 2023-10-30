@@ -156,7 +156,7 @@ async def stats(update: Update, context: CallbackContext) -> None:
         for group in all_groups:
             unique_group_ids.add(group['group_id'])
         
-        # Send the count of unique users and groups
+        
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
             text=f'Total users: {len(unique_user_ids)}\nTotal groups: {len(unique_group_ids)}'
@@ -164,14 +164,14 @@ async def stats(update: Update, context: CallbackContext) -> None:
     else:
         await update.message.reply_text('You are not authorized to use this command.')
 async def broadcast(update: Update, context: CallbackContext) -> None:
-    # Check if the command is issued by the owner
+    
     if str(update.effective_user.id) == '6404226395':
-        # Check if the command is a reply to a message
+        
         if update.message.reply_to_message is None:
             await update.message.reply_text('Please reply to a message to broadcast.')
             return
 
-        # Get all unique users and groups from the collections
+        
         all_users = await user_collection.find({}).to_list(length=None)
         all_groups = await group_user_totals_collection.find({}).to_list(length=None)
         
@@ -181,7 +181,7 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
         total_sent = 0
         total_failed = 0
 
-        # Forward the message to all unique users
+        
         for user_id in unique_user_ids:
             try:
                 await context.bot.forward_message(chat_id=user_id, from_chat_id=update.effective_chat.id, message_id=update.message.reply_to_message.message_id)
@@ -189,7 +189,7 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
             except Exception:
                 total_failed += 1
 
-        # Forward the message to all unique groups
+        
         for group_id in unique_group_ids:
             try:
                 await context.bot.forward_message(chat_id=group_id, from_chat_id=update.effective_chat.id, message_id=update.message.reply_to_message.message_id)
@@ -197,7 +197,7 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
             except Exception:
                 total_failed += 1
 
-        # Send a report of the broadcast
+        
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
             text=f'Broadcast report:\n\nTotal messages sent successfully: {total_sent}\nTotal messages failed to send: {total_failed}'
