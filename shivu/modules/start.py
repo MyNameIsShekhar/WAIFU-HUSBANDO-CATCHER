@@ -7,7 +7,7 @@ from shivu import application
 import random
 
 caption = """
-        Hey.. Tap On help To See All my Commands
+        🌟 𝗚𝗲𝘁 𝗿𝗲𝗮𝗱𝘆 𝗳𝗼𝗿 𝘀𝗼𝗺𝗲 𝗴𝗮𝗺𝗶𝗻𝗴 𝗳𝘂𝗻! [🎮] 𝗧𝗮𝗽 𝗼𝗻 𝗵𝗲𝗹𝗽 𝗮𝗻𝘆𝘁𝗶𝗺𝗲 𝗶𝗳 𝘆𝗼𝘂 𝗻𝗲𝗲𝗱 𝗮𝘀𝘀𝗶𝘀𝘁𝗮𝗻𝗰𝗲 𝗼𝗿 𝘀𝘁𝗮𝗿𝘁 𝘁𝗼 𝗯𝗲𝗴𝗶𝗻 𝘆𝗼𝘂𝗿 𝗳𝗶𝗿𝘀𝘁 𝗮𝗱𝘃𝗲𝗻𝘁𝘂𝗿𝗲
         """
 
 client = AsyncIOMotorClient('mongodb+srv://animedatabaseee:BFm9zcCex7a94Vuj@cluster0.zyi6hqg.mongodb.net/?retryWrites=true&w=majority')
@@ -58,13 +58,13 @@ async def button(update: Update, context: CallbackContext) -> None:
         help_text = """
     ***Help Section :***
     
-***/guess:*** To Guess character (only works in group)
-***/fav:*** Add Your fav
-***/give:*** Give any Character from Your Collection to another user.. (only works in groups)
-***/collection:*** to see Your Collection
-***/grouptop:*** See Top Group users in group (only Works in Groups)
-***/globaltop:*** To See Top Global Users
-***/changetime:*** Change Character appear time (only works in Groups)
+/guess: ***To Guess character (only works in group)***
+/fav: ***Add Your fav***
+/give: ***Give any Character from Your Collection to another user.. (only works in groups)***
+/collection: ***to see Your Collection***
+/grouptop: ***See Top Group users in group (only Works in Groups)***
+/globaltop: ***To See Top Global Users***
+/changetime: ***Change Character appear time (only works in Groups)***
    """
         keyboard = [[InlineKeyboardButton("Back", callback_data='back')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
