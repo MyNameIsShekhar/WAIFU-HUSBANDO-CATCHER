@@ -11,6 +11,7 @@ from pymongo import MongoClient, ReturnDocument
 import urllib.request
 from shivu import application 
 from shivu import db
+import random
 
 collection = db['anime_characters_lol']
 user_totals_collection = db['user_totals_lmaoooo']
