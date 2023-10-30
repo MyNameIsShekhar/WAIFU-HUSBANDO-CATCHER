@@ -15,7 +15,7 @@ caption = """
         """
 
 
-photo_url_list = ["https://graph.org/file/38767e79402baa8b04125.jpg"]  # replace with your list of photo URLs
+photo_url_list = ["https://graph.org/file/38767e79402baa8b04125.jpg"]
 
 
 async def start(update: Update, context: CallbackContext) -> None:
