@@ -293,7 +293,6 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
 async def group_leaderboard_button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 
-    
     user_total = await group_user_totals_collection.find_one({'group_id': query.message.chat.id, 'user_id': query.from_user.id})
     
     if user_total is None:
@@ -302,12 +301,26 @@ async def group_leaderboard_button(update: Update, context: CallbackContext) -> 
 
     user_total_count = user_total['total_count']
 
-    
     cursor = group_user_totals_collection.find({'group_id': query.message.chat.id}, {'total_count': 1, '_id': 0})
     sorted_counts = sorted(await cursor.to_list(length=100), key=lambda x: x['total_count'], reverse=True)
 
-    
-    user_rank = sorted_counts.index({'total_count': user_total_count}) + 1
+    # Initialize the previous count and rank
+    prev_count_rank = (None, 0)
+
+    # Iterate over the sorted counts
+    for i, count_dict in enumerate(sorted_counts, start=1):
+        # Get the current count
+        curr_count = count_dict['total_count']
+
+        # Check if the current count is different from the previous count
+        if curr_count != prev_count_rank[0]:
+            # Increment the rank
+            prev_count_rank = (curr_count, i)
+
+        # Check if the current count is equal to the user's total count
+        if curr_count == user_total_count:
+            user_rank = prev_count_rank[1]
+            break
 
     await query.answer(f'Your rank in this group is {user_rank}.', show_alert=True)
 
@@ -350,7 +363,6 @@ async def leaderboard(update: Update, context: CallbackContext) -> None:
 async def leaderboard_button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 
-
     user_total = await user_collection.find_one({'id': query.from_user.id})
     
     if user_total is None:
@@ -359,15 +371,29 @@ async def leaderboard_button(update: Update, context: CallbackContext) -> None:
 
     user_total_count = user_total['total_count']
 
-    
     cursor = user_collection.find({}, {'total_count': 1, '_id': 0})
     sorted_counts = sorted(await cursor.to_list(length=100), key=lambda x: x['total_count'], reverse=True)
 
-    
-    user_rank = sorted_counts.index({'total_count': user_total_count}) + 1
+    # Initialize the previous count and rank
+    prev_count_rank = (None, 0)
+
+    # Iterate over the sorted counts
+    for i, count_dict in enumerate(sorted_counts, start=1):
+        # Get the current count
+        curr_count = count_dict['total_count']
+
+        # Check if the current count is different from the previous count
+        if curr_count != prev_count_rank[0]:
+            # Increment the rank
+            prev_count_rank = (curr_count, i)
+
+        # Check if the current count is equal to the user's total count
+        if curr_count == user_total_count:
+            user_rank = prev_count_rank[1]
+            break
 
     await query.answer(f'Your rank is {user_rank}.', show_alert=True)
-    
+
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
     offset = int(update.inline_query.offset) if update.inline_query.offset else 0
