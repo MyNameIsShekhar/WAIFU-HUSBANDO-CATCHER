@@ -139,22 +139,27 @@ async def leaderboard_button(update: Update, context: CallbackContext) -> None:
 async def stats(update: Update, context: CallbackContext) -> None:
     # Check if the command is issued by the owner
     if str(update.effective_user.id) == '6404226395':
-        # Get all users from the collection
+        # Get all users and groups from the collections
         all_users = await user_collection.find({}).to_list(length=None)
+        all_groups = await group_user_totals_collection.find({}).to_list(length=None)
         
-        # Create a set to store unique user ids
+        # Create sets to store unique user and group ids
         unique_user_ids = set()
+        unique_group_ids = set()
         
         for user in all_users:
             unique_user_ids.add(user['id'])
         
-        # Send the count of unique users
+        for group in all_groups:
+            unique_group_ids.add(group['group_id'])
+        
+        # Send the count of unique users and groups
         await context.bot.send_message(
             chat_id=update.effective_chat.id,
-            text=f'Total users: {len(unique_user_ids)}'
+            text=f'Total users: {len(unique_user_ids)}\nTotal groups: {len(unique_group_ids)}'
         )
     else:
-        await update.message.reply_text('Lol')
+        await update.message.reply_text('You are not authorized to use this command.')
 
 
 application.add_handler(CommandHandler('grouptop', group_leaderboard, block=False))
