@@ -136,8 +136,29 @@ async def leaderboard_button(update: Update, context: CallbackContext) -> None:
 
     await query.answer(f'Your rank is {user_rank}.', show_alert=True)
 
+async def stats(update: Update, context: CallbackContext) -> None:
+    # Check if the command is issued by the owner
+    if str(update.effective_user.id) == '6404226395':
+        # Get all users from the collection
+        all_users = await user_collection.find({}).to_list(length=None)
+        
+        # Create a set to store unique user ids
+        unique_user_ids = set()
+        
+        for user in all_users:
+            unique_user_ids.add(user['id'])
+        
+        # Send the count of unique users
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id,
+            text=f'Total users: {len(unique_user_ids)}'
+        )
+    else:
+        await update.message.reply_text('Lol')
+
 
 application.add_handler(CommandHandler('grouptop', group_leaderboard, block=False))
 application.add_handler(CallbackQueryHandler(group_leaderboard_button, pattern='^group_leaderboard_myrank$', block=False))
 application.add_handler(CommandHandler('globaltop', leaderboard, block=False))
 application.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_',block=False))
+application.add_handler(CommandHandler('stats', stats))
