@@ -86,9 +86,7 @@ async def button(update: Update, context: CallbackContext) -> None:
 
 
 
-button_handler = CallbackQueryHandler(button)
-application.add_handler(button_handler)
-
+application.add_handler(CallbackQueryHandler(button, pattern='^start_back'))
 
 start_handler = CommandHandler('start', start)
 application.add_handler(start_handler)
