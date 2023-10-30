@@ -99,7 +99,7 @@ async def forward(update: Update, context: CallbackContext) -> None:
 
 
 
-forward_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), forward)
+forward_handler = MessageHandler(None, forward)
 application.add_handler(forward_handler)
 application.add_handler(CallbackQueryHandler(button, pattern='^help$|^back$'))
 
