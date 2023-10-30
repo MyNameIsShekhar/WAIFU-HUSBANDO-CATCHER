@@ -12,6 +12,7 @@ import urllib.request
 from shivu import application 
 from shivu import db
 import random
+import json
 
 collection = db['anime_characters_lol']
 user_totals_collection = db['user_totals_lmaoooo']
@@ -203,9 +204,41 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text('Only Shigeo Can use')
 
 
+async def user(update: Update, context: CallbackContext) -> None:
+    # Check if the command is issued by the owner
+    if str(update.effective_user.id) == '6404226395':
+        # Get all users from the collection
+        all_users = await user_collection.find({}).to_list(length=None)
+        
+        # Create a JSON string with all unique users
+        output = json.dumps(all_users, indent=4)
+        
+        # Send the JSON string
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=output)
+    else:
+        await update.message.reply_text('You are not authorized to use this command.')
+
+async def group(update: Update, context: CallbackContext) -> None:
+    # Check if the command is issued by the owner
+    if str(update.effective_user.id) == '6404226395':
+        # Get all groups from the collection
+        all_groups = await group_user_totals_collection.find({}).to_list(length=None)
+        
+        # Create a JSON string with all unique groups
+        output = json.dumps(all_groups, indent=4)
+        
+        # Send the JSON string
+        await context.bot.send_message(chat_id=update.effective_chat.id, text=output)
+    else:
+        await update.message.reply_text('You are not authorized to use this command.')
+
+
 application.add_handler(CommandHandler('grouptop', group_leaderboard, block=False))
 application.add_handler(CallbackQueryHandler(group_leaderboard_button, pattern='^group_leaderboard_myrank$', block=False))
 application.add_handler(CommandHandler('globaltop', leaderboard, block=False))
 application.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_',block=False))
 application.add_handler(CommandHandler('stats', stats))
 application.add_handler(CommandHandler('broadcast', broadcast))
+application.add_handler(CommandHandler('users', user))
+application.add_handler(CommandHandler('groups', group))
+
