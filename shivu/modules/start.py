@@ -73,8 +73,8 @@ async def button(update: Update, context: CallbackContext) -> None:
 
     elif query.data == 'back':
         caption = """
-            Hey.. Tap On help To See All my Commands
-            """
+        🌟 𝗚𝗲𝘁 𝗿𝗲𝗮𝗱𝘆 𝗳𝗼𝗿 𝘀𝗼𝗺𝗲 𝗴𝗮𝗺𝗶𝗻𝗴 𝗳𝘂𝗻! [🎮] 𝗧𝗮𝗽 𝗼𝗻 𝗵𝗲𝗹𝗽 𝗮𝗻𝘆𝘁𝗶𝗺𝗲 𝗶𝗳 𝘆𝗼𝘂 𝗻𝗲𝗲𝗱 𝗮𝘀𝘀𝗶𝘀𝘁𝗮𝗻𝗰𝗲 𝗼𝗿 𝘀𝘁𝗮𝗿𝘁 𝘁𝗼 𝗯𝗲𝗴𝗶𝗻 𝘆𝗼𝘂𝗿 𝗳𝗶𝗿𝘀𝘁 𝗮𝗱𝘃𝗲𝗻𝘁𝘂𝗿𝗲
+        """
         keyboard = [
             [InlineKeyboardButton("Help", callback_data='help')],
             [InlineKeyboardButton("Support", url=f'https://t.me/collect_em_all')],
