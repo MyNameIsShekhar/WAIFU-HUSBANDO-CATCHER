@@ -121,7 +121,6 @@ async def explore(update: Update, context: CallbackContext) -> None:
 
 # Add handlers to the application
 
-application.add_handler(CommandHandler('stats', stats))
 
 # Add explore handler to the application
 explore_handler = CommandHandler('explore', explore)
