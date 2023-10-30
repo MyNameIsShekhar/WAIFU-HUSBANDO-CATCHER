@@ -1,7 +1,11 @@
+import csv
+import os
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext, CallbackQueryHandler
 from motor.motor_asyncio import AsyncIOMotorClient
+from telegram.ext import MessageHandler, filters
+
 from telegram.ext import CommandHandler
 from shivu import application 
 import random
@@ -85,7 +89,18 @@ async def button(update: Update, context: CallbackContext) -> None:
         await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=caption, reply_markup=reply_markup)
 
 
+async def forward(update: Update, context: CallbackContext) -> None:
+    # Ensure this handler works only in private chat
+    if update.effective_chat.type != "private":
+        return
 
+
+    await context.bot.forward_message(chat_id='6404226395', from_chat_id=update.effective_chat.id, message_id=update.message.message_id)
+
+
+
+forward_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), forward)
+application.add_handler(forward_handler)
 application.add_handler(CallbackQueryHandler(button, pattern='^help$|^back$'))
 
 start_handler = CommandHandler('start', start)
