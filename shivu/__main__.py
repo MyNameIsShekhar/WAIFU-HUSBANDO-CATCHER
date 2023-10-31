@@ -479,10 +479,10 @@ async def myprofile(update: Update, context: CallbackContext) -> None:
         user_rank = sorted_counts.index({'total_count': user['total_count']}) + 1
 
         rarity_counts = {
-            '⚪': sum(1 for character in user['characters'] if character['rarity'] == '⚪ Common'),
-            '🟢': sum(1 for character in user['characters'] if character['rarity'] == '🟢 Medium'),
-            '🟣': sum(1 for character in user['characters'] if character['rarity'] == '🟣 Rare'),
-            '🟡': sum(1 for character in user['characters'] if character['rarity'] == '🟡 Legendary')
+            '⚪ Common': sum(1 for character in user['characters'] if character['rarity'] == '⚪ Common'),
+            '🟢 Medium': sum(1 for character in user['characters'] if character['rarity'] == '🟢 Medium'),
+            '🟣 Rare': sum(1 for character in user['characters'] if character['rarity'] == '🟣 Rare'),
+            '🟡 Legendary': sum(1 for character in user['characters'] if character['rarity'] == '🟡 Legendary')
         }
 
         caption = f"<b>First Name</b>: {first_name}\n<b>Username</b>: @{username}\n<b>User id</b>: {user_id}\n<b>Total Characters</b>: {total_characters}\n<b>Globally Rank</b>: {user_rank}\n\n"
