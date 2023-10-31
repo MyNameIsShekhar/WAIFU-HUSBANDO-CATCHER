@@ -480,12 +480,14 @@ async def myprofile(update: Update, context: CallbackContext) -> None:
 
         rarity_counts = {rarity: sum(1 for character in user['characters'] if character['rarity'] == rarity) for rarity in ["⚪ Common",  "🟣 Rare", "🟡 Legendary", "🟢 Medium"]}
         
+        profile_photos = await update.effective_user.get_profile_photos()
+        photo = profile_photos.photos[0][0].file_id if profile_photos.photos else None
 
         caption = f"***Profile***\n\n**First Name**: {first_name}\n**Username**: {username}\n**Total Characters**: {total_characters}\n**Leaderboard Rank**: {user_rank}\n**Rarity Counts**: {rarity_counts}"
 
         await context.bot.send_photo(
             chat_id=user_id,
-            photo=update.effective_user.get_profile_photos().photos[0][0].file_id,
+            photo=photo,
             caption=caption,
             parse_mode='Markdown'
         )
