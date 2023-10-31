@@ -50,7 +50,7 @@ async def button(update: Update, context: CallbackContext) -> None:
 
     if query.data == 'help':
         help_text = """
-    ***Help Section :***
+    Help Section :
     
 /guess: To Guess character (only works in group)
 /fav: Add Your fav
@@ -63,7 +63,7 @@ async def button(update: Update, context: CallbackContext) -> None:
         help_keyboard = [[InlineKeyboardButton("Back", callback_data='back')]]
         reply_markup = InlineKeyboardMarkup(help_keyboard)
         
-        await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=help_text, reply_markup=reply_markup, parse_mode='MarkdownV2')
+        await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=help_text, reply_markup=reply_markup)
 
     elif query.data == 'back':
 
