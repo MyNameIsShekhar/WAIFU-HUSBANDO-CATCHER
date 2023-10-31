@@ -125,6 +125,8 @@ And Add This Character In Your Collection***""",
         parse_mode='Markdown')
 
 
+import re
+
 async def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
@@ -142,6 +144,11 @@ async def guess(update: Update, context: CallbackContext) -> None:
     if guess.startswith("&") or guess.startswith("and"):
         await update.message.reply_text("You can't start your guess with '&' or 'and'.")
         return
+
+    character_name = last_characters[chat_id]['name'].lower()
+    
+    if re.fullmatch(character_name, guess):
+        # Rest of the function...
 
     character_name_parts = last_characters[chat_id]['name'].lower().split()
     
