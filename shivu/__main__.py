@@ -130,23 +130,24 @@ async def guess(update: Update, context: CallbackContext) -> None:
     if chat_id not in last_characters:
         return
 
-    # RED FLAG
     if chat_id in first_correct_guesses:
         await update.message.reply_text(f'❌️ Already guessed by Someone..So Try Next Time Bruhh')
         return
 
-    # Check if guess is correct
+
     guess = ' '.join(context.args).lower() if context.args else ''
     
-    if "&" in guess or "and" in guess.lower():
-        await update.message.reply_text("You can't use '&' or 'and' in your guess.")
+    if guess.startswith("&") or guess.startswith("and"):
+        await update.message.reply_text("You can't start your guess with '&' or 'and'.")
         return
+
+    character_name_parts = last_characters[chat_id]['name'].lower().split()
+    
+    if all(part in guess for part in character_name_parts):
         
-    if guess and guess in last_characters[chat_id]['name'].lower():
-        # Set the flag that someone has guessed correctly
         first_correct_guesses[chat_id] = user_id
 
-        # global count
+        
         global_count = await user_totals_collection.find_one_and_update(
             {'id': 'global'},
             {'$inc': {'count': 1}},
@@ -154,7 +155,7 @@ async def guess(update: Update, context: CallbackContext) -> None:
             return_document=ReturnDocument.AFTER
         )
 
-        # group count 
+        
         group_user = await group_user_totals_collection.find_one({'group_id': chat_id, 'user_id': user_id})
         if group_user:
             
