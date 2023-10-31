@@ -477,7 +477,6 @@ async def myprofile(update: Update, context: CallbackContext) -> None:
     if photos and photos.photos:
         photo = photos.photos[0][-1]
         photo_file = await context.bot.get_file(photo.file_id)
-        photo_url = photo_file.file_path
 
         # Generate caption with user details
         first_name = update.effective_user.first_name
@@ -511,7 +510,7 @@ async def myprofile(update: Update, context: CallbackContext) -> None:
             caption += "You have not collected any characters yet."
 
         # Send photo and caption to the user
-        await update.message.reply_photo(photo=photo_url, caption=caption, parse_mode='Markdown')
+        await update.message.reply_photo(photo=photo_file, caption=caption, parse_mode='Markdown')
 
 
 def main() -> None:
