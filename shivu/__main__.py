@@ -468,7 +468,6 @@ async def harem(update: Update, context: CallbackContext) -> None:
 
 async def myprofile(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
-    chat_id = update.effective_chat.id
     user = await user_collection.find_one({'id': user_id})
 
     if user:
@@ -486,23 +485,22 @@ async def myprofile(update: Update, context: CallbackContext) -> None:
             '🟡': sum(1 for character in user['characters'] if character['rarity'] == '🟡 Legendary')
         }
 
-        caption = f"***Profile***\n\n**First Name**: {first_name}\n**Username**: {username}\n**Total Characters**: {total_characters}\n**Leaderboard Rank**: {user_rank}\n**Rarity Counts**: {rarity_counts}"
+        caption = f"<b>First Name</b>: {first_name}\n<b>Username</b>: @{username}\n<b>User id</b>: {user_id}\n<b>Total Characters</b>: {total_characters}\n<b>Globally Rank</b>: {user_rank}\n\n"
+        for rarity, count in rarity_counts.items():
+            caption += f"{rarity}: {count}\n"
 
         profile_photos = await update.effective_user.get_profile_photos()
         if profile_photos.photos:
             photo = profile_photos.photos[0][0].file_id
-            await context.bot.send_photo(
-                chat_id=chat_id,
+            await update.message.reply_photo(
                 photo=photo,
                 caption=caption,
-                parse_mode='Markdown'
+                parse_mode='HTML'
             )
         else:
-            await context.bot.send_message(chat_id=chat_id, text=caption, parse_mode='Markdown')
+            await update.message.reply_text(caption, parse_mode='HTML')
     else:
         await update.message.reply_text("You haven't collected any characters yet.")
-
-
 
 
 def main() -> None:
