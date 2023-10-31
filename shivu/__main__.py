@@ -479,7 +479,7 @@ async def myprofile(update: Update, context: CallbackContext) -> None:
         user_rank = sorted_counts.index({'total_count': user['total_count']}) + 1
 
         rarity_counts = {rarity: sum(1 for character in user['characters'] if character['rarity'] == rarity) for rarity in ["⚪ Common",  "🟣 Rare", "🟡 Legendary", "🟢 Medium"]}
-        try:
+        
 
         caption = f"***Profile***\n\n**First Name**: {first_name}\n**Username**: {username}\n**Total Characters**: {total_characters}\n**Leaderboard Rank**: {user_rank}\n**Rarity Counts**: {rarity_counts}"
 
