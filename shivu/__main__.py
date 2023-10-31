@@ -125,8 +125,6 @@ And Add This Character In Your Collection***""",
         parse_mode='Markdown')
 
 
-import re
-
 async def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
@@ -134,6 +132,7 @@ async def guess(update: Update, context: CallbackContext) -> None:
     if chat_id not in last_characters:
         return
 
+    # RED FLAG
     if chat_id in first_correct_guesses:
         await update.message.reply_text(f'❌️ Already guessed by Someone..So Try Next Time Bruhh')
         return
@@ -141,20 +140,12 @@ async def guess(update: Update, context: CallbackContext) -> None:
     # Check if guess is correct
     guess = ' '.join(context.args).lower() if context.args else ''
     
-    if guess.startswith("&") or guess.startswith("and"):
-        await update.message.reply_text("You can't start your guess with '&' or 'and'.")
+    if "&" in guess or "and" in guess.lower():
+        await update.message.reply_text("You can't use '&' or 'and' in your guess.")
         return
-
-    character_name = last_characters[chat_id]['name'].lower()
-    
-    if re.fullmatch(character_name, guess):
-        # Rest of the function...
-
-    
-    
-    
-    
-
+        
+    if guess and guess in last_characters[chat_id]['name'].lower():
+        
      # Set the flag that someone has guessed correctly
         first_correct_guesses[chat_id] = user_id
         
