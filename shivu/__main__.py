@@ -513,7 +513,11 @@ def main() -> None:
     application.add_handler(CommandHandler("collection", harem,block=False))
     application.add_handler(CommandHandler("myprofile", myprofile,block=False))
 
-    application.run_polling()
+    application.run_polling(
+            timeout=15,
+            read_latency=4,
+            drop_pending_updates=True,
+            )
 
 
 if __name__ == "__main__":
