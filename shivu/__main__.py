@@ -251,13 +251,7 @@ async def change_time(update: Update, context: CallbackContext) -> None:
     except Exception as e:
         await update.message.reply_text('Failed to change character appearance frequency.')
         
-
-    
-    
-
-
-
-async def inlinequery(update: Update, context: CallbackContext) -> None:
+ async def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
     offset = int(update.inline_query.offset) if update.inline_query.offset else 0
 
@@ -265,16 +259,12 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
         user = await user_collection.find_one({'id': int(query)})
 
         if user:
-            
             characters = user['characters'][offset:offset+50]
 
-            
             if len(characters) > 50:
-                
                 characters = characters[:50]
                 next_offset = str(offset + 50)
             else:
-                
                 next_offset = None
 
             results = []
@@ -284,10 +274,8 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                     anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
                     total_anime_characters = await collection.count_documents({'anime': character['anime']})
 
-                    
                     rarity = character.get('rarity', "Don't have rarity.. ")
 
-                    
                     results.append(
                         InlineQueryResultPhoto(
                             thumbnail_url=character['img_url'],
@@ -297,12 +285,9 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                             parse_mode='HTML'
                         )
                     )
-                        
-                    
-                    
                     added_characters.add(character['name'])
 
-            await update.inline_query.answer(results, next_offset=next_offset)
+            await update.inline_query.answer(results, next_offset=next_offset, switch_pm_text=f"{user.get('first_name', user['id'])}'s collection ({len(user['characters'])} characters)", switch_pm_parameter="user_collection")
         else:
             await update.inline_query.answer([InlineQueryResultArticle(
                 id='notfound', 
@@ -310,7 +295,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 input_message_content=InputTextMessageContent("User not found")
             )])
     else:
-        cursor = collection.find({}).skip(offset).limit(51)
+        cursor = collection.find({'name': {'$regex': query, '$options': 'i'}}).skip(offset).limit(51)
         all_characters = await cursor.to_list(length=51)
         if len(all_characters) > 50:
             all_characters = all_characters[:50]
@@ -323,7 +308,6 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
             users_with_character = await user_collection.find({'characters.id': character['id']}).to_list(length=100)
             total_guesses = sum(character.get("count", 1) for user in users_with_character)
 
-            
             rarity = character.get('rarity', "Don't have rarity...")
 
             results.append(
@@ -335,8 +319,9 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                     parse_mode='HTML'
                 )
             )
-        await update.inline_query.answer(results, next_offset=next_offset)
-        
+        await update.inline_query.answer(results, next_offset=next_offset, switch_pm_text=f"Search results ({len(all_characters)} characters)", switch_pm_parameter="search_results")
+       
+
 async def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
