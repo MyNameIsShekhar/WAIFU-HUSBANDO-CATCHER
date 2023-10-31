@@ -260,7 +260,6 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
 
         if user:
             characters = user['characters'][offset:offset+50]
-
             if len(characters) > 50:
                 characters = characters[:50]
                 next_offset = str(offset + 50)
@@ -287,7 +286,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                     )
                     added_characters.add(character['name'])
 
-            await update.inline_query.answer(results, next_offset=next_offset, switch_pm_text=f"{user.get('first_name', user['id'])}'s collection ({len(user['characters'])} characters)", switch_pm_parameter="user_collection")
+            await update.inline_query.answer(results, next_offset=next_offset)
         else:
             await update.inline_query.answer([InlineQueryResultArticle(
                 id='notfound', 
@@ -319,7 +318,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                     parse_mode='HTML'
                 )
             )
-        await update.inline_query.answer(results, next_offset=next_offset, switch_pm_text=f"Search results ({len(all_characters)} characters)", switch_pm_parameter="search_results")
+        await update.inline_query.answer(results, next_offset=next_offset)
 
 
 async def fav(update: Update, context: CallbackContext) -> None:
