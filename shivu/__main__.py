@@ -479,7 +479,7 @@ async def myprofile(update: Update, context: CallbackContext) -> None:
         user_rank = sorted_counts.index({'total_count': user['total_count']}) + 1
 
         rarity_counts = 
-            '⚪' : sum(1 for character in user['characters'] if character['rarity'] == '⚪ Common'),
+            '⚪': sum(1 for character in user['characters'] if character['rarity'] == '⚪ Common'),
             '🟢': sum(1 for character in user['characters'] if character['rarity'] == '🟢 Medium'),
             '🟣': sum(1 for character in user['characters'] if character['rarity'] == '🟣 Rare'),
             '🟡': sum(1 for character in user['characters'] if character['rarity'] == '🟡 Legendary')
@@ -490,7 +490,7 @@ async def myprofile(update: Update, context: CallbackContext) -> None:
         profile_photos = await update.effective_user.get_profile_photos()
         if profile_photos.photos:
             photo = profile_photos.photos[0][0].file_id
-            await context.bot.send_photo(
+            await update.message.reply_photo(
                 chat_id=user_id,
                 photo=photo,
                 caption=caption,
