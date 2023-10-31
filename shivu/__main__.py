@@ -14,6 +14,7 @@ import random
 from datetime import datetime, timedelta
 from threading import Lock
 import time
+import re
 from shivu.modules import ALL_MODULES
 from shivu import application 
 from shivu import db
@@ -122,7 +123,8 @@ async def send_image(update: Update, context: CallbackContext) -> None:
         caption="""***A New Character Has Just Appeared Use /guess [name]!👒
 And Add This Character In Your Collection***""",
         parse_mode='Markdown')
-    
+
+
 async def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
@@ -130,7 +132,6 @@ async def guess(update: Update, context: CallbackContext) -> None:
     if chat_id not in last_characters:
         return
 
-    # RED FLAG
     if chat_id in first_correct_guesses:
         await update.message.reply_text(f'❌️ Already guessed by Someone..So Try Next Time Bruhh')
         return
@@ -141,9 +142,14 @@ async def guess(update: Update, context: CallbackContext) -> None:
     if guess.startswith("&") or guess.startswith("and"):
         await update.message.reply_text("You can't start your guess with '&' or 'and'.")
         return
+
+    character_name_parts = last_characters[chat_id]['name'].lower().split()
+    
+    if all(re.search(part, guess) for part in character_name_parts):
         
-    if guess and guess in last_characters[chat_id]['name'].lower():
-        # Set the flag that someone has guessed correctly
+    
+
+     # Set the flag that someone has guessed correctly
         first_correct_guesses[chat_id] = user_id
         
         global_count = await user_totals_collection.find_one_and_update(
