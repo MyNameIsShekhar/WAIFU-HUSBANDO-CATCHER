@@ -41,7 +41,7 @@ i Am Collect 'Em All Bot.. Add Me in You're Group And I will send Random Charact
     ]
     reply_markupp = InlineKeyboardMarkup(keyboard)
     
-    await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_url, caption=caption, reply_markup=reply_markup, parse_mode='markdown')
+    await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_url, caption=caption, reply_markupp=reply_markup, parse_mode='markdown')
 
 
 async def button(update: Update, context: CallbackContext) -> None:
