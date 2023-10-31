@@ -12,7 +12,9 @@ import random
 
 
 
-photo_url_list = ["https://graph.org/file/38767e79402baa8b04125.jpg", 'https://telegra.ph/file/c940700435ff6d27bf49d.jpg']
+photo_url_list = ["https://graph.org/file/38767e79402baa8b04125.jpg", 
+                  "https://telegra.ph/file/c940700435ff6d27bf49d.jpg",
+                  "https://graph.org//file/11eb3e6eb3b59b844ffa8.jpg" ]
 
 
 
