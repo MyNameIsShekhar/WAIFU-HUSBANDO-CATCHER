@@ -478,8 +478,13 @@ async def myprofile(update: Update, context: CallbackContext) -> None:
         sorted_counts = sorted(await cursor.to_list(length=100), key=lambda x: x['total_count'], reverse=True)
         user_rank = sorted_counts.index({'total_count': user['total_count']}) + 1
 
-        rarity_counts = {rarity: sum(1 for character in user['characters'] if character['rarity'] == rarity) for rarity in ["⚪ Common",  "🟣 Rare", "🟡 Legendary", "🟢 Medium"]}
-        
+        rarity_counts = {
+        '⚪ Common': sum(1 for character in user['characters'] if character['rarity'] == '⚪ Common'),
+        '🟢 Medium': sum(1 for character in user['characters'] if character['rarity'] == '🟢 Medium'),
+        '🟣 Rare': sum(1 for character in user['characters'] if character['rarity'] == '🟣 Rare'),
+        '🟡 Legendary': sum(1 for character in user['characters'] if character['rarity'] == '🟡 Legendary')
+     }
+
         profile_photos = await update.effective_user.get_profile_photos()
         photo = profile_photos.photos[0][0].file_id if profile_photos.photos else None
 
