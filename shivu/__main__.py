@@ -44,7 +44,7 @@ sent_characters = {}
 
 first_correct_guesses = {}
 
-
+message_counts = {}
 
 for module_name in ALL_MODULES:
     imported_module = importlib.import_module("shivu.modules." + module_name)
@@ -90,7 +90,7 @@ And Add This Character In Your Collection***""",
         parse_mode='Markdown')
     
 # Create a dictionary to store message counts
-message_counts = {}
+
 
 async def message_counter(update: Update, context: CallbackContext) -> None:
     chat_id = str(update.effective_chat.id)
