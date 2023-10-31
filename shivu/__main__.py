@@ -513,7 +513,7 @@ def main() -> None:
     application.add_handler(CommandHandler("collection", harem,block=False))
     application.add_handler(CommandHandler("myprofile", myprofile,block=False))
 
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    application.run_polling()
 
 
 if __name__ == "__main__":
