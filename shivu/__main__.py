@@ -485,7 +485,7 @@ async def myprofile(update: Update, context: CallbackContext) -> None:
             '🟡': sum(1 for character in user['characters'] if character['rarity'] == '🟡 Legendary')
         
 
-        caption = f"***Profile***\n\n**First Name**: {first_name}\n**Username**: {username}\n**Total Characters**: {total_characters}\n**Leaderboard Rank**: {user_rank}\n**Rarity Counts**: {rarity_counts}"
+        caption = f"***Profile***\n\n**First Name**: {first_name}\n**Username**: @{username}\n**Total Characters**: {total_characters}\n**Leaderboard Rank**: {user_rank}\n**Rarity Counts**: {rarity_counts}"
 
         profile_photos = await update.effective_user.get_profile_photos()
         if profile_photos.photos:
