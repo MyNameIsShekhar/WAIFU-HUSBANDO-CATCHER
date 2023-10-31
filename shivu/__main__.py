@@ -445,7 +445,7 @@ async def harem(update: Update, context: CallbackContext) -> None:
             count = character.get('count', "only one")
             rarity = character.get('rarity', "Don't have rarity...") # Get the character's rarity
             
-            harem_message += f'🆔️ <b>{character["id"]}</b>| 🫧 {rarity} | <b>🌸 {character["name"]} × {count}</b>\n'
+            harem_message += f'🆔️ <b>{character["id"]}</b>| {rarity} \n<b>🌸 {character["name"]} × {count}</b>\n'
             
             harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
