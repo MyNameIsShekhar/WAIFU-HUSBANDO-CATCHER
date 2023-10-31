@@ -479,25 +479,28 @@ async def myprofile(update: Update, context: CallbackContext) -> None:
         user_rank = sorted_counts.index({'total_count': user['total_count']}) + 1
 
         rarity_counts = {
-        '⚪ Common': sum(1 for character in user['characters'] if character['rarity'] == '⚪ Common'),
-        '🟢 Medium': sum(1 for character in user['characters'] if character['rarity'] == '🟢 Medium'),
-        '🟣 Rare': sum(1 for character in user['characters'] if character['rarity'] == '🟣 Rare'),
-        '🟡 Legendary': sum(1 for character in user['characters'] if character['rarity'] == '🟡 Legendary')
-     }
-
-        profile_photos = await update.effective_user.get_profile_photos()
-        photo = profile_photos.photos[0][0].file_id if profile_photos.photos else None
+            '⚪ Common': sum(1 for character in user['characters'] if character['rarity'] == '⚪ Common'),
+            '🟢 Medium': sum(1 for character in user['characters'] if character['rarity'] == '🟢 Medium'),
+            '🟣 Rare': sum(1 for character in user['characters'] if character['rarity'] == '🟣 Rare'),
+            '🟡 Legendary': sum(1 for character in user['characters'] if character['rarity'] == '🟡 Legendary')
+        }
 
         caption = f"***Profile***\n\n**First Name**: {first_name}\n**Username**: {username}\n**Total Characters**: {total_characters}\n**Leaderboard Rank**: {user_rank}\n**Rarity Counts**: {rarity_counts}"
 
-        await context.bot.send_photo(
-            chat_id=user_id,
-            photo=photo,
-            caption=caption,
-            parse_mode='Markdown'
-        )
+        profile_photos = await update.effective_user.get_profile_photos()
+        if profile_photos.photos:
+            photo = profile_photos.photos[0][0].file_id
+            await context.bot.send_photo(
+                chat_id=user_id,
+                photo=photo,
+                caption=caption,
+                parse_mode='Markdown'
+            )
+        else:
+            await update.message.reply_text(caption, parse_mode='Markdown')
     else:
         await update.message.reply_text("You haven't collected any characters yet.")
+
 
 
 def main() -> None:
