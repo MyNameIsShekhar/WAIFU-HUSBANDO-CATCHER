@@ -26,9 +26,8 @@ async def start(update: Update, context: CallbackContext) -> None:
     
     
     caption = f"""
-        ***Hey there! {update.effective_user.first_name} 🌻***
-        
-        
+        Hey there! ***{update.effective_user.first_name}*** 🌻
+              
 i Am Collect 'Em All Bot.. Add Me in You're Group And I will send Random Characters in group after every 100 messages and who guessed that character's name Correct.. I will add That Character in That user's Collection.. Tap on help Button To See All Commands
         """
     keyboard = [
@@ -68,8 +67,7 @@ async def button(update: Update, context: CallbackContext) -> None:
     elif query.data == 'back':
 
         caption = f"""
-        ***Hey there! {update.effective_user.first_name} 🌻***
-        
+        Hey there! ***{update.effective_user.first_name}*** 🌻
         
 i Am Collect 'Em All Bot.. Add Me in You're Group And I will send Random Characters in group after every 100 messages and who guessed that character's name Correct.. I will add That Character in That user's Collection.. Tap on help Button To See All Commands
         """
