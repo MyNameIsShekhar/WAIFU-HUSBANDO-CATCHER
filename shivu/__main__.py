@@ -89,41 +89,36 @@ async def send_image(update: Update, context: CallbackContext) -> None:
 And Add This Character In Your Collection***""",
         parse_mode='Markdown')
     
+# Create a dictionary to store message counts
+message_counts = {}
+
 async def message_counter(update: Update, context: CallbackContext) -> None:
     chat_id = str(update.effective_chat.id)
 
-    
     if chat_id not in locks:
         locks[chat_id] = asyncio.Lock()
     lock = locks[chat_id]
 
-     
     async with lock:
-        
+        # Get message frequency for this chat from the database
         chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
             message_frequency = chat_frequency.get('message_frequency', 100)
-            message_counter = chat_frequency.get('message_counter', 0)
         else:
-        
-            message_frequency =100
-            message_counter = 0
+            message_frequency = 100
 
-        
-        message_counter += 1
+        # Increment message count for this chat
+        if chat_id in message_counts:
+            message_counts[chat_id] += 1
+        else:
+            message_counts[chat_id] = 1
 
-    
-        if message_counter % message_frequency == 0:
+        # Send image after every message_frequency messages
+        if message_counts[chat_id] % message_frequency == 0:
             await send_image(update, context)
-            
-            message_counter = 0
+            # Reset counter for this chat
+            message_counts[chat_id] = 0
 
-    
-        await user_totals_collection.update_one(
-            {'chat_id': chat_id},
-            {'$set': {'message_counter': message_counter}},
-            upsert=True
-        )
 
 
 async def guess(update: Update, context: CallbackContext) -> None:
