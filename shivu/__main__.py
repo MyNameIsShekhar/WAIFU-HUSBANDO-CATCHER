@@ -150,10 +150,9 @@ async def guess(update: Update, context: CallbackContext) -> None:
     if re.fullmatch(character_name, guess):
         # Rest of the function...
 
-    character_name_parts = last_characters[chat_id]['name'].lower().split()
     
-    if all(re.search(part, guess) for part in character_name_parts):
-        
+    
+    
     
 
      # Set the flag that someone has guessed correctly
