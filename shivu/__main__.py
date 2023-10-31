@@ -250,8 +250,8 @@ async def change_time(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text(f'Successfully changed character appearance frequency to every {new_frequency} messages.')
     except Exception as e:
         await update.message.reply_text('Failed to change character appearance frequency.')
-        
- async def inlinequery(update: Update, context: CallbackContext) -> None:
+
+async def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
     offset = int(update.inline_query.offset) if update.inline_query.offset else 0
 
@@ -320,7 +320,7 @@ async def change_time(update: Update, context: CallbackContext) -> None:
                 )
             )
         await update.inline_query.answer(results, next_offset=next_offset, switch_pm_text=f"Search results ({len(all_characters)} characters)", switch_pm_parameter="search_results")
-       
+
 
 async def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
