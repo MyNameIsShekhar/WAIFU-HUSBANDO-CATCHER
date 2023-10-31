@@ -30,7 +30,7 @@ async def start(update: Update, context: CallbackContext) -> None:
         
         i Am Collect 'Em All Bot.. Add Me in You're Group And I will send Random Characters in group after every 100 messages and who guessed that character's name Correct.. I will add That Character in That user's Collection.. Tap on help Button To See All Commands
         """
-        keyboard = [
+    keyboard = [
             [InlineKeyboardButton("Add Me", url=f'http://t.me/Collect_emAll_Bot?startgroup=new')],
         
             [InlineKeyboardButton("Help", callback_data='help'),
