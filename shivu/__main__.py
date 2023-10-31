@@ -465,6 +465,54 @@ async def harem(update: Update, context: CallbackContext) -> None:
             await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
     else:
         await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+async def myprofile(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
+
+    # Get user data from the database
+    user = await user_collection.find_one({'id': user_id})
+
+    # Get user profile picture from Telegram or use a default one
+    photos = await context.bot.get_user_profile_photos(user_id)
+    if photos and photos.photos:
+        photo = photos.photos[0][-1]
+        photo_file = await context.bot.get_file(photo.file_id)
+        photo_url = photo_file.file_path
+    else:
+        photo_url = "https://graph.org/file/2b34dc960fb072d9e266c.jpg"
+
+    # Generate caption with user details
+    first_name = update.effective_user.first_name
+    username = update.effective_user.username or 'None'
+    caption = f"***Your Profile***\n\nFirst Name: {first_name}\nUsername: {username}\n"
+
+    if user:
+        # User is in the database
+        caption += "You are already part of our database.\n"
+
+        # Get user total count and rank
+        total_count = user['total_count']
+        cursor = user_collection.find({}, {'total_count': 1, '_id': 0})
+        sorted_counts = sorted(await cursor.to_list(length=100), key=lambda x: x['total_count'], reverse=True)
+        rank = sorted_counts.index({'total_count': total_count}) + 1
+
+        caption += f"Total Characters: {total_count}\nRank: {rank}\n"
+
+        # Get user characters by rarity
+        characters = user['characters']
+        rarity_counts = {}
+        for character in characters:
+            rarity = character['rarity']
+            rarity_counts[rarity] = rarity_counts.get(rarity, 0) + 1
+
+        caption += "Characters by Rarity:\n"
+        for rarity, count in rarity_counts.items():
+            caption += f"{rarity}: {count}\n"
+    else:
+        # User is not in the database
+        caption += "You have not collected any characters yet."
+
+    # Send photo and caption to the user
+    await update.message.reply_photo(photo=photo_url, caption=caption, parse_mode='Markdown')
 
 
 def main() -> None:
@@ -479,6 +527,7 @@ def main() -> None:
     application.add_handler(CommandHandler('fav', fav, block=False))
     application.add_handler(CommandHandler("give", gift,block=False))
     application.add_handler(CommandHandler("collection", harem,block=False))
+    application.add_handler(CommandHandler("myprofile", myprofile,block=False))
 
     application.run_polling(allowed_updates=Update.ALL_TYPES)
 
