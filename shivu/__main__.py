@@ -52,41 +52,6 @@ for module_name in ALL_MODULES:
     
 
 
-async def message_counter(update: Update, context: CallbackContext) -> None:
-    chat_id = str(update.effective_chat.id)
-
-    
-    if chat_id not in locks:
-        locks[chat_id] = asyncio.Lock()
-    lock = locks[chat_id]
-
-     
-    async with lock:
-        # Get message frequency and counter for this chat from the database
-        chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
-        if chat_frequency:
-            message_frequency = chat_frequency.get('message_frequency', 100)
-            message_counter = chat_frequency.get('message_counter', 0)
-        else:
-        
-            message_frequency =100
-            message_counter = 0
-
-        
-        message_counter += 1
-
-        # Send image after every message_frequency messages
-        if message_counter % message_frequency == 0:
-            await send_image(update, context)
-            # Reset counter for this chat
-            message_counter = 0
-
-        # Update counter in the database
-        await user_totals_collection.update_one(
-            {'chat_id': chat_id},
-            {'$set': {'message_counter': message_counter}},
-            upsert=True
-        )
 
 
 
