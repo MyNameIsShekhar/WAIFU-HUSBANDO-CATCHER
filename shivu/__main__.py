@@ -293,16 +293,19 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 title="User not found", 
                 input_message_content=InputTextMessageContent("User not found")
             )])
-        else:
-    # New code for handling anime name queries
-            cursor = collection.find({'anime': {'$regex': query, '$options': 'i'}}).skip(offset).limit(51)
-            all_characters = await cursor.to_list(length=51)
-        if len(all_characters) > 50:
             
-            all_characters = all_characters[:50
-            next_offset = str(offset + 50)
-        else:
-            next_offset = None
+        
+       else:
+
+    cursor = collection.find({'$or': [{'anime': {'$regex': query, '$options': 'i'}}, {'name': {'$regex': query, '$options': 'i'}}]}).skip(offset).limit(51)
+    all_characters = await cursor.to_list(length=51)
+    if len(all_characters) > 50:
+        all_characters = all_characters[:50]
+        next_offset = str(offset + 50)
+    else:
+        next_offset = None
+ 
+
 
         results = []
         for character in all_characters:
