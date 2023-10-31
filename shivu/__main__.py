@@ -88,6 +88,42 @@ async def send_image(update: Update, context: CallbackContext) -> None:
         caption="""***A New Character Has Just Appeared Use /guess [name]!👒
 And Add This Character In Your Collection***""",
         parse_mode='Markdown')
+    
+async def message_counter(update: Update, context: CallbackContext) -> None:
+    chat_id = str(update.effective_chat.id)
+
+    
+    if chat_id not in locks:
+        locks[chat_id] = asyncio.Lock()
+    lock = locks[chat_id]
+
+     
+    async with lock:
+        
+        chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
+        if chat_frequency:
+            message_frequency = chat_frequency.get('message_frequency', 100)
+            message_counter = chat_frequency.get('message_counter', 0)
+        else:
+        
+            message_frequency =100
+            message_counter = 0
+
+        
+        message_counter += 1
+
+    
+        if message_counter % message_frequency == 0:
+            await send_image(update, context)
+            
+            message_counter = 0
+
+    
+        await user_totals_collection.update_one(
+            {'chat_id': chat_id},
+            {'$set': {'message_counter': message_counter}},
+            upsert=True
+        )
 
 
 async def guess(update: Update, context: CallbackContext) -> None:
@@ -185,39 +221,6 @@ async def guess(update: Update, context: CallbackContext) -> None:
     else:
         await update.message.reply_text('Incorrect guess. Try again.')
 
-async def change_time(update: Update, context: CallbackContext) -> None:
-    
-    user = update.effective_user
-    chat = update.effective_chat
-    member = await chat.get_member(user.id)
-
-    if member.status not in ('administrator', 'creator'):
-        await update.message.reply_text('You do not have permission to use this command.')
-        return
-    try:
-        
-        args = context.args
-        if len(args) != 1:
-            await update.message.reply_text('Incorrect format. Please use: /changetime NUMBER')
-            return
-
-        
-        new_frequency = int(args[0])
-        if new_frequency < 100:
-            await update.message.reply_text('The message frequency must be greater than or equal to 100.')
-            return
-
-        
-        chat_frequency = await user_totals_collection.find_one_and_update(
-            {'chat_id': str(chat.id)},
-            {'$set': {'message_frequency': new_frequency}},
-            upsert=True,
-            return_document=ReturnDocument.AFTER
-        )
-
-        await update.message.reply_text(f'Successfully changed character appearance frequency to every {new_frequency} messages.')
-    except Exception as e:
-        await update.message.reply_text('Failed to change character appearance frequency.')
 
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
