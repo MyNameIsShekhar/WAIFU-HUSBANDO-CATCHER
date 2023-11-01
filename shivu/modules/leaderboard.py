@@ -35,13 +35,7 @@ from telegram.ext import CallbackContext
 import random
 
 
-    img_url_list = [
-        "https://graph.org/file/38767e79402baa8b04125.jpg",
-        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
-        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg",
-        "https://graph.org//file/e65e9605f3beb5c76026b.jpg",
-        "https://graph.org//file/88c0fc2309930c591d98b.jpg"
-    ]
+    
 
 async def group_leaderboard(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
@@ -52,7 +46,13 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
         sort=[('count', -1)],
         limit=10
     )
-
+    img_url_list = [
+        "https://graph.org/file/38767e79402baa8b04125.jpg",
+        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
+        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg",
+        "https://graph.org//file/e65e9605f3beb5c76026b.jpg",
+        "https://graph.org//file/88c0fc2309930c591d98b.jpg"
+    ]
     # Prepare the leaderboard text
     leaderboard_text = 'Group Leaderboard 🏆\n\n'
     for i, user in enumerate(top_users, start=1):
