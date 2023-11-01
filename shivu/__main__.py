@@ -89,11 +89,16 @@ async def send_image(update: Update, context: CallbackContext) -> None:
 And Add This Character In Your Collection***""",
         parse_mode='Markdown')
     
-# Initialize the spam dictionary
+# Initialize the spam dictionary and the last user dictionary
 spam_dict = {}
+last_user = {}
 
 async def handle_message(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
+
+    # Reset the message count if a different user sends a message
+    if last_user.get(update.effective_chat.id) != user_id:
+        spam_dict[user_id] = 0
 
     # Increase the user's message count in the spam dictionary
     if user_id in spam_dict and isinstance(spam_dict[user_id], int):
@@ -120,6 +125,8 @@ async def handle_message(update: Update, context: CallbackContext) -> None:
             # Unblock the user after 10 minutes
             spam_dict[user_id] = 0
 
+    # Update the last user who sent a message
+    last_user[update.effective_chat.id] = user_id
 
 
 async def message_counter(update: Update, context: CallbackContext) -> None:
