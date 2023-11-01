@@ -50,8 +50,7 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
 
     for i, user in enumerate(leaderboard_data, start=1):
         username = user.get('username', 'Unknown')
-        first_name = escape_markdown(user.get('first_name', 'Unknown'))
-
+        
         if len(first_name) > 7:
             first_name = first_name[:7] + '...'
         count = user['total_count']
@@ -108,7 +107,8 @@ async def leaderboard(update: Update, context: CallbackContext) -> None:
 
     for i, user in enumerate(leaderboard_data, start=1):
         username = user.get('username', 'Unknown')
-        first_name = user.get('first_name', 'Unknown')
+        first_name = escape_markdown(user.get('first_name', 'Unknown'))
+
         if len(first_name) > 7:
             first_name = first_name[:10] + '...'
         character_count = user['character_count']
