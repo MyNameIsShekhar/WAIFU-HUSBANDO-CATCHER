@@ -338,40 +338,56 @@ async def fav(update: Update, context: CallbackContext) -> None:
 
 
 async def gift(update: Update, context: CallbackContext) -> None:
-    # Get the IDs of the giver and receiver
-    giver_id = update.effective_user.id
+    sender_id = update.effective_user.id
+
+    if not update.message.reply_to_message:
+        await update.message.reply_text("You need to reply to a user's message to gift a character!")
+        return
+
     receiver_id = update.message.reply_to_message.from_user.id
 
-    # Get the character ID from the command arguments
-    character_id = context.args[0] if context.args else None
-
-    if not character_id:
-        await update.message.reply_text('You must specify a character ID to gift.')
+    if sender_id == receiver_id:
+        await update.message.reply_text("You can't gift a character to yourself!")
         return
 
-    # Fetch the giver's characters from the database
-    giver = await user_collection.find_one({'id': giver_id})
-
-    if not giver or character_id not in [c['id'] for c in giver['characters']]:
-        await update.message.reply_text('You do not have this character.')
+    if not context.args:
+        await update.message.reply_text("You need to provide a character ID!")
         return
 
-    # Remove the character from the giver's list
-    await user_collection.update_one({'id': giver_id}, {'$pull': {'characters': {'id': character_id}}})
+    character_id = context.args[0]
 
-    # Add the character to the receiver's list
+    sender = await user_collection.find_one({'id': sender_id})
+
+    character = next((character for character in sender['characters'] if character['id'] == character_id), None)
+
+    if not character:
+        await update.message.reply_text("You don't have this character in your collection!")
+        return
+
+    # Remove the character from the sender's collection
+    await user_collection.update_one({'id': sender_id}, {'$pull': {'characters': {'id': character_id}}})
+
+    # Add the character to the receiver's collection
     receiver = await user_collection.find_one({'id': receiver_id})
+
     if receiver:
-        await user_collection.update_one({'id': receiver_id}, {'$push': {'characters': {'id': character_id}}})
+        character_in_collection = next((character for character in receiver['characters'] if character['id'] == character_id), None)
+
+        if character_in_collection:
+            await user_collection.update_one({'id': receiver_id, 'characters.id': character_id})
+        else:
+            await user_collection.update_one({'id': receiver_id}, {'$push': {'characters': character}})
     else:
+        # Create new user document
         await user_collection.insert_one({
             'id': receiver_id,
             'username': update.message.reply_to_message.from_user.username,
             'first_name': update.message.reply_to_message.from_user.first_name,
-            'characters': [{'id': character_id}],
+            'characters': [character],
+            
         })
 
-    await update.message.reply_text(f'You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}.')
+    await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
 
 async def harem(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
