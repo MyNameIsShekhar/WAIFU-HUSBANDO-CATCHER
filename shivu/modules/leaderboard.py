@@ -48,7 +48,7 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
     )
 
     # Prepare the leaderboard text
-    leaderboard_text = 'Group Leaderboard 🏆\n\n'
+    leaderboard_text = 'Group Leaderboard\n\n'
     i = 1
     async for user in top_users:
         user_info = await user_collection.find_one({'id': user['user_id']})
