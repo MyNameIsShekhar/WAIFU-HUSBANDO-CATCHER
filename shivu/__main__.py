@@ -185,15 +185,18 @@ async def guess(update: Update, context: CallbackContext) -> None:
                 update_fields['first_name'] = update.effective_user.first_name
             if update_fields:
                 await group_user_totals_collection.update_one({'group_id': chat_id, 'user_id': user_id}, {'$set': update_fields})
-                
+            await group_user_totals_collection.update_one({'group_id': chat_id, 'user_id': user_id}, {'$inc': {'total_count': 1}})
         elif hasattr(update.effective_user, 'username'):
+            
             await group_user_totals_collection.insert_one({
                 'group_id': chat_id,
                 'user_id': user_id,
                 'username': update.effective_user.username,
                 'first_name': update.effective_user.first_name,
+                'total_count': 1  
             })
 
+        
         
         user = await user_collection.find_one({'id': user_id})
         if user:
