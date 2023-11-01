@@ -89,7 +89,37 @@ async def send_image(update: Update, context: CallbackContext) -> None:
 And Add This Character In Your Collection***""",
         parse_mode='Markdown')
     
-# Create a dictionary to store message counts
+# Initialize the spam dictionary
+spam_dict = {}
+
+async def handle_message(update: Update, context: CallbackContext) -> None:
+    user_id = update.effective_user.id
+
+    # Increase the user's message count in the spam dictionary
+    if user_id in spam_dict and isinstance(spam_dict[user_id], int):
+        spam_dict[user_id] += 1
+    else:
+        spam_dict[user_id] = 1
+
+    # Check if the user has sent more than 10 messages consecutively
+    if spam_dict[user_id] > 10:
+        # If so, add them to the spam dictionary and do not accept their count
+        spam_dict[user_id] = time.time() + 10 * 60  # Block for 10 minutes
+
+        await update.message.reply_text(
+            f'<b><a href="tg://user?id={user_id}">{update.effective_user.first_name}</a>, you are sending too many messages. We have blocked you for 10 minutes.</b>',
+            parse_mode='HTML'
+        )
+        return
+
+    # Check if the user is blocked
+    if isinstance(spam_dict[user_id], float):
+        if time.time() < spam_dict[user_id]:
+            return
+        else:
+            # Unblock the user after 10 minutes
+            spam_dict[user_id] = 0
+
 
 
 async def message_counter(update: Update, context: CallbackContext) -> None:
@@ -368,6 +398,7 @@ def main() -> None:
     """Run bot."""
     
     
+    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_message, block=False))
     
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_counter, block=False))
     application.add_handler(CommandHandler(["guess", "grab", "protecc", "collect"], guess, block=False))
