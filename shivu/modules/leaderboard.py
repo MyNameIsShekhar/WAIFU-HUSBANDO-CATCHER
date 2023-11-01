@@ -16,6 +16,15 @@ from shivu import db
 import random
 import json
 
+import re
+
+def escape_markdown(text):
+    escape_chars = r'\*_`\\~>#+-=|{}.!'
+    return re.sub(r'([%s])' % re.escape(escape_chars), r'\\\1', text)
+
+
+
+
 collection = db['anime_characters_lol']
 user_totals_collection = db['user_totals_lmaoooo']
 user_collection = db["user_collection_lmaoooo"]
@@ -41,7 +50,8 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
 
     for i, user in enumerate(leaderboard_data, start=1):
         username = user.get('username', 'Unknown')
-        first_name = user.get('first_name', 'Unknown')
+        first_name = escape_markdown(user.get('first_name', 'Unknown'))
+
         if len(first_name) > 7:
             first_name = first_name[:7] + '...'
         count = user['total_count']
