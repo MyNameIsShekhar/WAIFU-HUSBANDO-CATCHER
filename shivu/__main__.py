@@ -336,55 +336,42 @@ async def fav(update: Update, context: CallbackContext) -> None:
 
 
 
-async def harem(update: Update, context: CallbackContext) -> None:
-    user_id = update.effective_user.id
 
-    user = await user_collection.find_one({'id': user_id})
-    if not user:
-        await update.message.reply_text('You have not guessed any characters yet.')
+async def gift(update: Update, context: CallbackContext) -> None:
+    # Get the IDs of the giver and receiver
+    giver_id = update.effective_user.id
+    receiver_id = update.message.reply_to_message.from_user.id
+
+    # Get the character ID from the command arguments
+    character_id = context.args[0] if context.args else None
+
+    if not character_id:
+        await update.message.reply_text('You must specify a character ID to gift.')
         return
 
-    characters = sorted(user['characters'], key=lambda x: x['anime'])
+    # Fetch the giver's characters from the database
+    giver = await user_collection.find_one({'id': giver_id})
 
-    grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['anime'])}
+    if not giver or character_id not in [c['id'] for c in giver['characters']]:
+        await update.message.reply_text('You do not have this character.')
+        return
 
-    harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
+    # Remove the character from the giver's list
+    await user_collection.update_one({'id': giver_id}, {'$pull': {'characters': {'id': character_id}}})
 
-    for anime, characters in list(grouped_characters.items())[:5]:
-        total_characters = await collection.count_documents({'anime': anime})
-
-        harem_message += f'🏖️ <b>{anime} - ({len(characters)} / {total_characters})</b>\n'
-        harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
-
-        character_counts = {i["id"]: characters.count(i) for i in characters}
-        
-        for character_id, count in character_counts.items():
-            character = next((c for c in characters if c["id"] == character_id), None)
-            rarity = character.get('rarity', "Don't have rarity...") 
-            
-            harem_message += f'🆔️ <b>{character_id}</b>| {rarity} \n<b>🌸 {character["name"]} × {count}</b>\n'
-            
-            harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
-
-        harem_message += '\n'
-    
-    total_count = len(user['characters'])
-    
-    keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
-
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
-    if 'favorites' in user and user['favorites']:
-        fav_character_id = user['favorites'][0]
-        fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
-        
-        if fav_character and 'img_url' in fav_character:
-            await update.message.reply_photo(photo=fav_character['img_url'], parse_mode='HTML', caption=harem_message, reply_markup=reply_markup)
-        else:
-            await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+    # Add the character to the receiver's list
+    receiver = await user_collection.find_one({'id': receiver_id})
+    if receiver:
+        await user_collection.update_one({'id': receiver_id}, {'$push': {'characters': {'id': character_id}}})
     else:
-        await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+        await user_collection.insert_one({
+            'id': receiver_id,
+            'username': update.message.reply_to_message.from_user.username,
+            'first_name': update.message.reply_to_message.from_user.first_name,
+            'characters': [{'id': character_id}],
+        })
 
+    await update.message.reply_text(f'You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}.')
 
 
 def main() -> None:
@@ -398,6 +385,7 @@ def main() -> None:
     application.add_handler(InlineQueryHandler(inlinequery, block=False))
     application.add_handler(CommandHandler('fav', fav, block=False))
     application.add_handler(CommandHandler("collection", harem,block=False))
+    application.add_handler(CommandHandler("give", gift, block=False))
     
     application.run_polling( drop_pending_updates=True)
 
