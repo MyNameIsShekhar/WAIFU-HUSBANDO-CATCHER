@@ -72,11 +72,7 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
     )
 
 async def leaderboard(update: Update, context: CallbackContext) -> None:
-    keyboard = [
-        [InlineKeyboardButton('My Rank', callback_data='leaderboard_myrank')]
-    ]
-    reply_markup = InlineKeyboardMarkup(keyboard)
-
+    
     cursor = user_collection.aggregate([
         {"$project": {"username": 1, "first_name": 1, "character_count": {"$size": "$characters"}}},
         {"$sort": {"character_count": -1}},
@@ -104,28 +100,7 @@ async def leaderboard(update: Update, context: CallbackContext) -> None:
     ]
     photo_url = random.choice(photo_urls)
 
-    await update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
-
-async def leaderboard_button(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-
-    user = await user_collection.find_one({'id': query.from_user.id})
-    
-    if user is None:
-        await query.answer('You are not in this rank.', show_alert=True)
-        return
-
-    user_character_count = len(user['characters'])
-
-    cursor = user_collection.aggregate([
-        {"$project": {"character_count": {"$size": "$characters"}}},
-        {"$sort": {"character_count": -1}}
-    ])
-    sorted_counts = [doc['character_count'] for doc in await cursor.to_list(length=100)]
-
-    user_rank = sorted_counts.index(user_character_count) + 1
-
-    await query.answer(f'Your rank is {user_rank}.', show_alert=True)
+    await update.message.reply_photo(photo=photo_url, caption=leaderboard_message,  parse_mode='Markdown')
 
 
 async def broadcast(update: Update, context: CallbackContext) -> None:
@@ -229,7 +204,6 @@ async def group(update: Update, context: CallbackContext) -> None:
 
 application.add_handler(CommandHandler('grouptop', group_leaderboard, block=False))
 application.add_handler(CommandHandler('globaltop', leaderboard, block=False))
-application.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_',block=False))
 application.add_handler(CommandHandler('broadcast', broadcast))
 application.add_handler(CommandHandler('users', user))
 application.add_handler(CommandHandler('groups', group))
