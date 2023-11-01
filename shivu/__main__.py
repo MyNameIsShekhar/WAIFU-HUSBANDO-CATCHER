@@ -350,7 +350,7 @@ async def harem(update: Update, context: CallbackContext) -> None:
         harem_message += f'🏖️ <b>{anime} - ({len(characters)} / {total_characters})</b>\n'
         harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
-        character_counts = {i["name"]: characters.count(i) for i in characters}
+        character_counts = {i["id"]: characters.count(i) for i in characters}
         
         for character_name, count in character_counts.items():
             character = next((c for c in characters if c["name"] == character_name), None)
@@ -379,41 +379,6 @@ async def harem(update: Update, context: CallbackContext) -> None:
     else:
         await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
 
-async def myprofile(update: Update, context: CallbackContext) -> None:
-    user_id = update.effective_user.id
-    user = await user_collection.find_one({'id': user_id})
-
-    if user:
-        username = user.get('username', 'None')
-        first_name = user.get('first_name', 'Unknown')
-        total_characters = len(user.get('characters', []))
-        cursor = user_collection.find({}, {'total_count': 1, '_id': 0})
-        sorted_counts = sorted(await cursor.to_list(length=100), key=lambda x: x['total_count'], reverse=True)
-        user_rank = sorted_counts.index({'total_count': user['total_count']}) + 1
-
-        rarity_counts = {
-            '⚪ Common': sum(1 for character in user['characters'] if character['rarity'] == '⚪ Common'),
-            '🟢 Medium': sum(1 for character in user['characters'] if character['rarity'] == '🟢 Medium'),
-            '🟣 Rare': sum(1 for character in user['characters'] if character['rarity'] == '🟣 Rare'),
-            '🟡 Legendary': sum(1 for character in user['characters'] if character['rarity'] == '🟡 Legendary')
-        }
-
-        caption = f"<b>First Name</b>: {first_name}\n<b>Username</b>: @{username}\n<b>User id</b>: {user_id}\n<b>Total Characters</b>: {total_characters}\n<b>Globally Rank</b>: {user_rank}\n\n"
-        for rarity, count in rarity_counts.items():
-            caption += f"{rarity}: {count}\n"
-
-        profile_photos = await update.effective_user.get_profile_photos()
-        if profile_photos.photos:
-            photo = profile_photos.photos[0][0].file_id
-            await update.message.reply_photo(
-                photo=photo,
-                caption=caption,
-                parse_mode='HTML'
-            )
-        else:
-            await update.message.reply_text(caption, parse_mode='HTML')
-    else:
-        await update.message.reply_text("You haven't collected any characters yet.")
 
 
 def main() -> None:
@@ -427,8 +392,7 @@ def main() -> None:
     application.add_handler(InlineQueryHandler(inlinequery, block=False))
     application.add_handler(CommandHandler('fav', fav, block=False))
     application.add_handler(CommandHandler("collection", harem,block=False))
-    application.add_handler(CommandHandler("myprofile", myprofile,block=False))
-
+    
     application.run_polling( drop_pending_updates=True)
 
 
