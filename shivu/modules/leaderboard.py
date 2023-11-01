@@ -30,6 +30,10 @@ user_totals_collection = db['user_totals_lmaoooo']
 user_collection = db["user_collection_lmaoooo"]
 group_user_totals_collection = db['group_user_totalsssssss']
 
+from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import CallbackContext
+import random
+
 async def group_leaderboard(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
 
@@ -40,8 +44,6 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
     if not bot_is_admin:
         await update.message.reply_text('Please make me an admin so I can check all group members.')
         return
-
-    # Rest of your code...
 
     keyboard = [
         [InlineKeyboardButton('My Rank', callback_data='group_leaderboard_myrank')]
@@ -76,6 +78,7 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
     photo_url = random.choice(photo_urls)
 
     await update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
+
 async def group_leaderboard_myrank(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     user_id = query.from_user.id
