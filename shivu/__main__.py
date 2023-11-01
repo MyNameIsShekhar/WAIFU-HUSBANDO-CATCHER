@@ -358,7 +358,7 @@ async def gift(update: Update, context: CallbackContext) -> None:
         return
 
     # Remove the character from the sender's collection
-    await user_collection.update_one({'id': sender_id}, {'$pull': {'characters': {'id': character_id}}})
+await user_collection.update_one({'id': sender_id}, {'$pull': {'characters': {'id': character_id}}})
 
     # Add the character to the receiver's collection
     receiver = await user_collection.find_one({'id': receiver_id})
@@ -385,50 +385,40 @@ async def gift(update: Update, context: CallbackContext) -> None:
 async def harem(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
-    
     user = await user_collection.find_one({'id': user_id})
     if not user:
         await update.message.reply_text('You have not guessed any characters yet.')
         return
 
-
     characters = sorted(user['characters'], key=lambda x: x['anime'])
 
     grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['anime'])}
 
-   #start 
     harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
 
-    
     for anime, characters in list(grouped_characters.items())[:5]:
-        # Get the total number of characters from this anime
         total_characters = await collection.count_documents({'anime': anime})
 
-       #middle 
         harem_message += f'🏖️ <b>{anime} - ({len(characters)} / {total_characters})</b>\n'
         harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
+        character_counts = {i: characters.count(i) for i in characters}
         
-        characters = sorted(characters, key=lambda x: x['id'])[:2]
-        
-        
-        for character in characters:
-            count = character.get('count', "only one")
-            rarity = character.get('rarity', "Don't have rarity...") # Get the character's rarity
+        for character, count in character_counts.items():
+            rarity = character.get('rarity', "Don't have rarity...") 
             
             harem_message += f'🆔️ <b>{character["id"]}</b>| {rarity} \n<b>🌸 {character["name"]} × {count}</b>\n'
             
             harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
         harem_message += '\n'
-        total_count = len(user['characters'])
     
+    total_count = len(user['characters'])
     
     keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    
     if 'favorites' in user and user['favorites']:
         fav_character_id = user['favorites'][0]
         fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
