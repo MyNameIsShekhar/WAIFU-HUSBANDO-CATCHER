@@ -48,7 +48,7 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
     )
 
     # Prepare the leaderboard text
-    leaderboard_text = '🏆 Group Leaderboard 🏆\n\n'
+    leaderboard_text = 'Group Leaderboard 🏆\n\n'
     i = 1
     async for user in top_users:
         user_info = await user_collection.find_one({'id': user['user_id']})
@@ -65,6 +65,8 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
         "https://graph.org//file/e65e9605f3beb5c76026b.jpg",
         "https://graph.org//file/88c0fc2309930c591d98b.jpg"
     ]
+    image_url = random.choice(img_url)
+
     # Send the image with the leaderboard as caption
     await context.bot.send_photo(
         chat_id=chat_id,
