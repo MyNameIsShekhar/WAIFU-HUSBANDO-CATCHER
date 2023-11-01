@@ -426,7 +426,6 @@ def main() -> None:
     application.add_handler(CommandHandler(["changetime"], change_time, block=False))
     application.add_handler(InlineQueryHandler(inlinequery, block=False))
     application.add_handler(CommandHandler('fav', fav, block=False))
-    application.add_handler(CommandHandler("give", gift,block=False))
     application.add_handler(CommandHandler("collection", harem,block=False))
     application.add_handler(CommandHandler("myprofile", myprofile,block=False))
 
