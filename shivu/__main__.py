@@ -161,12 +161,10 @@ async def guess(update: Update, context: CallbackContext) -> None:
     if chat_id not in last_characters:
         return
 
-    # RED FLAG
     if chat_id in first_correct_guesses:
         await update.message.reply_text(f'❌️ Already guessed by Someone..So Try Next Time Bruhh')
         return
 
-    # Check if guess is correct
     guess = ' '.join(context.args).lower() if context.args else ''
     
     if "&" in guess or "and" in guess.lower():
@@ -175,16 +173,7 @@ async def guess(update: Update, context: CallbackContext) -> None:
         
     if guess and guess in last_characters[chat_id]['name'].lower():
         
-     # Set the flag that someone has guessed correctly
         first_correct_guesses[chat_id] = user_id
-        
-        global_count = await user_totals_collection.find_one_and_update(
-            {'id': 'global'},
-            {'$inc': {'count': 1}},
-            upsert=True,
-            return_document=ReturnDocument.AFTER
-        )
-
         
         group_user = await group_user_totals_collection.find_one({'group_id': chat_id, 'user_id': user_id})
         if group_user:
@@ -196,15 +185,13 @@ async def guess(update: Update, context: CallbackContext) -> None:
                 update_fields['first_name'] = update.effective_user.first_name
             if update_fields:
                 await group_user_totals_collection.update_one({'group_id': chat_id, 'user_id': user_id}, {'$set': update_fields})
-            await group_user_totals_collection.update_one({'group_id': chat_id, 'user_id': user_id}, {'$inc': {'total_count': 1}})
+                
         elif hasattr(update.effective_user, 'username'):
-            
             await group_user_totals_collection.insert_one({
                 'group_id': chat_id,
                 'user_id': user_id,
                 'username': update.effective_user.username,
                 'first_name': update.effective_user.first_name,
-                'total_count': 1  
             })
 
         
@@ -218,19 +205,9 @@ async def guess(update: Update, context: CallbackContext) -> None:
                 update_fields['first_name'] = update.effective_user.first_name
             if update_fields:
                 await user_collection.update_one({'id': user_id}, {'$set': update_fields})
-            await user_collection.update_one({'id': user_id}, {'$inc': {'total_count': 1}})
             
-            
-            character_in_collection = next((character for character in user['characters'] if character['id'] == last_characters[chat_id]['id']), None)
-        
-            if character_in_collection:
-                await user_collection.update_one({'id': user_id, 'characters.id': last_characters[chat_id]['id']}, {'$inc': {'characters.$.count': 1}})
                 
-                    
-            else:
-                
-                last_characters[chat_id]['count'] = 1
-                await user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
+            await user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
 
                 
             
@@ -242,12 +219,13 @@ async def guess(update: Update, context: CallbackContext) -> None:
                 'username': update.effective_user.username,
                 'first_name': update.effective_user.first_name,
                 'characters': [last_characters[chat_id]],
-                'total_count': 1  
             })
         await update.message.reply_text(f'<b>Congratulations 🪼! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> \nYou Got New Character 💮</b> \n\n<b>👒 Character name: {last_characters[chat_id]["name"]}</b> \n<b>♋ Anime: {last_characters[chat_id]["anime"]}</b> \n<b>🫧 Rairty: {last_characters[chat_id]["rarity"]}</b>\n\n<b>This character has been added to your harem now do /collection to check your new character</b>', parse_mode='HTML')
 
     else:
         await update.message.reply_text('Incorrect guess. Try again.')
+
+                
 
 
 async def inlinequery(update: Update, context: CallbackContext) -> None:
