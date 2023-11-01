@@ -398,6 +398,9 @@ async def harem(update: Update, context: CallbackContext) -> None:
 
         character_counts = {i["id"]: characters.count(i) for i in characters}
         
+        # Limit to two characters per anime
+        character_counts = dict(list(character_counts.items())[:2])
+        
         for character_id, count in character_counts.items():
             character = next((c for c in characters if c["id"] == character_id), None)
             rarity = character.get('rarity', "Don't have rarity...") 
