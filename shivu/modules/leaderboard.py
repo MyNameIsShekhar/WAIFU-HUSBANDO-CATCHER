@@ -117,6 +117,6 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
 
 
 
-application.add_handler(CommandHandler('globaltop', leaderboard, block=False))
+application.add_handler(CommandHandler('top', leaderboard, block=False))
 application.add_handler(CommandHandler('broadcast', broadcast))
 
