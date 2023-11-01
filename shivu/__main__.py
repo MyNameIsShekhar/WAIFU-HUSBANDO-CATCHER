@@ -90,11 +90,10 @@ And Add This Character In Your Collection***""",
         parse_mode='Markdown')
     
 # Initialize the spam dictionary and the last user dictionary
-spam_dict = {}
+# Add a dictionary to keep track of the last user who sent a message in each chat
+# and when they were last warned about spamming
 last_user = {}
-
-
-
+warned_users = {}
 
 async def message_counter(update: Update, context: CallbackContext) -> None:
     chat_id = str(update.effective_chat.id)
@@ -116,8 +115,14 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
         if chat_id in last_user and last_user[chat_id]['user_id'] == user_id:
             last_user[chat_id]['count'] += 1
             if last_user[chat_id]['count'] >= 6:
-                await update.message.reply_text('Bot ignored your message successfully.')
-                return  # Ignore this message
+                # If the user has been warned in the last 10 minutes, ignore their messages
+                if user_id in warned_users and time.time() - warned_users[user_id] < 600:
+                    return
+                else:
+                    # Warn the user and record the time of the warning
+                    await update.message.reply_text('From now, your messages will be ignored for 10 minutes.')
+                    warned_users[user_id] = time.time()
+                    return
         else:
             last_user[chat_id] = {'user_id': user_id, 'count': 1}
 
@@ -132,6 +137,10 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
             await send_image(update, context)
             # Reset counter for this chat
             message_counts[chat_id] = 0
+
+
+
+
 
 
 async def change_time(update: Update, context: CallbackContext) -> None:
