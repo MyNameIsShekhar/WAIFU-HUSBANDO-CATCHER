@@ -81,30 +81,29 @@ async def group_leaderboard_button(update: Update, context: CallbackContext) -> 
 
     await query.answer(f'Your rank in this group is {user_rank}.', show_alert=True)
 
-
 async def leaderboard(update: Update, context: CallbackContext) -> None:
-    
     keyboard = [
         [InlineKeyboardButton('My Rank', callback_data='leaderboard_myrank')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    
-    cursor = user_collection.find().sort('total_count', -1).limit(10)
+    cursor = user_collection.aggregate([
+        {"$project": {"username": 1, "first_name": 1, "character_count": {"$size": "$characters"}}},
+        {"$sort": {"character_count": -1}},
+        {"$limit": 10}
+    ])
     leaderboard_data = await cursor.to_list(length=10)
 
-    
-    leaderboard_message = "***TOP 10 MOST GUESSED USERS***\n\n"
+    leaderboard_message = "***TOP 10 USERS WITH MOST CHARACTERS***\n\n"
 
     for i, user in enumerate(leaderboard_data, start=1):
         username = user.get('username', 'Unknown')
         first_name = user.get('first_name', 'Unknown')
         if len(first_name) > 7:
             first_name = first_name[:10] + '...'
-        count = user['total_count']
-        leaderboard_message += f'{i}. [{first_name}](https://t.me/{username})- {count}\n'
+        character_count = user['character_count']
+        leaderboard_message += f'{i}. {first_name}- {character_count} characters\n'
 
-    
     photo_urls = [
         "https://graph.org/file/38767e79402baa8b04125.jpg",
         "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
@@ -114,55 +113,30 @@ async def leaderboard(update: Update, context: CallbackContext) -> None:
     ]
     photo_url = random.choice(photo_urls)
 
-    
     await update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
-
 
 async def leaderboard_button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 
-
-    user_total = await user_collection.find_one({'id': query.from_user.id})
+    user = await user_collection.find_one({'id': query.from_user.id})
     
-    if user_total is None:
+    if user is None:
         await query.answer('You are not in this rank.', show_alert=True)
         return
 
-    user_total_count = user_total['total_count']
+    user_character_count = len(user['characters'])
 
-    
-    cursor = user_collection.find({}, {'total_count': 1, '_id': 0})
-    sorted_counts = sorted(await cursor.to_list(length=100), key=lambda x: x['total_count'], reverse=True)
+    cursor = user_collection.aggregate([
+        {"$project": {"character_count": {"$size": "$characters"}}},
+        {"$sort": {"character_count": -1}}
+    ])
+    sorted_counts = [doc['character_count'] for doc in await cursor.to_list(length=100)]
 
-    
-    user_rank = sorted_counts.index({'total_count': user_total_count}) + 1
+    user_rank = sorted_counts.index(user_character_count) + 1
 
     await query.answer(f'Your rank is {user_rank}.', show_alert=True)
 
-async def stats(update: Update, context: CallbackContext) -> None:
-    # Check if the command is issued by the owner
-    if str(update.effective_user.id) == '6404226395':
-        # Get all users and groups from the collections
-        all_users = await user_collection.find({}).to_list(length=None)
-        all_groups = await group_user_totals_collection.find({}).to_list(length=None)
-        
-        # Create sets to store unique user and group ids
-        unique_user_ids = set()
-        unique_group_ids = set()
-        
-        for user in all_users:
-            unique_user_ids.add(user['id'])
-        
-        for group in all_groups:
-            unique_group_ids.add(group['group_id'])
-        
-        
-        await context.bot.send_message(
-            chat_id=update.effective_chat.id,
-            text=f'Total users: {len(unique_user_ids)}\nTotal groups: {len(unique_group_ids)}'
-        )
-    else:
-        await update.message.reply_text('You are not authorized to use this command.')
+
 async def broadcast(update: Update, context: CallbackContext) -> None:
     
     if str(update.effective_user.id) == '6404226395':
