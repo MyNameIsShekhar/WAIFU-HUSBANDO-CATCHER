@@ -58,7 +58,7 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
         i += 1
 
     # Get a random image URL from your list
-    img_url_list = [
+    img_url = [
         "https://graph.org/file/38767e79402baa8b04125.jpg",
         "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
         "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg",
