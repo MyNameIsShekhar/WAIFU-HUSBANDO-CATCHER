@@ -254,7 +254,7 @@ async def group(update: Update, context: CallbackContext) -> None:
 
 
 application.add_handler(CommandHandler('grouptop', group_leaderboard, block=False))
-application.add_handler(CallbackQueryHandler(group_leaderboard_button, pattern='^group_leaderboard_myrank$', block=False))
+application.add_handler(CallbackQueryHandler(group_leaderboard_myrank, pattern='^group_leaderboard_myrank$', block=False))
 application.add_handler(CommandHandler('globaltop', leaderboard, block=False))
 application.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_',block=False))
 application.add_handler(CommandHandler('broadcast', broadcast))
