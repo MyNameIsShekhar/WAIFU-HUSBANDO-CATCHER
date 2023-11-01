@@ -93,44 +93,12 @@ And Add This Character In Your Collection***""",
 spam_dict = {}
 last_user = {}
 
-async def handle_message(update: Update, context: CallbackContext) -> None:
-    user_id = update.effective_user.id
 
-    # Reset the message count if a different user sends a message
-    if last_user.get(update.effective_chat.id) != user_id:
-        spam_dict[user_id] = 0
-
-    # Increase the user's message count in the spam dictionary
-    if user_id in spam_dict and isinstance(spam_dict[user_id], int):
-        spam_dict[user_id] += 1
-    else:
-        spam_dict[user_id] = 1
-
-    # Check if the user has sent more than 10 messages consecutively
-    if spam_dict[user_id] > 10:
-        # If so, add them to the spam dictionary and do not accept their count
-        spam_dict[user_id] = time.time() + 10 * 60  # Block for 10 minutes
-
-        await update.message.reply_text(
-            f'<b><a href="tg://user?id={user_id}">{update.effective_user.first_name}</a>, you are sending too many messages. We have blocked you for 10 minutes.</b>',
-            parse_mode='HTML'
-        )
-        return
-
-    # Check if the user is blocked
-    if isinstance(spam_dict[user_id], float):
-        if time.time() < spam_dict[user_id]:
-            return
-        else:
-            # Unblock the user after 10 minutes
-            spam_dict[user_id] = 0
-
-    # Update the last user who sent a message
-    last_user[update.effective_chat.id] = user_id
 
 
 async def message_counter(update: Update, context: CallbackContext) -> None:
     chat_id = str(update.effective_chat.id)
+    user_id = update.effective_user.id
 
     if chat_id not in locks:
         locks[chat_id] = asyncio.Lock()
@@ -143,6 +111,15 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
             message_frequency = chat_frequency.get('message_frequency', 10)
         else:
             message_frequency = 10
+
+        # Check if the last 6 messages were sent by the same user
+        if chat_id in last_user and last_user[chat_id]['user_id'] == user_id:
+            last_user[chat_id]['count'] += 1
+            if last_user[chat_id]['count'] >= 6:
+                await update.message.reply_text('Bot ignored your message successfully.')
+                return  # Ignore this message
+        else:
+            last_user[chat_id] = {'user_id': user_id, 'count': 1}
 
         # Increment message count for this chat
         if chat_id in message_counts:
