@@ -103,9 +103,9 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
         # Get message frequency for this chat from the database
         chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
-            message_frequency = chat_frequency.get('message_frequency', 100)
+            message_frequency = chat_frequency.get('message_frequency', 10)
         else:
-            message_frequency = 100
+            message_frequency = 10
 
         # Increment message count for this chat
         if chat_id in message_counts:
