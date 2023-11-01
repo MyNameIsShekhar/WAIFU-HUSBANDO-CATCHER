@@ -46,6 +46,18 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
         sort=[('count', -1)],
         limit=10
     )
+
+    # Prepare the leaderboard text
+    leaderboard_text = '🏆 Group Leaderboard 🏆\n\n'
+    i = 1
+    async for user in top_users:
+        user_info = await user_collection.find_one({'id': user['user_id']})
+        username = user_info.get('username', 'Unknown User')
+        count = user['count']
+        leaderboard_text += f'{i}. {username}: {count} guesses\n'
+        i += 1
+
+    # Get a random image URL from your list
     img_url_list = [
         "https://graph.org/file/38767e79402baa8b04125.jpg",
         "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
@@ -53,23 +65,13 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
         "https://graph.org//file/e65e9605f3beb5c76026b.jpg",
         "https://graph.org//file/88c0fc2309930c591d98b.jpg"
     ]
-    # Prepare the leaderboard text
-    leaderboard_text = 'Group Leaderboard 🏆\n\n'
-    for i, user in enumerate(top_users, start=1):
-        user_info = await user_collection.find_one({'id': user['user_id']})
-        username = user_info.get('username', 'Unknown User')
-        count = user['count']
-        leaderboard_text += f'{i}. {username}: {count} guesses\n'
-
-    # Get a random image URL from your list
-    image_url = random.choice(image_url_list)
-
     # Send the image with the leaderboard as caption
     await context.bot.send_photo(
         chat_id=chat_id,
         photo=image_url,
         caption=leaderboard_text
     )
+
 
 async def leaderboard(update: Update, context: CallbackContext) -> None:
     
