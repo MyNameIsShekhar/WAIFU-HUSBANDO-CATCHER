@@ -351,8 +351,8 @@ async def harem(update: Update, context: CallbackContext) -> None:
         harem_message += f'🏖️ <b>{anime} - ({len(characters)} / {total_characters})</b>\n'
         harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
-        character_counts = {i: characters.count(i) for i in characters}
-        
+        character_counts = {i["name"]: characters.count(i) for i in characters}
+
         for character, count in character_counts.items():
             rarity = character.get('rarity', "Don't have rarity...") 
             
