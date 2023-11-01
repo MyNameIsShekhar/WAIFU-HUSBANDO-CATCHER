@@ -28,35 +28,41 @@ def escape_markdown(text):
 collection = db['anime_characters_lol']
 user_totals_collection = db['user_totals_lmaoooo']
 user_collection = db["user_collection_lmaoooo"]
-group_user_totals_collection = db['group_user_totalssssss']
+group_user_totals_collection = db['group_user_totalsssssss']
 
         
 async def group_leaderboard(update: Update, context: CallbackContext) -> None:
-    
     chat_id = update.effective_chat.id
 
-    
+    # Check if the bot is an admin and can view all group members
+    bot_status = await context.bot.get_chat_member(chat_id, context.bot.id)
+    if not bot_status.can_view_all_group_messages:
+        await update.message.reply_text('Please make me an admin so I can check all group members.')
+        return
+
     keyboard = [
-        [InlineKeyboardButton('My Group Rank', callback_data='group_leaderboard_myrank')]
+        [InlineKeyboardButton('My Rank', callback_data='group_leaderboard_myrank')]
     ]
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    
-    cursor = group_user_totals_collection.find({'group_id': chat_id}).sort('total_count', -1).limit(10)
+    cursor = group_user_totals_collection.aggregate([
+        {"$match": {"group_id": chat_id}},
+        {"$project": {"username": 1, "first_name": 1, "character_count": {"$size": "$characters"}}},
+        {"$sort": {"character_count": -1}},
+        {"$limit": 10}
+    ])
     leaderboard_data = await cursor.to_list(length=10)
 
-
-    leaderboard_message = "***TOP 10 MOST GUESSED USERS IN THIS GROUP***\n\n"
+    leaderboard_message = "***TOP 10 USERS WITH MOST CHARACTERS IN THIS GROUP***\n\n"
 
     for i, user in enumerate(leaderboard_data, start=1):
         username = user.get('username', 'Unknown')
-        
+        first_name = user.get('first_name', 'Unknown')
         if len(first_name) > 7:
-            first_name = first_name[:7] + '...'
-        count = user['total_count']
-        leaderboard_message += f'{i} [{first_name}](https://t.me/{username})- {count}\n'
+            first_name = first_name[:10] + '...'
+        character_count = user['character_count']
+        leaderboard_message += f'{i}. {first_name}- {character_count} characters\n'
 
-    
     photo_urls = [
         "https://graph.org/file/38767e79402baa8b04125.jpg",
         "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
@@ -66,27 +72,28 @@ async def group_leaderboard(update: Update, context: CallbackContext) -> None:
     ]
     photo_url = random.choice(photo_urls)
 
-    
     await update.message.reply_photo(photo=photo_url, caption=leaderboard_message, reply_markup=reply_markup, parse_mode='Markdown')
-    
-async def group_leaderboard_button(update: Update, context: CallbackContext) -> None:
+async def group_leaderboard_myrank(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
+    user_id = query.from_user.id
+    chat_id = query.message.chat_id
 
+    user = await group_user_totals_collection.find_one({'group_id': chat_id, 'user_id': user_id})
     
-    user_total = await group_user_totals_collection.find_one({'group_id': query.message.chat.id, 'user_id': query.from_user.id})
-    
-    if user_total is None:
+    if user is None:
         await query.answer('You are not in this rank.', show_alert=True)
         return
 
-    user_total_count = user_total['total_count']
+    user_character_count = len(user['characters'])
 
-    
-    cursor = group_user_totals_collection.find({'group_id': query.message.chat.id}, {'total_count': 1, '_id': 0})
-    sorted_counts = sorted(await cursor.to_list(length=100), key=lambda x: x['total_count'], reverse=True)
+    cursor = group_user_totals_collection.aggregate([
+        {"$match": {"group_id": chat_id}},
+        {"$project": {"character_count": {"$size": "$characters"}}},
+        {"$sort": {"character_count": -1}}
+    ])
+    sorted_counts = [doc['character_count'] for doc in await cursor.to_list(length=100)]
 
-    
-    user_rank = sorted_counts.index({'total_count': user_total_count}) + 1
+    user_rank = sorted_counts.index(user_character_count) + 1
 
     await query.answer(f'Your rank in this group is {user_rank}.', show_alert=True)
 
