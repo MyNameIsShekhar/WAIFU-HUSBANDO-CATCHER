@@ -34,40 +34,43 @@ from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
 import random
 
-async def group_leaderboard(update: Update, context: CallbackContext) -> None:
-    
-    chat_id = update.effective_chat.id
 
-    
-    
-    
-    cursor = group_user_totals_collection.find({'group_id': chat_id}).sort('total_count', -1).limit(10)
-    leaderboard_data = await cursor.to_list(length=10)
-
-
-    leaderboard_message = "***TOP 10 MOST GUESSED USERS IN THIS GROUP***\n\n"
-
-    for i, user in enumerate(leaderboard_data, start=1):
-        username = user.get('username', 'Unknown')
-        first_name = user.get('first_name', 'Unknown')
-        if len(first_name) > 7:
-            first_name = first_name[:7] + '...'
-        count = user['total_count']
-        leaderboard_message += f'{i} [{first_name}](https://t.me/{username})- {count}\n'
-
-    
-    photo_urls = [
+    img_url_list = [
         "https://graph.org/file/38767e79402baa8b04125.jpg",
         "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
         "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg",
         "https://graph.org//file/e65e9605f3beb5c76026b.jpg",
         "https://graph.org//file/88c0fc2309930c591d98b.jpg"
     ]
-    photo_url = random.choice(photo_urls)
 
-    
-    await update.message.reply_photo(photo=photo_url, caption=leaderboard_message,parse_mode='Markdown')
-    
+async def group_leaderboard(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+
+    # Get the top 10 users in the group
+    top_users = group_user_totals_collection.find(
+        {'group_id': chat_id},
+        sort=[('count', -1)],
+        limit=10
+    )
+
+    # Prepare the leaderboard text
+    leaderboard_text = 'Group Leaderboard 🏆\n\n'
+    for i, user in enumerate(top_users, start=1):
+        user_info = await user_collection.find_one({'id': user['user_id']})
+        username = user_info.get('username', 'Unknown User')
+        count = user['count']
+        leaderboard_text += f'{i}. {username}: {count} guesses\n'
+
+    # Get a random image URL from your list
+    image_url = random.choice(image_url_list)
+
+    # Send the image with the leaderboard as caption
+    await context.bot.send_photo(
+        chat_id=chat_id,
+        photo=image_url,
+        caption=leaderboard_text
+    )
+
 async def leaderboard(update: Update, context: CallbackContext) -> None:
     keyboard = [
         [InlineKeyboardButton('My Rank', callback_data='leaderboard_myrank')]
