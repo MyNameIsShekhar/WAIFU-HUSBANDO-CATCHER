@@ -175,32 +175,8 @@ async def guess(update: Update, context: CallbackContext) -> None:
         
         first_correct_guesses[chat_id] = user_id
         
-        group_user = await group_user_totals_collection.find_one({'group_id': chat_id, 'user_id': user_id})
-        if group_user:
-            
-            update_fields = {}
-            if hasattr(update.effective_user, 'username') and update.effective_user.username != group_user.get('username'):
-                update_fields['username'] = update.effective_user.username
-            if update.effective_user.first_name != group_user.get('first_name'):
-                update_fields['first_name'] = update.effective_user.first_name
-            if update_fields:
-                await group_user_totals_collection.update_one({'group_id': chat_id, 'user_id': user_id}, {'$set': update_fields})
-            await group_user_totals_collection.update_one({'group_id': chat_id, 'user_id': user_id}, {'$inc': {'total_count': 1}})
-        elif hasattr(update.effective_user, 'username'):
-            
-            await group_user_totals_collection.insert_one({
-                'group_id': chat_id,
-                'user_id': user_id,
-                'username': update.effective_user.username,
-                'first_name': update.effective_user.first_name,
-                'total_count': 1  
-            })
-
-        
-        
         user = await user_collection.find_one({'id': user_id})
         if user:
-            
             update_fields = {}
             if hasattr(update.effective_user, 'username') and update.effective_user.username != user.get('username'):
                 update_fields['username'] = update.effective_user.username
@@ -209,20 +185,23 @@ async def guess(update: Update, context: CallbackContext) -> None:
             if update_fields:
                 await user_collection.update_one({'id': user_id}, {'$set': update_fields})
             
-                
             await user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
-
-                
-            
       
         elif hasattr(update.effective_user, 'username'):
-            
             await user_collection.insert_one({
                 'id': user_id,
                 'username': update.effective_user.username,
                 'first_name': update.effective_user.first_name,
                 'characters': [last_characters[chat_id]],
             })
+
+        # Update the group leaderboard
+        await group_user_totals_collection.update_one(
+            {'user_id': user_id, 'group_id': chat_id},
+            {'$inc': {'count': 1}},
+            upsert=True
+        )
+
         await update.message.reply_text(f'<b>Congratulations 🪼! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> \nYou Got New Character 💮</b> \n\n<b>👒 Character name: {last_characters[chat_id]["name"]}</b> \n<b>♋ Anime: {last_characters[chat_id]["anime"]}</b> \n<b>🫧 Rairty: {last_characters[chat_id]["rarity"]}</b>\n\n<b>This character has been added to your harem now do /collection to check your new character</b>', parse_mode='HTML')
 
     else:
