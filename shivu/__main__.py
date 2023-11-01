@@ -226,8 +226,6 @@ async def guess(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text('Incorrect guess. Try again.')
 
                 
-
-
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
     offset = int(update.inline_query.offset) if update.inline_query.offset else 0
@@ -246,22 +244,24 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
             results = []
             added_characters = set()
             for character in characters:
-                if character['name'] not in added_characters:
+                if character['id'] not in added_characters:
                     anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
                     total_anime_characters = await collection.count_documents({'anime': character['anime']})
 
                     rarity = character.get('rarity', "Don't have rarity.. ")
+
+                    character_count = characters.count(character)
 
                     results.append(
                         InlineQueryResultPhoto(
                             thumbnail_url=character['img_url'],
                             id=character['id'],
                             photo_url=character['img_url'],
-                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a></b>'s Character\n\n🌸: <b>{character['name']}</b> " + (f"(x{character.get('count', 'only one')})") + f"\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n\n🆔: <b>{character['id']}</b>",
+                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a></b>'s Character\n\n🌸: <b>{character['name']}</b> " + (f"(x{character_count})") + f"\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n\n🆔: <b>{character['id']}</b>",
                             parse_mode='HTML'
                         )
                     )
-                    added_characters.add(character['name'])
+                    added_characters.add(character['id'])
 
             await update.inline_query.answer(results, next_offset=next_offset)
         else:
@@ -270,7 +270,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 title="User not found", 
                 input_message_content=InputTextMessageContent("User not found")
             )])
-    else: # This line was indented incorrectly
+    else:
         cursor = collection.find({'$or': [{'anime': {'$regex': query, '$options': 'i'}}, {'name': {'$regex': query, '$options': 'i'}}]}).skip(offset).limit(51)
         all_characters = await cursor.to_list(length=51)
         if len(all_characters) > 50:
@@ -296,6 +296,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 )
             )
         await update.inline_query.answer(results, next_offset=next_offset)
+
 
 
 async def fav(update: Update, context: CallbackContext) -> None:
