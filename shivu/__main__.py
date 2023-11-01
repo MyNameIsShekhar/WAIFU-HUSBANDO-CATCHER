@@ -197,8 +197,8 @@ async def guess(update: Update, context: CallbackContext) -> None:
     # Split the character's name into parts by space
     name_parts = last_characters[chat_id]['name'].lower().split()
 
-    # Check if the guess contains all parts of the character's name
-    if all(part in guess for part in name_parts):
+    # Check if the guess is the full name of the character in any order, or any part of the name exactly
+    if sorted(name_parts) == sorted(guess.split()) or any(part == guess for part in name_parts):
         # Rest of the function...
 
     
