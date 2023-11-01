@@ -30,15 +30,18 @@ user_totals_collection = db['user_totals_lmaoooo']
 user_collection = db["user_collection_lmaoooo"]
 group_user_totals_collection = db['group_user_totalsssssss']
 
-        
 async def group_leaderboard(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
 
-    # Check if the bot is an admin and can view all group members
-    bot_status = await context.bot.get_chat_member(chat_id, context.bot.id)
-    if not bot_status.can_view_all_group_messages:
+    # Check if the bot is an admin
+    admins = await context.bot.get_chat_administrators(chat_id)
+    bot_is_admin = any(admin.user.id == context.bot.id for admin in admins)
+
+    if not bot_is_admin:
         await update.message.reply_text('Please make me an admin so I can check all group members.')
         return
+
+    # Rest of your code...
 
     keyboard = [
         [InlineKeyboardButton('My Rank', callback_data='group_leaderboard_myrank')]
