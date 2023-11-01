@@ -240,7 +240,6 @@ application.add_handler(CommandHandler('grouptop', group_leaderboard, block=Fals
 application.add_handler(CallbackQueryHandler(group_leaderboard_button, pattern='^group_leaderboard_myrank$', block=False))
 application.add_handler(CommandHandler('globaltop', leaderboard, block=False))
 application.add_handler(CallbackQueryHandler(leaderboard_button, pattern='^leaderboard_',block=False))
-application.add_handler(CommandHandler('stats', stats))
 application.add_handler(CommandHandler('broadcast', broadcast))
 application.add_handler(CommandHandler('users', user))
 application.add_handler(CommandHandler('groups', group))
