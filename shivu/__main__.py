@@ -107,9 +107,9 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
         # Get message frequency for this chat from the database
         chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
-            message_frequency = chat_frequency.get('message_frequency', 100)
+            message_frequency = chat_frequency.get('message_frequency', 6)
         else:
-            message_frequency = 100
+            message_frequency = 6
 
         # Check if the last 6 messages were sent by the same user
         if chat_id in last_user and last_user[chat_id]['user_id'] == user_id:
@@ -194,8 +194,14 @@ async def guess(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text("You can't use '&' or 'and' in your guess.")
         return
         
-    if guess and guess in last_characters[chat_id]['name'].lower():
-        
+    # Split the character's name into parts by space
+    name_parts = last_characters[chat_id]['name'].lower().split()
+
+    # Check if the guess is the full name of the character in any order, or any part of the name exactly
+    if sorted(name_parts) == sorted(guess.split()) or any(part == guess for part in name_parts):
+        # Rest of the function...
+
+    
         first_correct_guesses[chat_id] = user_id
         
         user = await user_collection.find_one({'id': user_id})
