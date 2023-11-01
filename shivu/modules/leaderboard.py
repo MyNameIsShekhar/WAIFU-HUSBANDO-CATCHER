@@ -28,7 +28,7 @@ def escape_markdown(text):
 collection = db['anime_characters_lol']
 user_totals_collection = db['user_totals_lmaoooo']
 user_collection = db["user_collection_lmaoooo"]
-group_user_totals_collection = db['group_user_totalsssssss']
+group_user_totals_collection = db['group_user_totalssssss']
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
@@ -114,65 +114,9 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text('Only Shigeo Can use')
 
 
-import json
-import os
-
-async def user(update: Update, context: CallbackContext) -> None:
-    
-    if str(update.effective_user.id) == '6404226395':
-        
-        all_users = await user_collection.find({}).to_list(length=None)
-        
-        
-        users = Element('users')
-        for user in all_users:
-            user_element = SubElement(users, 'user')
-            for key, value in user.items():
-                SubElement(user_element, key).text = str(value)
-        output = parseString(tostring(users)).toprettyxml(indent="  ")
-        
-        
-        with open('users.xml', 'w') as f:
-            f.write(output)
-                
-        
-        await context.bot.send_document(chat_id=update.effective_chat.id, document=open('users.xml', 'rb'))
-        
-        
-        os.remove('users.xml')
-    else:
-        await update.message.reply_text('You are not authorized to use this command.')
-
-async def group(update: Update, context: CallbackContext) -> None:
-    
-    if str(update.effective_user.id) == '6404226395':
-        
-        all_groups = await group_user_totals_collection.find({}).to_list(length=None)
-        
-
-        groups = Element('groups')
-        for group in all_groups:
-            group_element = SubElement(groups, 'group')
-            for key, value in group.items():
-                SubElement(group_element, key).text = str(value)
-        output = parseString(tostring(groups)).toprettyxml(indent="  ")
-        
-        
-        with open('groups.xml', 'w') as f:
-            f.write(output)
-        
-        
-        await context.bot.send_document(chat_id=update.effective_chat.id, document=open('groups.xml', 'rb'))
-        
-        
-        os.remove('groups.xml')
-    else:
-        await update.message.reply_text('You are not authorized to use this command.')
 
 
 
 application.add_handler(CommandHandler('globaltop', leaderboard, block=False))
 application.add_handler(CommandHandler('broadcast', broadcast))
-application.add_handler(CommandHandler('users', user))
-application.add_handler(CommandHandler('groups', group))
 
