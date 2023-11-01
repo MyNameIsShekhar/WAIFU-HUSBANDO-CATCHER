@@ -37,42 +37,6 @@ import random
 
     
 
-async def group_leaderboard(update: Update, context: CallbackContext) -> None:
-    chat_id = update.effective_chat.id
-
-    # Get the top 10 users in the group
-    top_users = group_user_totals_collection.find(
-        {'group_id': chat_id},
-        sort=[('count', -1)],
-        limit=10
-    )
-
-    # Prepare the leaderboard text
-    leaderboard_text = 'Group Leaderboard\n\n'
-    i = 1
-    async for user in top_users:
-        user_info = await user_collection.find_one({'id': user['user_id']})
-        username = user_info.get('username', 'Unknown User')
-        count = user['count']
-        leaderboard_text += f'{i}. {username}: {count} guesses\n'
-        i += 1
-
-    # Get a random image URL from your list
-    img_url = [
-        "https://graph.org/file/38767e79402baa8b04125.jpg",
-        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
-        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg",
-        "https://graph.org//file/e65e9605f3beb5c76026b.jpg",
-        "https://graph.org//file/88c0fc2309930c591d98b.jpg"
-    ]
-    image_url = random.choice(img_url)
-
-    # Send the image with the leaderboard as caption
-    await context.bot.send_photo(
-        chat_id=chat_id,
-        photo=image_url,
-        caption=leaderboard_text
-    )
 
 
 async def leaderboard(update: Update, context: CallbackContext) -> None:
@@ -93,7 +57,7 @@ async def leaderboard(update: Update, context: CallbackContext) -> None:
         if len(first_name) > 7:
             first_name = first_name[:10] + '...'
         character_count = user['character_count']
-        leaderboard_message += f'{i}. {first_name}- {character_count} characters\n'
+        leaderboard_message += f'{i}. [{first_name}](https://t.me/{username})- {character_count} characters\n'
 
     photo_urls = [
         "https://graph.org/file/38767e79402baa8b04125.jpg",
@@ -206,7 +170,7 @@ async def group(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text('You are not authorized to use this command.')
 
 
-application.add_handler(CommandHandler('grouptop', group_leaderboard, block=False))
+
 application.add_handler(CommandHandler('globaltop', leaderboard, block=False))
 application.add_handler(CommandHandler('broadcast', broadcast))
 application.add_handler(CommandHandler('users', user))
