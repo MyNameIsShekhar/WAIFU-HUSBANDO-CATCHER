@@ -56,87 +56,9 @@ for module_name in ALL_MODULES:
 
 
 
-async def send_image(update: Update, context: CallbackContext) -> None:
-    chat_id = update.effective_chat.id
-
-
-    all_characters = list(await collection.find({}).to_list(length=None))
-    
-    
-    if chat_id not in sent_characters:
-        sent_characters[chat_id] = []
-
-    
-    if len(sent_characters[chat_id]) == len(all_characters):
-        sent_characters[chat_id] = []
-
-    
-    character = random.choice([c for c in all_characters if c['id'] not in sent_characters[chat_id]])
-
-    
-    sent_characters[chat_id].append(character['id'])
-    last_characters[chat_id] = character
-
-    
-    if chat_id in first_correct_guesses:
-        del first_correct_guesses[chat_id]
-
-    
-    await context.bot.send_photo(
-        chat_id=chat_id,
-        photo=character['img_url'],
-        caption="""***A New Character Has Just Appeared Use /guess [name]!👒
-And Add This Character In Your Collection***""",
-        parse_mode='Markdown')
-    
-# Initialize the spam dictionary and the last user dictionary
+ 
 # Add a dictionary to keep track of the last user who sent a message in each chat
 # and when they were last warned about spamming
-last_user = {}
-warned_users = {}
-
-async def message_counter(update: Update, context: CallbackContext) -> None:
-    chat_id = str(update.effective_chat.id)
-    user_id = update.effective_user.id
-
-    if chat_id not in locks:
-        locks[chat_id] = asyncio.Lock()
-    lock = locks[chat_id]
-
-    async with lock:
-        # Get message frequency for this chat from the database
-        chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
-        if chat_frequency:
-            message_frequency = chat_frequency.get('message_frequency', 500)
-        else:
-            message_frequency = 500
-
-        # Check if the last 6 messages were sent by the same user
-        if chat_id in last_user and last_user[chat_id]['user_id'] == user_id:
-            last_user[chat_id]['count'] += 1
-            if last_user[chat_id]['count'] >= 100:
-                # If the user has been warned in the last 10 minutes, ignore their messages
-                if user_id in warned_users and time.time() - warned_users[user_id] < 600:
-                    return
-                else:
-                    # Warn the user and record the time of the warning
-                    await update.message.reply_text('Spammer Lel...your messages will be ignored for 10 minutes.')
-                    warned_users[user_id] = time.time()
-                    return
-        else:
-            last_user[chat_id] = {'user_id': user_id, 'count': 1}
-
-        # Increment message count for this chat
-        if chat_id in message_counts:
-            message_counts[chat_id] += 1
-        else:
-            message_counts[chat_id] = 1
-
-        # Send image after every message_frequency messages
-        if message_counts[chat_id] % message_frequency == 0:
-            await send_image(update, context)
-            # Reset counter for this chat
-            message_counts[chat_id] = 0
 
 
 
@@ -177,64 +99,6 @@ async def change_time(update: Update, context: CallbackContext) -> None:
     except Exception as e:
         await update.message.reply_text('Failed to change character appearance frequency.')
 
-async def guess(update: Update, context: CallbackContext) -> None:
-    chat_id = update.effective_chat.id
-    user_id = update.effective_user.id
-
-    if chat_id not in last_characters:
-        return
-
-    if chat_id in first_correct_guesses:
-        await update.message.reply_text(f'❌️ Already guessed by Someone..So Try Next Time Bruhh')
-        return
-
-    guess = ' '.join(context.args).lower() if context.args else ''
-    
-    if "&" in guess or "and" in guess.lower():
-        await update.message.reply_text("You can't use '&' or 'and' in your guess.")
-        return
-        
-    # Split the character's name into parts by space
-    name_parts = last_characters[chat_id]['name'].lower().split()
-
-    # Check if the guess is the full name of the character in any order, or any part of the name exactly
-    if sorted(name_parts) == sorted(guess.split()) or any(part == guess for part in name_parts):
-        # Rest of the function...
-
-    
-        first_correct_guesses[chat_id] = user_id
-        
-        user = await user_collection.find_one({'id': user_id})
-        if user:
-            update_fields = {}
-            if hasattr(update.effective_user, 'username') and update.effective_user.username != user.get('username'):
-                update_fields['username'] = update.effective_user.username
-            if update.effective_user.first_name != user.get('first_name'):
-                update_fields['first_name'] = update.effective_user.first_name
-            if update_fields:
-                await user_collection.update_one({'id': user_id}, {'$set': update_fields})
-            
-            await user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
-      
-        elif hasattr(update.effective_user, 'username'):
-            await user_collection.insert_one({
-                'id': user_id,
-                'username': update.effective_user.username,
-                'first_name': update.effective_user.first_name,
-                'characters': [last_characters[chat_id]],
-            })
-
-        # Update the group leaderboard
-        await group_user_totals_collection.update_one(
-            {'user_id': user_id, 'group_id': chat_id},
-            {'$inc': {'count': 1}},
-            upsert=True
-        )
-
-        await update.message.reply_text(f'<b>Congratulations 🪼! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> \nYou Got New Character 💮</b> \n\n<b>👒 Character name: {last_characters[chat_id]["name"]}</b> \n<b>♋ Anime: {last_characters[chat_id]["anime"]}</b> \n<b>🫧 Rairty: {last_characters[chat_id]["rarity"]}</b>\n\n<b>This character has been added to your harem now do /collection to check your new character</b>', parse_mode='HTML')
-
-    else:
-        await update.message.reply_text('Incorrect guess. Try again.')
 
                 
 async def inlinequery(update: Update, context: CallbackContext) -> None:
@@ -342,7 +206,6 @@ async def fav(update: Update, context: CallbackContext) -> None:
 
 
 
-
 async def gift(update: Update, context: CallbackContext) -> None:
     sender_id = update.effective_user.id
 
@@ -377,12 +240,7 @@ async def gift(update: Update, context: CallbackContext) -> None:
     receiver = await user_collection.find_one({'id': receiver_id})
 
     if receiver:
-        character_in_collection = next((character for character in receiver['characters'] if character['id'] == character_id), None)
-
-        if character_in_collection:
-            await user_collection.update_one({'id': receiver_id, 'characters.id': character_id})
-        else:
-            await user_collection.update_one({'id': receiver_id}, {'$push': {'characters': character}})
+        await user_collection.update_one({'id': receiver_id}, {'$push': {'characters': character}})
     else:
         # Create new user document
         await user_collection.insert_one({
@@ -390,10 +248,10 @@ async def gift(update: Update, context: CallbackContext) -> None:
             'username': update.message.reply_to_message.from_user.username,
             'first_name': update.message.reply_to_message.from_user.first_name,
             'characters': [character],
-            
         })
 
     await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
+
 
 async def harem(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
