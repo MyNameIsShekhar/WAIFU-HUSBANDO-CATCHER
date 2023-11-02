@@ -413,18 +413,15 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
     user = await user_collection.find_one({'id': user_id})
     if not user:
-        await update.effective_message.reply_text('You have not guessed any characters yet.')
+        if update.message:
+            await update.message.reply_text('You have not guessed any characters yet.')
+        else:
+            await update.callback_query.edit_message_text('You have not guessed any characters yet.')
         return
 
     # ... rest of your code ...
 
     
-
-    # ... rest of your code ...
-
-    
-
-
 
     characters = sorted(user['characters'], key=lambda x: x['anime'])
 
@@ -480,11 +477,20 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
         fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
         
         if fav_character and 'img_url' in fav_character:
-            await update.effective_message.reply_photo(photo=fav_character['img_url'], parse_mode='HTML', caption=harem_message, reply_markup=reply_markup)
+            if update.message:
+                await update.message.reply_photo(photo=fav_character['img_url'], parse_mode='HTML', caption=harem_message, reply_markup=reply_markup)
+            else:
+                await update.callback_query.edit_message_caption(caption=harem_message, reply_markup=reply_markup)
         else:
-            await update.effective_message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+            if update.message:
+                await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+            else:
+                await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
     else:
-        await update.effective_message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+        if update.message:
+            await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+        else:
+            await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
 
 # Define a pattern for the harem command
 HAREM_PATTERN = r"harem:(\d+)"
