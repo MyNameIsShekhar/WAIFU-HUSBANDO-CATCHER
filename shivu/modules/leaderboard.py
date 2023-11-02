@@ -58,7 +58,13 @@ async def ctop(update: Update, context: CallbackContext) -> None:
             first_name = first_name[:10] + '...'
         character_count = user['character_count']
         leaderboard_message += f'{i}. <a href="https://t.me/{username}"><b>{first_name}</b></a> ▪︎ <b>{character_count}</b>\n'
-
+    photo_urls = [
+        "https://graph.org/file/38767e79402baa8b04125.jpg",
+        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
+        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg",
+        "https://graph.org//file/e65e9605f3beb5c76026b.jpg",
+        "https://graph.org//file/88c0fc2309930c591d98b.jpg"
+    ]
     photo_url = random.choice(photo_urls)
 
     await update.message.reply_photo(photo=photo_url, caption=leaderboard_message, parse_mode='HTML')
@@ -83,7 +89,13 @@ async def leaderboard(update: Update, context: CallbackContext) -> None:
             first_name = first_name[:10] + '...'
         character_count = user['character_count']
         leaderboard_message += f'{i}. <a href="https://t.me/{username}"><b>{first_name}</b></a> ▪︎ <b>{character_count}</b>\n'
-
+    photo_urls = [
+        "https://graph.org/file/38767e79402baa8b04125.jpg",
+        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
+        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg",
+        "https://graph.org//file/e65e9605f3beb5c76026b.jpg",
+        "https://graph.org//file/88c0fc2309930c591d98b.jpg"
+    ]
     photo_url = random.choice(photo_urls)
 
     await update.message.reply_photo(photo=photo_url, caption=leaderboard_message, parse_mode='HTML')
