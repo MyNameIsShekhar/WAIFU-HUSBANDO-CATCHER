@@ -429,32 +429,48 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     # Calculate the total number of pages
     total_pages = len(animes)
 
+    # Check if page is within bounds
+    if page < 0 or page >= total_pages:
+        page = 0  # Reset to first page if out of bounds
+
     harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
 
-    # Get the anime for the current page
-    anime = animes[page]
-    characters = grouped_characters[anime]
+    # Get the animes for the current page
+    current_animes = animes[page*3:(page+1)*3]
 
-    total_characters = await collection.count_documents({'anime': anime})
+    for anime in current_animes:
+        characters = grouped_characters[anime]
 
-    # Count each unique character only once
-    unique_characters = len(set(c['id'] for c in characters))
+        total_characters = await collection.count_documents({'anime': anime})
 
-    harem_message += f'🏖️ <b>{anime} - ({unique_characters} / {total_characters})</b>\n'
-    harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
+        # Count each unique character only once
+        unique_characters = len(set(c['id'] for c in characters))
 
-    character_counts = {i["id"]: characters.count(i) for i in characters}
-
-    for character_id, count in character_counts.items():
-        character = next((c for c in characters if c["id"] == character_id), None)
-        rarity = character.get('rarity', "Don't have rarity...") 
-        
-        harem_message += f'🆔️ <b>{character_id}</b>| {rarity} \n<b>🌸 {character["name"]} × {count}</b>\n'
-        
+        harem_message += f'🏖️ <b>{anime} - ({unique_characters} / {total_characters})</b>\n'
         harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
-    harem_message += '\n'
-    
+        character_counts = {i["id"]: characters.count(i) for i in characters}
+
+        for character_id, count in character_counts.items():
+            character = next((c for c in characters if c["id"] == character_id), None)
+            rarity = character.get('rarity', "Don't have rarity...") 
+            
+            new_line = f'🆔️ <b>{character_id}</b>| {rarity} \n<b>🌸 {character["name"]} × {count}</b>\n'
+            
+            # Check if adding this line will exceed the Telegram limit
+            if len(harem_message + new_line) > 4000:
+                break
+            
+            harem_message += new_line
+            
+            harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
+
+        harem_message += '\n'
+
+        # Check if the message is too long
+        if len(harem_message) > 4000:
+            break
+
     total_count = len(user['characters'])
     
     keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
@@ -470,6 +486,8 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
     harem_message += f"\nPage {page+1} of {total_pages}"
 
+    # ... rest of your code ...
+
     if 'favorites' in user and user['favorites']:
         fav_character_id = user['favorites'][0]
         fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
@@ -478,7 +496,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             if update.message:
                 await update.message.reply_photo(photo=fav_character['img_url'], parse_mode='HTML', caption=harem_message, reply_markup=reply_markup)
             else:
-                await update.callback_query.edit_message_caption(caption=harem_message, reply_markup=reply_markup)
+                await update.callback_query.edit_message_caption(caption=harem_message, reply_markup=reply_markup, parse_mode='HTML')
         else:
             if update.message:
                 await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
