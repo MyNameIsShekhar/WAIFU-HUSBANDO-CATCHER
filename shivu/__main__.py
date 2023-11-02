@@ -455,11 +455,16 @@ async def harem(update: Update, context: CallbackContext, page: int = 1) -> None
         harem_message += '\n'
     
     total_count = len(user['characters'])
-    
-    keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
+    keyboard = [
+        [InlineKeyboardButton("Prev", callback_data=f"harem_page_{page - 1}"),
+         InlineKeyboardButton("Next", callback_data=f"harem_page_{page + 1}")],
+        [InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]
+
+    ]
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
+    
     if 'favorites' in user and user['favorites']:
         fav_character_id = user['favorites'][0]
         fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
@@ -470,6 +475,7 @@ async def harem(update: Update, context: CallbackContext, page: int = 1) -> None
             await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
     else:
         await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+
 def harem_pagination(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     page = int(query.data.split("_")[-1])
@@ -477,6 +483,10 @@ def harem_pagination(update: Update, context: CallbackContext) -> None:
     # Call the harem function with the new page number
     asyncio.run(harem(update, context, page))
 
+    # Edit the message with the new harem
+    query.edit_message_caption(caption=harem_message, reply_markup=reply_markup)
+
+# Add this handler to your updater
 
 
 
