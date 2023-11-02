@@ -132,6 +132,59 @@ And Add This Character In Your Collection***""",
 
 
 
+async def guess(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+    user_id = update.effective_user.id
+
+    if chat_id not in last_characters:
+        return
+
+    if chat_id in first_correct_guesses:
+        await update.message.reply_text(f'❌️ Already guessed by Someone..So Try Next Time Bruhh')
+        return
+
+    guess = ' '.join(context.args).lower() if context.args else ''
+    
+    if "&" in guess or "and" in guess.lower():
+        await update.message.reply_text("You can't use '&' or 'and' in your guess.")
+        return
+        
+    # Split the character's name into parts by space
+    name_parts = last_characters[chat_id]['name'].lower().split()
+
+    # Check if the guess is the full name of the character in any order, or any part of the name exactly
+    if sorted(name_parts) == sorted(guess.split()) or any(part == guess for part in name_parts):
+        # Rest of the function...
+
+    
+        first_correct_guesses[chat_id] = user_id
+        
+        user = await user_collection.find_one({'id': user_id})
+        if user:
+            update_fields = {}
+            if hasattr(update.effective_user, 'username') and update.effective_user.username != user.get('username'):
+                update_fields['username'] = update.effective_user.username
+            if update.effective_user.first_name != user.get('first_name'):
+                update_fields['first_name'] = update.effective_user.first_name
+            if update_fields:
+                await user_collection.update_one({'id': user_id}, {'$set': update_fields})
+            
+            await user_collection.update_one({'id': user_id}, {'$push': {'characters': last_characters[chat_id]}})
+      
+        elif hasattr(update.effective_user, 'username'):
+            await user_collection.insert_one({
+                'id': user_id,
+                'username': update.effective_user.username,
+                'first_name': update.effective_user.first_name,
+                'characters': [last_characters[chat_id]],
+            })
+
+        
+
+        await update.message.reply_text(f'<b>Congratulations 🪼! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> \nYou Got New Character 💮</b> \n\n<b>👒 Character name: {last_characters[chat_id]["name"]}</b> \n<b>♋ Anime: {last_characters[chat_id]["anime"]}</b> \n<b>🫧 Rairty: {last_characters[chat_id]["rarity"]}</b>\n\n<b>This character has been added to your harem now do /collection to check your new character</b>', parse_mode='HTML')
+
+    else:
+        await update.message.reply_text('Incorrect guess. Try again.')
 
 
 
