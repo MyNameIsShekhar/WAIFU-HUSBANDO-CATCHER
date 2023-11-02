@@ -49,16 +49,86 @@ message_counts = {}
 for module_name in ALL_MODULES:
     imported_module = importlib.import_module("shivu.modules." + module_name)
 
+
+last_user = {}
+warned_users = {}
+
+async def message_counter(update: Update, context: CallbackContext) -> None:
+    chat_id = str(update.effective_chat.id)
+    user_id = update.effective_user.id
+
+    if chat_id not in locks:
+        locks[chat_id] = asyncio.Lock()
+    lock = locks[chat_id]
+
+    async with lock:
+        # Get message frequency for this chat from the database
+        chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
+        if chat_frequency:
+            message_frequency = chat_frequency.get('message_frequency', 500)
+        else:
+            message_frequency = 500
+
+        # Check if the last 6 messages were sent by the same user
+        if chat_id in last_user and last_user[chat_id]['user_id'] == user_id:
+            last_user[chat_id]['count'] += 1
+            if last_user[chat_id]['count'] >= 100:
+                # If the user has been warned in the last 10 minutes, ignore their messages
+                if user_id in warned_users and time.time() - warned_users[user_id] < 600:
+                    return
+                else:
+                    # Warn the user and record the time of the warning
+                    await update.message.reply_text('Spammer Lel...your messages will be ignored for 10 minutes.')
+                    warned_users[user_id] = time.time()
+                    return
+        else:
+            last_user[chat_id] = {'user_id': user_id, 'count': 1}
+
+        # Increment message count for this chat
+        if chat_id in message_counts:
+            message_counts[chat_id] += 1
+        else:
+            message_counts[chat_id] = 1
+
+        # Send image after every message_frequency messages
+        if message_counts[chat_id] % message_frequency == 0:
+            await send_image(update, context)
+            # Reset counter for this chat
+            message_counts[chat_id] = 0
+            
+async def send_image(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+
+
+    all_characters = list(await collection.find({}).to_list(length=None))
     
+    
+    if chat_id not in sent_characters:
+        sent_characters[chat_id] = []
 
+    
+    if len(sent_characters[chat_id]) == len(all_characters):
+        sent_characters[chat_id] = []
 
+    
+    character = random.choice([c for c in all_characters if c['id'] not in sent_characters[chat_id]])
 
+    
+    sent_characters[chat_id].append(character['id'])
+    last_characters[chat_id] = character
 
+    
+    if chat_id in first_correct_guesses:
+        del first_correct_guesses[chat_id]
 
-
- 
-# Add a dictionary to keep track of the last user who sent a message in each chat
-# and when they were last warned about spamming
+    
+    await context.bot.send_photo(
+        chat_id=chat_id,
+        photo=character['img_url'],
+        caption="""***A New Character Has Just Appeared Use /guess [name]!👒
+And Add This Character In Your Collection***""",
+        parse_mode='Markdown')
+    
 
 
 
