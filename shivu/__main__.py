@@ -357,7 +357,8 @@ async def gift(update: Update, context: CallbackContext) -> None:
         return
 
     # Remove only one instance of the character from the sender's collection
-    await user_collection.update_one({'id': sender_id}, {'$pull': {'characters': {'id': {'$eq': character_id}}}})
+    sender['characters'].remove(character)
+    await user_collection.update_one({'id': sender_id}, {'$set': {'characters': sender['characters']}})
 
     # Add the character to the receiver's collection
     receiver = await user_collection.find_one({'id': receiver_id})
