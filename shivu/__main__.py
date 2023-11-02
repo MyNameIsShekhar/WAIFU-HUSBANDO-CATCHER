@@ -253,12 +253,8 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
         user = await user_collection.find_one({'id': int(query)})
 
         if user:
-            characters = user['characters'][offset:offset+50]
-            if len(characters) > 50:
-                characters = characters[:50]
-                next_offset = str(offset + 50)
-            else:
-                next_offset = str(offset + len(characters))
+            characters = user['characters'][offset:]
+            next_offset = str(offset + len(characters))
 
             results = []
             added_characters = set()
@@ -292,7 +288,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
     else:
         # If the query is empty, fetch all characters from the database
         if not query:
-            cursor = collection.find().skip(offset).limit(51)
+            cursor = collection.find().skip(offset)
         else:
             # Split the query into user ID and search term
             parts = query.split(' ', 1)
@@ -309,14 +305,10 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 else:
                     cursor = []
             else:
-                cursor = collection.find({'$or': [{'anime': {'$regex': query, '$options': 'i'}}, {'name': {'$regex': query, '$options': 'i'}}]}).skip(offset).limit(51)
+                cursor = collection.find({'$or': [{'anime': {'$regex': query, '$options': 'i'}}, {'name': {'$regex': query, '$options': 'i'}}]}).skip(offset)
 
-        all_characters = await cursor.to_list(length=51)
-        if len(all_characters) > 50:
-            all_characters = all_characters[:50]
-            next_offset = str(offset + 50)
-        else:
-            next_offset = str(offset + len(all_characters))
+        all_characters = cursor if isinstance(cursor, list) else await cursor.to_list(length=None)
+        next_offset = str(offset + len(all_characters))
 
         results = []
         for character in all_characters:
@@ -336,8 +328,6 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
             )
         await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
 
-    
-    
 async def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
