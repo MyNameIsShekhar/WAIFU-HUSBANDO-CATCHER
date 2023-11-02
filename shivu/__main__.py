@@ -243,7 +243,6 @@ async def change_time(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text('Failed to change character appearance frequency.')
 
 
-                
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     import time
     query = update.inline_query.query
@@ -253,7 +252,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
         user = await user_collection.find_one({'id': int(query)})
 
         if user:
-            characters = user['characters'][offset:offset+50]
+            characters = list({v['id']:v for v in user['characters']}.values())[offset:offset+50]
             if len(characters) > 50:
                 characters = characters[:50]
                 next_offset = str(offset + 50)
@@ -261,26 +260,21 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 next_offset = str(offset + len(characters))
 
             results = []
-            added_characters = set()
             for character in characters:
-                if character['id'] not in added_characters:
-                    anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
-                    total_anime_characters = await collection.count_documents({'anime': character['anime']})
+                anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
+                total_anime_characters = await collection.count_documents({'anime': character['anime']})
 
-                    rarity = character.get('rarity', "Don't have rarity.. ")
+                rarity = character.get('rarity', "Don't have rarity.. ")
 
-                    character_count = characters.count(character)
-
-                    results.append(
-                        InlineQueryResultPhoto(
-                            thumbnail_url=character['img_url'],
-                            id=f"{character['id']}_{time.time()}",
-                            photo_url=character['img_url'],
-                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a></b>'s Character\n\n🌸: <b>{character['name']}</b> " + (f"(x{character_count})") + f"\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n\n🆔: <b>{character['id']}</b>",
-                            parse_mode='HTML'
-                        )
+                results.append(
+                    InlineQueryResultPhoto(
+                        thumbnail_url=character['img_url'],
+                        id=f"{character['id']}_{time.time()}",
+                        photo_url=character['img_url'],
+                        caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a></b>'s Character\n\n🌸: <b>{character['name']}</b>\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n\n🆔: <b>{character['id']}</b>",
+                        parse_mode='HTML'
                     )
-                    added_characters.add(character['id'])
+                )
 
             await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
         else:
@@ -289,6 +283,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 title="User not found", 
                 input_message_content=InputTextMessageContent("User not found")
             )], cache_time=5)
+    
     else:
         # If the query is empty, fetch all characters from the database
         if not query:
