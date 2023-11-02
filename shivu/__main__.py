@@ -494,8 +494,7 @@ async def handle_callback(update: Update, context: CallbackContext) -> None:
     (command, page) = query.data.split(":")
     
     if command == "harem":
-        await context.bot.delete_message(chat_id=query.message.chat_id,
-                                         message_id=query.message.message_id)
+        
         await harem(update, context, int(page))
 
 
