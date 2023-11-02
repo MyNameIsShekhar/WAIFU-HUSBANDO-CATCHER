@@ -407,14 +407,18 @@ async def gift(update: Update, context: CallbackContext) -> None:
 
     await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
 
+
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
-    query = update.callback_query
-    user_id = query.from_user.id
+    user_id = update.effective_user.id
 
     user = await user_collection.find_one({'id': user_id})
     if not user:
-        await query.message.reply_text('You have not guessed any characters yet.')
+        await update.effective_message.reply_text('You have not guessed any characters yet.')
         return
+
+    # ... rest of your code ...
+
+    
 
     # ... rest of your code ...
 
@@ -476,11 +480,11 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
         fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
         
         if fav_character and 'img_url' in fav_character:
-            await query.message.reply_photo(photo=fav_character['img_url'], parse_mode='HTML', caption=harem_message, reply_markup=reply_markup)
+            await update.effective_message.reply_photo(photo=fav_character['img_url'], parse_mode='HTML', caption=harem_message, reply_markup=reply_markup)
         else:
-            await query.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+            await update.effective_message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
     else:
-        await query.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+        await update.effective_message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
 
 # Define a pattern for the harem command
 HAREM_PATTERN = r"harem:(\d+)"
