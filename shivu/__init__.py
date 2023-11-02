@@ -17,7 +17,7 @@ logging.getLogger("pyrate_limiter").setLevel(logging.ERROR)
 LOGGER = logging.getLogger(__name__)
 
 
-TOKEN = "6687527437:AAHlFxHPqHHRoqPoqqTNPj3rQ_YS3OEXOgQ"
+TOKEN = "6420751168:AAG63ZLO8kMgMa6SZCQWjJV0-onZqVsGfsI"
 application = Application.builder().token(TOKEN).build()
 
 client = AsyncIOMotorClient('mongodb+srv://shuyaashivu:9fcc60263a946ef550d11406667404fa@cluster0.ikub9lo.mongodb.net/?retryWrites=true&w=majority')
