@@ -57,7 +57,7 @@ async def ctop(update: Update, context: CallbackContext) -> None:
         if len(first_name) > 7:
             first_name = first_name[:10] + '...'
         character_count = user['character_count']
-        leaderboard_message += f'{i}. <a href="https://t.me/{username}"><b>{first_name}</b></a> ▪︎ <b>{character_count}</b>\n'
+        leaderboard_message += f'{i}. <a href="https://t.me/{username}"><b>{first_name}</b></a> ➾ <b>{character_count}</b>\n'
     photo_urls = [
         "https://graph.org/file/38767e79402baa8b04125.jpg",
         "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
@@ -88,7 +88,7 @@ async def leaderboard(update: Update, context: CallbackContext) -> None:
         if len(first_name) > 7:
             first_name = first_name[:10] + '...'
         character_count = user['character_count']
-        leaderboard_message += f'{i}. <a href="https://t.me/{username}"><b>{first_name}</b></a> ▪︎ <b>{character_count}</b>\n'
+        leaderboard_message += f'{i}. <a href="https://t.me/{username}"><b>{first_name}</b></a> ➾ <b>{character_count}</b>\n'
     photo_urls = [
         "https://graph.org/file/38767e79402baa8b04125.jpg",
         "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
