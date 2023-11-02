@@ -351,6 +351,7 @@ async def fav(update: Update, context: CallbackContext) -> None:
 
 async def gift(update: Update, context: CallbackContext) -> None:
     sender_id = update.effective_user.id
+    chat_id = update.effective_chat.id
 
     if not update.message.reply_to_message:
         await update.message.reply_text("You need to reply to a user's message to gift a character!")
