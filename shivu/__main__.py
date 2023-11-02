@@ -419,18 +419,17 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             await update.callback_query.edit_message_text('You have not guessed any characters yet.')
         return
 
-    # ... rest of your code ...
-
-    
-
     characters = sorted(user['characters'], key=lambda x: x['anime'])
 
     grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['anime'])}
 
-    harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
-
     # Get a list of animes
     animes = list(grouped_characters.keys())
+
+    # Calculate the total number of pages
+    total_pages = len(animes)
+
+    harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
 
     # Get the anime for the current page
     anime = animes[page]
@@ -445,10 +444,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
     character_counts = {i["id"]: characters.count(i) for i in characters}
-    
-    # Limit to two characters per anime
-    character_counts = dict(list(character_counts.items())[:2])
-    
+
     for character_id, count in character_counts.items():
         character = next((c for c in characters if c["id"] == character_id), None)
         rarity = character.get('rarity', "Don't have rarity...") 
@@ -464,13 +460,15 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
 
     # Add navigation buttons if there are multiple pages
-    if len(animes) > 1:
+    if total_pages > 1:
         if page > 0:
             keyboard.append([InlineKeyboardButton("Prev", callback_data=f"harem:{page-1}")])
-        if page < len(animes) - 1:
+        if page < total_pages - 1:
             keyboard.append([InlineKeyboardButton("Next", callback_data=f"harem:{page+1}")])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
+
+    harem_message += f"\nPage {page+1} of {total_pages}"
 
     if 'favorites' in user and user['favorites']:
         fav_character_id = user['favorites'][0]
