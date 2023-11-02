@@ -487,14 +487,12 @@ HAREM_PATTERN = r"harem:(\d+)"
 
 async def handle_callback(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
-    page = int(query.data.split(":")[1])
+    (command, page) = query.data.split(":")
     
-    await context.bot.delete_message(chat_id=query.message.chat_id,
-                                     message_id=query.message.message_id)
-    await harem(update, context, page)
-
-# Add the handler with the pattern
-
+    if command == "harem":
+        await context.bot.delete_message(chat_id=query.message.chat_id,
+                                         message_id=query.message.message_id)
+        await harem(update, context, int(page))
 
 
 def main() -> None:
