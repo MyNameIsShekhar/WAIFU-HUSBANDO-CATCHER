@@ -245,7 +245,7 @@ async def change_time(update: Update, context: CallbackContext) -> None:
 
                 
 async def inlinequery(update: Update, context: CallbackContext) -> None:
-    
+    import time
     query = update.inline_query.query
     offset = int(update.inline_query.offset) if update.inline_query.offset else 0
 
@@ -258,7 +258,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 characters = characters[:50]
                 next_offset = str(offset + 50)
             else:
-                next_offset = None
+                next_offset = str(offset + len(characters))
 
             results = []
             added_characters = set()
@@ -282,7 +282,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                     )
                     added_characters.add(character['id'])
 
-            await update.inline_query.answer(results, next_offset=next_offset, cache_time=0)
+            await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
         else:
             await update.inline_query.answer([InlineQueryResultArticle(
                 id='notfound', 
@@ -290,32 +290,50 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 input_message_content=InputTextMessageContent("User not found")
             )], cache_time=5)
     else:
-        cursor = collection.find({'$or': [{'anime': {'$regex': query, '$options': 'i'}}, {'name': {'$regex': query, '$options': 'i'}}]}).skip(offset).limit(51)
-        all_characters = await cursor.to_list(length=51)
-        if len(all_characters) > 50:
-            all_characters = all_characters[:50]
-            next_offset = str(offset + 50)
-        else:
-            next_offset = None
+        # Split the query into user ID and search term
+        user_id, search_term = query.split(' ', 1)
 
-        results = []
-        for character in all_characters:
-            users_with_character = await user_collection.find({'characters.id': character['id']}).to_list(length=100)
-            total_guesses = sum(character.get("count", 1) for user in users_with_character)
+        # Fetch the user from the database
+        user = await user_collection.find_one({'id': int(user_id)})
 
-            rarity = character.get('rarity', "Don't have rarity...")
+        if user:
+            # Filter the user's characters based on the search term
+            characters = [c for c in user['characters'] if search_term.lower() in c['name'].lower() or search_term.lower() in c['anime'].lower()]
 
-            results.append(
-                InlineQueryResultPhoto(
-                    thumbnail_url=character['img_url'],
-                    id=f"{character['id']}_{time.time()}",
-                    photo_url=character['img_url'],
-                    caption=f"<b>Look at this character!</b>\n\n🌸 <b>{character['name']}</b>\n🏖️ <b>{character['anime']}</b>\n<b>{rarity}</b>\n🆔: {character['id']}\n\n<b>Guessed {total_guesses} times In Globally</b>",
-                    parse_mode='HTML'
-                )
-            )
-        await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
+            # Apply pagination
+            characters = characters[offset:offset+50]
+            if len(characters) > 50:
+                characters = characters[:50]
+                next_offset = str(offset + 50)
+            else:
+                next_offset = str(offset + len(characters))
 
+            results = []
+            added_characters = set()
+            for character in characters:
+                if character['id'] not in added_characters:
+                    anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
+                    total_anime_characters = await collection.count_documents({'anime': character['anime']})
+
+                    rarity = character.get('rarity', "Don't have rarity.. ")
+
+                    character_count = characters.count(character)
+
+                    results.append(
+                        InlineQueryResultPhoto(
+                            thumbnail_url=character['img_url'],
+                            id=f"{character['id']}_{time.time()}",
+                            photo_url=character['img_url'],
+                            caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a></b>'s Character\n\n🌸: <b>{character['name']}</b> " + (f"(x{character_count})") + f"\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n\n🆔: <b>{character['id']}</b>",
+                            parse_mode='HTML'
+                        )
+                    )
+                    added_characters.add(character['id'])
+
+            await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
+
+    
+    
 async def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
