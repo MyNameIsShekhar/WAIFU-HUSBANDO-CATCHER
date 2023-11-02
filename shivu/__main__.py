@@ -476,15 +476,18 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     else:
         await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
 
-def handle_callback(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-    (command, page) = query.data.split(":")
-    
-    if command == "harem":
-        context.bot.delete_message(chat_id=query.message.chat_id,
-                                   message_id=query.message.message_id)
-        asyncio.run(harem(update, context, int(page)))
+# Define a pattern for the harem command
+HAREM_PATTERN = r"harem:(\d+)"
 
+async def handle_callback(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+    page = int(query.data.split(":")[1])
+    
+    await context.bot.delete_message(chat_id=query.message.chat_id,
+                                     message_id=query.message.message_id)
+    await harem(update, context, page)
+
+# Add the handler with the pattern
 
 
 
@@ -500,8 +503,9 @@ def main() -> None:
     application.add_handler(CommandHandler('fav', fav, block=False))
     application.add_handler(CommandHandler("give", gift, block=False))
     application.add_handler(CommandHandler("lmao", harem,block=False))
-    application.add_handler(CallbackQueryHandler(handle_callback))
+    application.add_handler(CallbackQueryHandler(handle_callback, pattern=HAREM_PATTERN))
 
+    
 
     application.run_polling( drop_pending_updates=True)
     
