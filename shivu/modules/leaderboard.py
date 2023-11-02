@@ -37,6 +37,39 @@ import random
 
     
 
+async def ctop(update: Update, context: CallbackContext) -> None:
+    chat_id = update.effective_chat.id
+
+    # Get the top 10 users in this group
+    cursor = group_user_totals_collection.aggregate([
+        {"$match": {"group_id": chat_id}},
+        {"$project": {"username": 1, "first_name": 1, "character_count": "$count"}},
+        {"$sort": {"character_count": -1}},
+        {"$limit": 10}
+    ])
+    leaderboard_data = await cursor.to_list(length=10)
+
+    leaderboard_message = "***TOP 10 USERS WITH MOST CHARACTERS IN THIS GROUP***\n\n"
+
+    for i, user in enumerate(leaderboard_data, start=1):
+        username = user.get('username', 'Unknown')
+        first_name = escape_markdown(user.get('first_name', 'Unknown'))
+
+        if len(first_name) > 7:
+            first_name = first_name[:10] + '...'
+        character_count = user['character_count']
+        leaderboard_message += f'{i}. {first_name}- {character_count} characters\n'
+
+    photo_urls = [
+        "https://graph.org/file/38767e79402baa8b04125.jpg",
+        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
+        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg",
+        "https://graph.org//file/e65e9605f3beb5c76026b.jpg",
+        "https://graph.org//file/88c0fc2309930c591d98b.jpg"
+    ]
+    photo_url = random.choice(photo_urls)
+
+    await context.bot.send_photo(chat_id=chat_id, photo=photo_url, caption=leaderboard_message, parse_mode='Markdown')
 
 
 async def leaderboard(update: Update, context: CallbackContext) -> None:
@@ -115,6 +148,7 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
 
 
 
+application.add_handler(CommandHandler('ctop', ctop, block=False))
 
 
 application.add_handler(CommandHandler('top', leaderboard, block=False))
