@@ -407,7 +407,8 @@ async def gift(update: Update, context: CallbackContext) -> None:
 
     await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
 
-async def harem(update: Update, context: CallbackContext, page: int = 1) -> None:
+
+async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
 
     user = await user_collection.find_one({'id': user_id})
@@ -419,52 +420,51 @@ async def harem(update: Update, context: CallbackContext, page: int = 1) -> None
 
     grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['anime'])}
 
-    # Pagination
-    items_per_page = 5
-    start = (page - 1) * items_per_page
-    end = start + items_per_page
-
-    # Slice the list of animes for the current page
-    paged_grouped_characters = dict(list(grouped_characters.items())[start:end])
-
     harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
 
-    for anime, characters in paged_grouped_characters.items():
-        total_characters = await collection.count_documents({'anime': anime})
+    # Get a list of animes
+    animes = list(grouped_characters.keys())
 
-        # Count each unique character only once
-        unique_characters = len(set(c['id'] for c in characters))
+    # Get the anime for the current page
+    anime = animes[page]
+    characters = grouped_characters[anime]
 
-        harem_message += f'🏖️ <b>{anime} - ({unique_characters} / {total_characters})</b>\n'
+    total_characters = await collection.count_documents({'anime': anime})
+
+    # Count each unique character only once
+    unique_characters = len(set(c['id'] for c in characters))
+
+    harem_message += f'🏖️ <b>{anime} - ({unique_characters} / {total_characters})</b>\n'
+    harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
+
+    character_counts = {i["id"]: characters.count(i) for i in characters}
+    
+    # Limit to two characters per anime
+    character_counts = dict(list(character_counts.items())[:2])
+    
+    for character_id, count in character_counts.items():
+        character = next((c for c in characters if c["id"] == character_id), None)
+        rarity = character.get('rarity', "Don't have rarity...") 
+        
+        harem_message += f'🆔️ <b>{character_id}</b>| {rarity} \n<b>🌸 {character["name"]} × {count}</b>\n'
+        
         harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
-        character_counts = {i["id"]: characters.count(i) for i in characters}
-        
-        for character_id, count in character_counts.items():
-            character = next((c for c in characters if c["id"] == character_id), None)
-            rarity = character.get('rarity', "Don't have rarity...") 
-            
-            harem_message += f'🆔️ <b>{character_id}</b>| {rarity} \n<b>🌸 {character["name"]} × {count}</b>\n'
-            
-            harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
-
-            # Check if the message is reaching the maximum length
-            if len(harem_message) > 1000:  # Adjust this value as needed
-                break
-
-        harem_message += '\n'
+    harem_message += '\n'
     
     total_count = len(user['characters'])
-    keyboard = [
-        [InlineKeyboardButton("Prev", callback_data=f"harem_page_{page - 1}"),
-         InlineKeyboardButton("Next", callback_data=f"harem_page_{page + 1}")],
-        [InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]
+    
+    keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
 
-    ]
+    # Add navigation buttons if there are multiple pages
+    if len(animes) > 1:
+        if page > 0:
+            keyboard.append([InlineKeyboardButton("Prev", callback_data=f"harem:{page-1}")])
+        if page < len(animes) - 1:
+            keyboard.append([InlineKeyboardButton("Next", callback_data=f"harem:{page+1}")])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    
     if 'favorites' in user and user['favorites']:
         fav_character_id = user['favorites'][0]
         fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
@@ -476,17 +476,15 @@ async def harem(update: Update, context: CallbackContext, page: int = 1) -> None
     else:
         await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
 
-def harem_pagination(update: Update, context: CallbackContext) -> None:
+def handle_callback(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
-    page = int(query.data.split("_")[-1])
+    (command, page) = query.data.split(":")
+    
+    if command == "harem":
+        context.bot.delete_message(chat_id=query.message.chat_id,
+                                   message_id=query.message.message_id)
+        asyncio.run(harem(update, context, int(page)))
 
-    # Call the harem function with the new page number
-    asyncio.run(harem(update, context, page))
-
-    # Edit the message with the new harem
-    query.edit_message_caption(caption=harem_message, reply_markup=reply_markup)
-
-# Add this handler to your updater
 
 
 
@@ -502,9 +500,10 @@ def main() -> None:
     application.add_handler(CommandHandler('fav', fav, block=False))
     application.add_handler(CommandHandler("give", gift, block=False))
     application.add_handler(CommandHandler("lmao", harem,block=False))
-    application.add_handler(CallbackQueryHandler(harem_pagination, pattern="^harem_page"))
+    application.add_handler(CallbackQueryHandler(handle_callback))
+
+
     application.run_polling( drop_pending_updates=True)
-
-
+    
 if __name__ == "__main__":
     main()
