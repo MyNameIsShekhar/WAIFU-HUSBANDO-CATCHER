@@ -349,9 +349,10 @@ async def fav(update: Update, context: CallbackContext) -> None:
 
 
 
+
+
 async def gift(update: Update, context: CallbackContext) -> None:
     sender_id = update.effective_user.id
-    chat_id = update.effective_chat.id
 
     if not update.message.reply_to_message:
         await update.message.reply_text("You need to reply to a user's message to gift a character!")
@@ -381,12 +382,6 @@ async def gift(update: Update, context: CallbackContext) -> None:
     sender['characters'].remove(character)
     await user_collection.update_one({'id': sender_id}, {'$set': {'characters': sender['characters']}})
 
-    # Decrement count for the sender in this group
-    await group_user_totals_collection.update_one(
-        {'user_id': sender_id, 'group_id': chat_id},
-        {'$inc': {'count': -1}}
-    )
-
     # Add the character to the receiver's collection
     receiver = await user_collection.find_one({'id': receiver_id})
 
@@ -401,30 +396,7 @@ async def gift(update: Update, context: CallbackContext) -> None:
             'characters': [character],
         })
 
-    # Increment count for the receiver in this group
-    group_user_total = await group_user_totals_collection.find_one({'user_id': receiver_id, 'group_id': chat_id})
-    
-    if group_user_total:
-        update_fields = {}
-        if hasattr(update.effective_user, 'username') and update.effective_user.username != group_user_total.get('username'):
-            update_fields['username'] = update.effective_user.username
-        if update.effective_user.first_name != group_user_total.get('first_name'):
-            update_fields['first_name'] = update.effective_user.first_name
-        if update_fields:
-            await group_user_totals_collection.update_one({'user_id': receiver_id, 'group_id': chat_id}, {'$set': update_fields})
-        
-        await group_user_totals_collection.update_one({'user_id': receiver_id, 'group_id': chat_id}, {'$inc': {'count': 1}})
-    
-    else:
-        await group_user_totals_collection.insert_one({
-            'user_id': receiver_id,
-            'group_id': chat_id,
-            'username': update.effective_user.username,
-            'first_name': update.effective_user.first_name,
-            'count': 1,
-        })
-
-    await update.message.reply_text(f'You have successfully gifted your character to {update.effective_user.first_name}')
+    await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
 
 async def harem(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
