@@ -423,7 +423,7 @@ async def gift(update: Update, context: CallbackContext) -> None:
             'count': 1,
         })
 
-    await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}! \n\n<b>👒 Character name: {character["name"]}</b> \n<b>♋ Anime: {character["anime"]}</b> \n<b>🫧 Rairty: {character["rarity"]}</b>", parse_mode='HTML')
+    await update.message.reply_text(f'You have successfully gifted your character to {update.effective_user.first_name}')
 
 async def harem(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
