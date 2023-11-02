@@ -356,8 +356,8 @@ async def gift(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text("You don't have this character in your collection!")
         return
 
-    # Remove the character from the sender's collection
-    await user_collection.update_one({'id': sender_id}, {'$pull': {'characters': {'id': character_id}}})
+    # Remove only one instance of the character from the sender's collection
+    await user_collection.update_one({'id': sender_id}, {'$pull': {'characters': {'id': {'$eq': character_id}}}})
 
     # Add the character to the receiver's collection
     receiver = await user_collection.find_one({'id': receiver_id})
