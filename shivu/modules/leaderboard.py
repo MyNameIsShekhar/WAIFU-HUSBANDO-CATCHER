@@ -28,7 +28,7 @@ def escape_markdown(text):
 collection = db['anime_characters_lol']
 user_totals_collection = db['user_totals_lmaoooo']
 user_collection = db["user_collection_lmaoooo"]
-group_user_totals_collection = db['group_user_totalssssss']
+group_user_totals_collection = db['group_user_totalsssssss']
 
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
@@ -58,7 +58,7 @@ async def ctop(update: Update, context: CallbackContext) -> None:
         if len(first_name) > 7:
             first_name = first_name[:10] + '...'
         character_count = user['character_count']
-        leaderboard_message += f'{i}. {first_name}- {character_count} characters\n'
+        leaderboard_message += f'{i}. [{first_name}](https://t.me/{username})- {character_count}\n'
 
     photo_urls = [
         "https://graph.org/file/38767e79402baa8b04125.jpg",
