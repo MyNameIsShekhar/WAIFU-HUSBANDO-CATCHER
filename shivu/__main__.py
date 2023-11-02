@@ -25,7 +25,7 @@ collection = db['anime_characters_lol']
 user_totals_collection = db['user_totals_lmaoooo']
 user_collection = db["user_collection_lmaoooo"]
 
-group_user_totals_collection = db['group_user_totalssssss']
+group_user_totals_collection = db['group_user_totalsssssss']
 
 
 
