@@ -179,7 +179,27 @@ async def guess(update: Update, context: CallbackContext) -> None:
                 'characters': [last_characters[chat_id]],
             })
 
-        
+        # Update the group leaderboard
+        group_user_total = await group_user_totals_collection.find_one({'user_id': user_id, 'group_id': chat_id})
+        if group_user_total:
+            update_fields = {}
+            if hasattr(update.effective_user, 'username') and update.effective_user.username != group_user_total.get('username'):
+                update_fields['username'] = update.effective_user.username
+            if update.effective_user.first_name != group_user_total.get('first_name'):
+                update_fields['first_name'] = update.effective_user.first_name
+            if update_fields:
+                await group_user_totals_collection.update_one({'user_id': user_id, 'group_id': chat_id}, {'$set': update_fields})
+            
+            await group_user_totals_collection.update_one({'user_id': user_id, 'group_id': chat_id}, {'$inc': {'count': 1}})
+      
+        else:
+            await group_user_totals_collection.insert_one({
+                'user_id': user_id,
+                'group_id': chat_id,
+                'username': update.effective_user.username,
+                'first_name': update.effective_user.first_name,
+                'count': 1,
+            })
 
         await update.message.reply_text(f'<b>Congratulations 🪼! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> \nYou Got New Character 💮</b> \n\n<b>👒 Character name: {last_characters[chat_id]["name"]}</b> \n<b>♋ Anime: {last_characters[chat_id]["anime"]}</b> \n<b>🫧 Rairty: {last_characters[chat_id]["rarity"]}</b>\n\n<b>This character has been added to your harem now do /collection to check your new character</b>', parse_mode='HTML')
 
@@ -360,6 +380,12 @@ async def gift(update: Update, context: CallbackContext) -> None:
     sender['characters'].remove(character)
     await user_collection.update_one({'id': sender_id}, {'$set': {'characters': sender['characters']}})
 
+    # Decrement count for the sender in this group
+    await group_user_totals_collection.update_one(
+        {'user_id': sender_id, 'group_id': chat_id},
+        {'$inc': {'count': -1}}
+    )
+
     # Add the character to the receiver's collection
     receiver = await user_collection.find_one({'id': receiver_id})
 
@@ -374,8 +400,30 @@ async def gift(update: Update, context: CallbackContext) -> None:
             'characters': [character],
         })
 
-    await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
+    # Increment count for the receiver in this group
+    group_user_total = await group_user_totals_collection.find_one({'user_id': receiver_id, 'group_id': chat_id})
+    
+    if group_user_total:
+        update_fields = {}
+        if hasattr(update.effective_user, 'username') and update.effective_user.username != group_user_total.get('username'):
+            update_fields['username'] = update.effective_user.username
+        if update.effective_user.first_name != group_user_total.get('first_name'):
+            update_fields['first_name'] = update.effective_user.first_name
+        if update_fields:
+            await group_user_totals_collection.update_one({'user_id': receiver_id, 'group_id': chat_id}, {'$set': update_fields})
+        
+        await group_user_totals_collection.update_one({'user_id': receiver_id, 'group_id': chat_id}, {'$inc': {'count': 1}})
+    
+    else:
+        await group_user_totals_collection.insert_one({
+            'user_id': receiver_id,
+            'group_id': chat_id,
+            'username': update.effective_user.username,
+            'first_name': update.effective_user.first_name,
+            'count': 1,
+        })
 
+    await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}! \n\n<b>👒 Character name: {character["name"]}</b> \n<b>♋ Anime: {character["anime"]}</b> \n<b>🫧 Rairty: {character["rarity"]}</b>", parse_mode='HTML')
 
 async def harem(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
