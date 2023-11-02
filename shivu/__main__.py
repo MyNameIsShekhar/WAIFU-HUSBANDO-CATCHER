@@ -253,8 +253,12 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
         user = await user_collection.find_one({'id': int(query)})
 
         if user:
-            characters = user['characters'][offset:]
-            next_offset = str(offset + len(characters))
+            characters = user['characters'][offset:offset+50]
+            if len(characters) > 50:
+                characters = characters[:50]
+                next_offset = str(offset + 50)
+            else:
+                next_offset = str(offset + len(characters))
 
             results = []
             added_characters = set()
@@ -288,7 +292,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
     else:
         # If the query is empty, fetch all characters from the database
         if not query:
-            cursor = collection.find().skip(offset)
+            cursor = collection.find().skip(offset).limit(50)
         else:
             # Split the query into user ID and search term
             parts = query.split(' ', 1)
@@ -305,7 +309,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 else:
                     cursor = []
             else:
-                cursor = collection.find({'$or': [{'anime': {'$regex': query, '$options': 'i'}}, {'name': {'$regex': query, '$options': 'i'}}]}).skip(offset)
+                cursor = collection.find({'$or': [{'anime': {'$regex': query, '$options': 'i'}}, {'name': {'$regex': query, '$options': 'i'}}]}).skip(offset).limit(50)
 
         all_characters = cursor if isinstance(cursor, list) else await cursor.to_list(length=None)
         next_offset = str(offset + len(all_characters))
