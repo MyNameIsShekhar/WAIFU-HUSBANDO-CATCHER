@@ -256,7 +256,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 characters = characters[:50]
                 next_offset = str(offset + 50)
             else:
-                next_offset = ""
+                next_offset = str(offset + len(characters))
 
             results = []
             for character in characters:
@@ -284,9 +284,6 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
             )], cache_time=5)
     else:
         
-        # ... rest of your code ...
-
-    
         # If the query is empty, fetch all characters from the database
         if not query:
             cursor = collection.find().skip(offset).limit(50)
