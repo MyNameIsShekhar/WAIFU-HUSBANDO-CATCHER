@@ -244,6 +244,7 @@ async def change_time(update: Update, context: CallbackContext) -> None:
 
 
                 
+
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
     offset = int(update.inline_query.offset) if update.inline_query.offset else 0
@@ -252,10 +253,10 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
         user = await user_collection.find_one({'id': int(query)})
 
         if user:
-            characters = user['characters'][offset:offset+50]
-            if len(characters) > 50:
-                characters = characters[:50]
-                next_offset = str(offset + 50)
+            characters = user['characters'][offset:offset+10]
+            if len(characters) > 10:
+                characters = characters[:10]
+                next_offset = str(offset + 10)
             else:
                 next_offset = None
 
@@ -289,11 +290,11 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 input_message_content=InputTextMessageContent("User not found")
             )])
     else:
-        cursor = collection.find({'$or': [{'anime': {'$regex': query, '$options': 'i'}}, {'name': {'$regex': query, '$options': 'i'}}]}).skip(offset).limit(51)
-        all_characters = await cursor.to_list(length=51)
-        if len(all_characters) > 50:
-            all_characters = all_characters[:50]
-            next_offset = str(offset + 50)
+        cursor = collection.find({'$or': [{'anime': {'$regex': query, '$options': 'i'}}, {'name': {'$regex': query, '$options': 'i'}}]}).skip(offset).limit(11)
+        all_characters = await cursor.to_list(length=11)
+        if len(all_characters) > 10:
+            all_characters = all_characters[:10]
+            next_offset = str(offset + 10)
         else:
             next_offset = None
 
@@ -314,7 +315,6 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 )
             )
         await update.inline_query.answer(results, next_offset=next_offset)
-
 
 
 async def fav(update: Update, context: CallbackContext) -> None:
