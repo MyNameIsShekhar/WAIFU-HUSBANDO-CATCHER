@@ -65,14 +65,14 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
         # Get message frequency for this chat from the database
         chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
-            message_frequency = chat_frequency.get('message_frequency', 500)
+            message_frequency = chat_frequency.get('message_frequency', 70)
         else:
-            message_frequency = 500
+            message_frequency = 70
 
         # Check if the last 6 messages were sent by the same user
         if chat_id in last_user and last_user[chat_id]['user_id'] == user_id:
             last_user[chat_id]['count'] += 1
-            if last_user[chat_id]['count'] >= 100:
+            if last_user[chat_id]['count'] >= 10:
                 # If the user has been warned in the last 10 minutes, ignore their messages
                 if user_id in warned_users and time.time() - warned_users[user_id] < 600:
                     return
@@ -226,7 +226,7 @@ async def change_time(update: Update, context: CallbackContext) -> None:
 
         
         new_frequency = int(args[0])
-        if new_frequency < 10:
+        if new_frequency < 100:
             await update.message.reply_text('The message frequency must be greater than or equal to 100.')
             return
 
@@ -288,7 +288,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 id='notfound', 
                 title="User not found", 
                 input_message_content=InputTextMessageContent("User not found")
-            )], cache_time=0)
+            )], cache_time=5)
     else:
         cursor = collection.find({'$or': [{'anime': {'$regex': query, '$options': 'i'}}, {'name': {'$regex': query, '$options': 'i'}}]}).skip(offset).limit(51)
         all_characters = await cursor.to_list(length=51)
@@ -314,7 +314,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                     parse_mode='HTML'
                 )
             )
-        await update.inline_query.answer(results, next_offset=next_offset, cache_time=0)
+        await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
 
 async def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
@@ -458,7 +458,7 @@ def main() -> None:
     
     
     application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_counter, block=False))
-    application.add_handler(CommandHandler(["guess", "grab", "protecc", "collect"], guess, block=False))
+    application.add_handler(CommandHandler(["guess"], guess, block=False))
     application.add_handler(CommandHandler(["changetime"], change_time, block=False))
     application.add_handler(InlineQueryHandler(inlinequery, block=False))
     application.add_handler(CommandHandler('fav', fav, block=False))
