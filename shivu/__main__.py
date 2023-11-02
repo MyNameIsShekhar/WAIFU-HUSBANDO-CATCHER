@@ -107,14 +107,14 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
         # Get message frequency for this chat from the database
         chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
-            message_frequency = chat_frequency.get('message_frequency', 6)
+            message_frequency = chat_frequency.get('message_frequency', 50)
         else:
-            message_frequency = 6
+            message_frequency = 50
 
         # Check if the last 6 messages were sent by the same user
         if chat_id in last_user and last_user[chat_id]['user_id'] == user_id:
             last_user[chat_id]['count'] += 1
-            if last_user[chat_id]['count'] >= 100:
+            if last_user[chat_id]['count'] >= 10:
                 # If the user has been warned in the last 10 minutes, ignore their messages
                 if user_id in warned_users and time.time() - warned_users[user_id] < 600:
                     return
