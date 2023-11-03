@@ -409,7 +409,12 @@ async def gift(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
 
 
-async def harem(update: Update, context: CallbackContext, page=0, start_anime=0, start_character=0) -> None:
+
+import math
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import CallbackContext
+
+async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
 
     user = await user_collection.find_one({'id': user_id})
@@ -424,10 +429,20 @@ async def harem(update: Update, context: CallbackContext, page=0, start_anime=0,
 
     grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['anime'])}
 
-    # Sort the animes by the number of characters a user has from each anime
-    animes = sorted(grouped_characters.keys(), key=lambda x: len(grouped_characters[x]), reverse=True)
+    # Get a list of animes
+    animes = list(grouped_characters.keys())
+
+    # Calculate the total number of pages
+    total_pages = math.ceil(len(animes) / 3)  # Number of animes divided by 3 animes per page, rounded up
+
+    # Check if page is within bounds
+    if page < 0 or page >= total_pages:
+        page = 0  # Reset to first page if out of bounds
 
     harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
+
+    # Get the animes for the current page
+    current_animes = animes[page*3:(page+1)*3]
 
     rarity_emojis = {
         'Common': '⚪',
@@ -436,10 +451,8 @@ async def harem(update: Update, context: CallbackContext, page=0, start_anime=0,
         'Medium': '🟢'
     }
 
-    character_count = 0
-    for i in range(start_anime, len(animes)):
-        anime = animes[i]
-        characters = grouped_characters[anime][start_character:]
+    for anime in current_animes:
+        characters = grouped_characters[anime]
 
         total_characters = await collection.count_documents({'anime': anime})
 
@@ -460,36 +473,36 @@ async def harem(update: Update, context: CallbackContext, page=0, start_anime=0,
             
             new_line = f'{rarity} <b>🌸 {character["name"]} × {count}</b>\n'
             
-            harem_message += new_line
-            character_count += 1
-
-            # Check if the message is too long or if we have added enough characters for this page
-            if len(harem_message) > 3000 or character_count >= 25:
-                # If it is, remove the last character and break the loop
-                harem_message = harem_message.rsplit('•', 1)[0]
+            # Check if adding this line will exceed the Telegram limit
+            if len(harem_message + new_line) > 4000:
                 break
+            
+            harem_message += new_line
+            
+            harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
         harem_message += '\n'
 
-        # If we have added enough characters for this page, stop adding more
-        if character_count >= 15:
+        # Check if the message is too long
+        if len(harem_message) > 4000:
             break
 
     total_count = len(user['characters'])
     
     keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
 
-    # Add navigation buttons if there are more characters
-    if character_count >= 15 or i + 1 < len(animes):
-        nav_buttons = [InlineKeyboardButton("Next", callback_data=f"harem:{page+1}:{i}:{character_count}:{user_id}")]
+    # Add navigation buttons if there are multiple pages
+    if total_pages > 1:
+        nav_buttons = []
+        if page > 0:
+            nav_buttons.append(InlineKeyboardButton("Prev", callback_data=f"harem:{page-1}:{user_id}"))
+        if page < total_pages - 1:
+            nav_buttons.append(InlineKeyboardButton("Next", callback_data=f"harem:{page+1}:{user_id}"))
         keyboard.append(nav_buttons)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    harem_message += f"\nPage {page+1}"
-
-    # Rest of the function...
-
+    harem_message += f"\nPage {page+1} of {total_pages}"
 
 
 
@@ -517,22 +530,18 @@ HAREM_PATTERN = r"harem:(\d+)"
 
 
 
-
 async def handle_callback(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
-    parts = query.data.split(":")
-    command = parts[0]
-    page = int(parts[1])
-    user_id = int(parts[2])
+    (command, page, user_id) = query.data.split(":")
 
     # Check if the user who clicked the button is the same user who triggered the command
-    if user_id != update.effective_user.id:
+    if int(user_id) != update.effective_user.id:
         await query.answer("Don't Stalk Others Harem mf ❗️", show_alert=True)
         return
 
     if command == "harem":
-        start_anime = int(parts[3]) if len(parts) > 3 else 0
-        await harem(update, context, page, start_anime)
+        await harem(update, context, int(page))
+
 
 
 # Define a pattern for the harem command
