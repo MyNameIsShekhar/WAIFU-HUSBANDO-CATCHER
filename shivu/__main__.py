@@ -464,7 +464,7 @@ async def harem(update: Update, context: CallbackContext, page=0, start_anime=0,
             character_count += 1
 
             # Check if the message is too long or if we have added enough characters for this page
-            if len(harem_message) > 4000 or character_count >= 25:
+            if len(harem_message) > 3000 or character_count >= 25:
                 # If it is, remove the last character and break the loop
                 harem_message = harem_message.rsplit('•', 1)[0]
                 break
@@ -472,7 +472,7 @@ async def harem(update: Update, context: CallbackContext, page=0, start_anime=0,
         harem_message += '\n'
 
         # If we have added enough characters for this page, stop adding more
-        if character_count >= 25:
+        if character_count >= 15:
             break
 
     total_count = len(user['characters'])
@@ -480,7 +480,7 @@ async def harem(update: Update, context: CallbackContext, page=0, start_anime=0,
     keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
 
     # Add navigation buttons if there are more characters
-    if character_count >= 25 or i + 1 < len(animes):
+    if character_count >= 15 or i + 1 < len(animes):
         nav_buttons = [InlineKeyboardButton("Next", callback_data=f"harem:{page+1}:{i}:{character_count}:{user_id}")]
         keyboard.append(nav_buttons)
 
