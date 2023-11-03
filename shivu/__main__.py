@@ -423,14 +423,14 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
     characters = sorted(user['characters'], key=lambda x: x['id'])
 
-    # Group the characters by id
-    grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['id'])}
+    # Group the characters by id and count the occurrences
+    character_counts = {k: len(list(v)) for k, v in groupby(characters, key=lambda x: x['id'])}
 
-    # Flatten the grouped characters into a list for pagination
-    flat_characters = [item for sublist in list(grouped_characters.values()) for item in sublist]
+    # Remove duplicates
+    unique_characters = list({character['id']: character for character in characters}.values())
 
     # Calculate the total number of pages
-    total_pages = math.ceil(len(flat_characters) / 15)  # Number of characters divided by 15 characters per page, rounded up
+    total_pages = math.ceil(len(unique_characters) / 15)  # Number of characters divided by 15 characters per page, rounded up
 
     # Check if page is within bounds
     if page < 0 or page >= total_pages:
@@ -439,7 +439,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
 
     # Get the characters for the current page
-    current_characters = flat_characters[page*15:(page+1)*15]
+    current_characters = unique_characters[page*15:(page+1)*15]
 
     # Group the current characters by anime
     current_grouped_characters = {k: list(v) for k, v in groupby(current_characters, key=lambda x: x['anime'])}
@@ -457,7 +457,8 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             '🟢 Medium': '🟢'
             }
             rarity = rarity_emojis.get(rarity, rarity)
-            count = grouped_characters[character['id']].count(character)  # Count how many times this character appears in the user's collection
+            
+            count = character_counts[character['id']]  # Get the count from the character_counts dictionary
             harem_message += f'{rarity} <b>🌸 {character["name"]} × {count}</b>\n'
             harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
