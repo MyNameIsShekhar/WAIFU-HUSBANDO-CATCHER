@@ -520,16 +520,19 @@ HAREM_PATTERN = r"harem:(\d+)"
 
 async def handle_callback(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
-    (command, page, user_id) = query.data.split(":")
+    parts = query.data.split(":")
+    command = parts[0]
+    page = int(parts[1])
+    user_id = int(parts[2])
 
     # Check if the user who clicked the button is the same user who triggered the command
-    if int(user_id) != update.effective_user.id:
+    if user_id != update.effective_user.id:
         await query.answer("Don't Stalk Others Harem mf ❗️", show_alert=True)
         return
 
     if command == "harem":
-        await harem(update, context, int(page))
-
+        start_anime = int(parts[3]) if len(parts) > 3 else 0
+        await harem(update, context, page, start_anime)
 
 
 # Define a pattern for the harem command
