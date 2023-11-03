@@ -423,7 +423,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 
 # Define a constant for the Telegram message limit
-MESSAGE_LIMIT = 50
+MESSAGE_LIMIT = 2000
 
 
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
