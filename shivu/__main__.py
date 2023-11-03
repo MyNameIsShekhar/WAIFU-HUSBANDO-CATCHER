@@ -475,7 +475,12 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             
             # Replace rarity name with corresponding emoji
             rarity = rarity_emojis.get(rarity, rarity)
-            
+            rarity_emojis = {
+            '⚪ Common': '⚪',
+            '🟣 Rare': '🟣',
+            '🟡 Legendary': '🟡',
+            '🟢 Medium': '🟢'
+            }
             new_line = f'{rarity} <b>🌸 {character["name"]} × {count}</b>\n'
             
             harem_message += new_line
