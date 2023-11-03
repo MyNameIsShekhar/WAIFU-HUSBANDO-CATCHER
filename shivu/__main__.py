@@ -421,7 +421,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             await update.callback_query.edit_message_text('You have not guessed any characters yet.')
         return
 
-    characters = sorted(user['characters'], key=lambda x: x['id'])
+    characters = sorted(user['characters'], key=lambda x: (x['anime'], x['id']))
 
     # Group the characters by id and count the occurrences
     character_counts = {k: len(list(v)) for k, v in groupby(characters, key=lambda x: x['id'])}
@@ -430,7 +430,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     unique_characters = list({character['id']: character for character in characters}.values())
 
     # Calculate the total number of pages
-    total_pages = math.ceil(len(unique_characters) / 13)  # Number of characters divided by 15 characters per page, rounded up
+    total_pages = math.ceil(len(unique_characters) / 15)  # Number of characters divided by 15 characters per page, rounded up
 
     # Check if page is within bounds
     if page < 0 or page >= total_pages:
@@ -439,10 +439,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     harem_message = f"<b>{update.effective_user.first_name}'s Harem - Page {page+1}/{total_pages}</b>\n\n"
 
     # Get the characters for the current page
-    current_characters = unique_characters[page*13:(page+1)*13]
-
-    # Sort the current characters by anime
-    current_characters.sort(key=lambda x: x['anime'])
+    current_characters = unique_characters[page*15:(page+1)*15]
 
     # Group the current characters by anime
     current_grouped_characters = {k: list(v) for k, v in groupby(current_characters, key=lambda x: x['anime'])}
@@ -458,11 +455,12 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             '🟡 Legendary': '🟡',
             '🟢 Medium': '🟢'
             }
+
             rarity = rarity_emojis.get(rarity, rarity)
             count = character_counts[character['id']]  # Get the count from the character_counts dictionary
             harem_message += f'{character["id"]} {character["name"]} |{rarity}| ×{count}\n'
 
-            # Add two spaces after each anime group
+         # Add a line break after each anime group
 
     total_count = len(user['characters'])
     
@@ -487,7 +485,6 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
         # Check if the new text is different from the existing one
         if update.callback_query.message.text != harem_message:
             await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
-
 
 async def harem_callback(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
