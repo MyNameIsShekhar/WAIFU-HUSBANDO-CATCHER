@@ -409,7 +409,7 @@ async def gift(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
 
 
-
+MESSAGE_LIMIT = 3000
 
 async def harem(update: Update, context: CallbackContext, page=0, start_anime=0, start_character=0) -> None:
     user_id = update.effective_user.id
