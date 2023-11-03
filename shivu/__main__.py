@@ -441,8 +441,8 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
     grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['anime'])}
 
-    # Get a list of animes
-    animes = list(grouped_characters.keys())
+    # Sort the animes by the number of characters a user has from each anime
+    animes = sorted(grouped_characters.keys(), key=lambda x: len(grouped_characters[x]), reverse=True)
 
     # Calculate the total number of pages
     total_pages = math.ceil(len(animes) / 3)
@@ -465,29 +465,27 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
         unique_characters = len(set(c['id'] for c in characters))
 
         harem_message += f'🏖️ <b>{anime}</b> - ({unique_characters} / {total_characters})\n'
-        harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
         character_counts = {i["id"]: characters.count(i) for i in characters}
 
         for character_id, count in character_counts.items():
             character = next((c for c in characters if c["id"] == character_id), None)
             rarity = character.get('rarity', "Don't have rarity...") 
-            rarity_emojis = {
-            '⚪ Common': '⚪',
-            '🟣 Rare': '🟣',
-            '🟡 Legendary': '🟡',
-            '🟢 Medium': '🟢'
-            }
+            
             # Replace rarity name with corresponding emoji
             rarity = rarity_emojis.get(rarity, rarity)
             
             new_line = f'{rarity} <b>🌸 {character["name"]} × {count}</b>\n'
             
             harem_message += new_line
-            
-            harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
         harem_message += '\n'
+
+        # Check if the message is too long
+        if len(harem_message) > MESSAGE_LIMIT:
+            # If it is, remove the last anime and break the loop
+            harem_message = harem_message.rsplit('🏖️', 1)[0]
+            break
 
     total_count = len(user['characters'])
     
@@ -505,6 +503,8 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     harem_message += f"\nPage {page+1} of {total_pages}"
+
+    # ... (your existing code to send or edit the message) ...
 
     # ... (your existing code to send or edit the message) ...
 
