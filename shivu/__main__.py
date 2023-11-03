@@ -421,16 +421,13 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             await update.callback_query.edit_message_text('You have not guessed any characters yet.')
         return
 
-    characters = sorted(user['characters'], key=lambda x: x['anime'])
+    characters = sorted(user['characters'], key=lambda x: x['id'])
 
-    grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['anime'])}
+    # Group the characters by id
+    grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['id'])}
 
     # Flatten the grouped characters into a list for pagination
     flat_characters = [item for sublist in list(grouped_characters.values()) for item in sublist]
-
-    # Remove duplicates
-    seen = set()
-    flat_characters = [x for x in flat_characters if not (x['id'] in seen or seen.add(x['id']))]
 
     # Calculate the total number of pages
     total_pages = math.ceil(len(flat_characters) / 15)  # Number of characters divided by 15 characters per page, rounded up
@@ -460,8 +457,9 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             '🟢 Medium': '🟢'
             }
             rarity = rarity_emojis.get(rarity, rarity)
-            harem_message += f'{rarity} {character["name"]} ×({characters.count(character)})\n'
-            
+            count = grouped_characters[character['id']].count(character)  # Count how many times this character appears in the user's collection
+            harem_message += f'{rarity} <b>🌸 {character["name"]} × {count}</b>\n'
+            harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
     total_count = len(user['characters'])
     
