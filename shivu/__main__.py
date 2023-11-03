@@ -522,7 +522,7 @@ async def handle_callback(update: Update, context: CallbackContext) -> None:
 
     # Check if the user who clicked the button is the same user who triggered the command
     if int(user_id) != update.effective_user.id:
-        await query.answer("This is not your collection.", show_alert=True)
+        await query.answer("Don't Stalk Others Harem ❗️", show_alert=True)
         return
 
     if command == "harem":
