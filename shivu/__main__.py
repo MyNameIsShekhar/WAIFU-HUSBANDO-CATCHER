@@ -471,7 +471,12 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
         for character_id, count in character_counts.items():
             character = next((c for c in characters if c["id"] == character_id), None)
             rarity = character.get('rarity', "Don't have rarity...") 
-            
+            rarity_emojis = {
+            '⚪ Common': '⚪',
+            '🟣 Rare': '🟣',
+            '🟡 Legendary': '🟡',
+            '🟢 Medium': '🟢'
+            }
             # Replace rarity name with corresponding emoji
             rarity = rarity_emojis.get(rarity, rarity)
             
@@ -558,7 +563,7 @@ def main() -> None:
     application.add_handler(InlineQueryHandler(inlinequery, block=False))
     application.add_handler(CommandHandler('fav', fav, block=False))
     application.add_handler(CommandHandler("give", gift, block=False))
-    application.add_handler(CommandHandler("lmao", harem,block=False))
+    application.add_handler(CommandHandler("collection", harem,block=False))
     application.add_handler(CallbackQueryHandler(handle_callback, pattern=HAREM_PATTERN))
 
     
