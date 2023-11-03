@@ -449,6 +449,12 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
         for character in characters:
             rarity = character.get('rarity', "Don't have rarity...") 
+            rarity_emojis = {
+            '⚪ Common': '⚪',
+            '🟣 Rare': '🟣',
+            '🟡 Legendary': '🟡',
+            '🟢 Medium': '🟢'
+            }
             rarity = rarity_emojis.get(rarity, rarity)
             count = character_counts[character['id']]  # Get the count from the character_counts dictionary
             harem_message += f'ID: {character["id"]} <b>🌸 {character["name"]} × {count} |{rarity}|</b>\n'
