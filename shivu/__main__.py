@@ -512,7 +512,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     harem_message += f"\nPage {page+1} of {total_pages}"
 
     if 'favorites' in user and user['favorites']:
-    fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
+          fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
     if fav_character and 'img_url' in fav_character:
         if update.message:
             await update.message.reply_photo(photo=fav_character['img_url'], parse_mode='HTML', caption=harem_message, reply_markup=reply_markup)
