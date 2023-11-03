@@ -423,7 +423,7 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 
 # Define a constant for the Telegram message limit
-MESSAGE_LIMIT = 500
+MESSAGE_LIMIT = 50
 
 
 
