@@ -411,7 +411,7 @@ async def gift(update: Update, context: CallbackContext) -> None:
 
 MESSAGE_LIMIT = 3000
 
-async def harem(update: Update, context: CallbackContext, page=0, start_anime=0, start_character=0) -> None:
+async def harem(update: Update, context: CallbackContext, page=0, start_anime=0) -> None:
     user_id = update.effective_user.id
 
     user = await user_collection.find_one({'id': user_id})
@@ -431,15 +431,29 @@ async def harem(update: Update, context: CallbackContext, page=0, start_anime=0,
 
     harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
 
+    rarity_emojis = {
+        '⚪ Common': '⚪',
+        '🟣 Rare': '🟣',
+        '🟡 Legendary': '🟡',
+        '🟢 Medium': '🟢'
+    }
+
     character_count = 0
     for i in range(start_anime, len(animes)):
         anime = animes[i]
-        characters = grouped_characters[anime][start_character:]
+        characters = grouped_characters[anime]
+
+        # Remove duplicates
+        characters = list(dict.fromkeys(characters))
 
         harem_message += f'🏖️ <b>{anime}</b>\n'
 
         for character in characters:
-            harem_message += f'• {character["id"]}\n'
+            # Replace rarity name with corresponding emoji
+            rarity = rarity_emojis.get(character.get('rarity', "Don't have rarity..."), character.get('rarity', "Don't have rarity..."))
+            # Count how many times the user has guessed this character
+            guess_count = characters.count(character)
+            harem_message += f'• {character["id"]} {character["name"]} | {rarity} | ×{guess_count}\n'
             character_count += 1
 
             # Check if the message is too long or if we have added enough characters for this page
@@ -460,12 +474,14 @@ async def harem(update: Update, context: CallbackContext, page=0, start_anime=0,
 
     # Add navigation buttons if there are more characters
     if character_count >= 25 or i + 1 < len(animes):
-        nav_buttons = [InlineKeyboardButton("Next", callback_data=f"harem:{page+1}:{i}:{character_count}:{user_id}")]
+        nav_buttons = [InlineKeyboardButton("Next", callback_data=f"harem:{page+1}:{i}:{user_id}")]
         keyboard.append(nav_buttons)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     harem_message += f"\nPage {page+1}"
+
+    # Rest of the function...
 
     # Rest of the function...
 
