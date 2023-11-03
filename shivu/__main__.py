@@ -428,6 +428,10 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     # Flatten the grouped characters into a list for pagination
     flat_characters = [item for sublist in list(grouped_characters.values()) for item in sublist]
 
+    # Remove duplicates
+    seen = set()
+    flat_characters = [x for x in flat_characters if not (x['id'] in seen or seen.add(x['id']))]
+
     # Calculate the total number of pages
     total_pages = math.ceil(len(flat_characters) / 15)  # Number of characters divided by 15 characters per page, rounded up
 
@@ -449,14 +453,8 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
         for character in characters:
             rarity = character.get('rarity', "Don't have rarity...") 
-            rarity_emojis = {
-            '⚪ Common': '⚪',
-            '🟣 Rare': '🟣',
-            '🟡 Legendary': '🟡',
-            '🟢 Medium': '🟢'
-            }
             rarity = rarity_emojis.get(rarity, rarity)
-            harem_message += f'{rarity} <b>🌸 {character["name"]} × {characters.count(character)}</b>\n'
+            harem_message += f'{rarity} <b>🌸 {character["name"]}</b>\n'
             harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
     total_count = len(user['characters'])
