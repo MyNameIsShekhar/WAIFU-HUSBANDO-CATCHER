@@ -409,6 +409,7 @@ async def gift(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
 
 
+
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
 
@@ -447,22 +448,21 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     current_grouped_characters = {k: list(v) for k, v in groupby(current_characters, key=lambda x: x['anime'])}
 
     for anime, characters in current_grouped_characters.items():
-    harem_message += f'🏖️ <b>{anime} {len(characters)}/{await collection.count_documents({"anime": anime})}</b>\n'
+        harem_message += f'🏖️ <b>{anime} {len(characters)}/{await collection.count_documents({"anime": anime})}</b>\n'
 
-    for character in characters:
-        rarity = character.get('rarity', "Don't have rarity...") 
-        rarity_emojis = {
+        for character in characters:
+            rarity = character.get('rarity', "Don't have rarity...") 
+            rarity_emojis = {
             '⚪ Common': '⚪',
             '🟣 Rare': '🟣',
             '🟡 Legendary': '🟡',
             '🟢 Medium': '🟢'
-        }
-        rarity = rarity_emojis.get(rarity, rarity)
-        
-        count = character_counts[character['id']]  # Get the count from the character_counts dictionary
-        harem_message += f'ID: {character["id"]} <b>🌸 {character["name"]} |{rarity}| × {count} </b>\n'
+            }
+            rarity = rarity_emojis.get(rarity, rarity)
+            count = character_counts[character['id']]  # Get the count from the character_counts dictionary
+            harem_message += f'ID: {character["id"]} <b>🌸 {character["name"]} |{rarity}| × {count} </b>\n'
+
     total_count = len(user['characters'])
-    
     
     keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
 
