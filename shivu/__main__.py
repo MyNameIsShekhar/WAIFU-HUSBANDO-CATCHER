@@ -417,6 +417,11 @@ import random
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 
+import math
+import random
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import CallbackContext
+
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
 
@@ -436,12 +441,11 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     animes = list(grouped_characters.keys())
 
     rarity_emojis = {
-        'Common': '⚪',
-        'Rare': '🟣',
-        'Legendary': '🟡',
-        'Medium': '🟢'
+        '⚪ Common': '⚪',
+        '🟣 Rare': '🟣',
+        '🟡 Legendary': '🟡',
+        '🟢 Medium': '🟢'
     }
-
     harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
     total_pages = 1
     page_messages = []
@@ -473,7 +477,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             # Replace rarity name with corresponding emoji
             rarity = rarity_emojis.get(rarity, rarity)
             
-            new_line = f'{rarity} {character["name"]} × {count}\n'
+            new_line = f'{rarity} {character["name"]} × {count}</b>\n'
             
             # Check if adding this line will exceed the Telegram limit
             if len(harem_message + new_line) > 3000:
