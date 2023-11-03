@@ -430,7 +430,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     unique_characters = list({character['id']: character for character in characters}.values())
 
     # Calculate the total number of pages
-    total_pages = math.ceil(len(unique_characters) / 15)  # Number of characters divided by 15 characters per page, rounded up
+    total_pages = math.ceil(len(unique_characters) / 13)  # Number of characters divided by 15 characters per page, rounded up
 
     # Check if page is within bounds
     if page < 0 or page >= total_pages:
@@ -439,7 +439,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     harem_message = f"<b>{update.effective_user.first_name}'s Harem - Page {page+1}/{total_pages}</b>\n\n"
 
     # Get the characters for the current page
-    current_characters = unique_characters[page*15:(page+1)*15]
+    current_characters = unique_characters[page*13:(page+1)*13]
 
     # Sort the current characters by anime
     current_characters.sort(key=lambda x: x['anime'])
@@ -448,7 +448,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     current_grouped_characters = {k: list(v) for k, v in groupby(current_characters, key=lambda x: x['anime'])}
 
     for anime, characters in current_grouped_characters.items():
-        harem_message += f'\n\n🏖️ <b>{anime} {len(characters)}/{await collection.count_documents({"anime": anime})}</b>\n'
+        harem_message += f'\n🏖️ <b>{anime} {len(characters)}/{await collection.count_documents({"anime": anime})}</b>\n'
 
         for character in characters:
             rarity = character.get('rarity', "Don't have rarity...") 
