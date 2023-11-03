@@ -422,6 +422,9 @@ import random
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext
 
+# Define a constant for the Telegram message limit
+MESSAGE_LIMIT = 500
+
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
 
@@ -440,15 +443,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     # Get a list of animes
     animes = list(grouped_characters.keys())
 
-    rarity_emojis = {
-        '⚪ Common': '⚪',
-        '🟣 Rare': '🟣',
-        '🟡 Legendary': '🟡',
-        '🟢 Medium': '🟢'
-    }
     harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
-    total_pages = 1
-    page_messages = []
 
     for anime in animes:
         characters = grouped_characters[anime]
@@ -458,15 +453,8 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
         # Count each unique character only once
         unique_characters = len(set(c['id'] for c in characters))
 
-        new_line = f'<b>{anime}</b> - ({unique_characters} / {total_characters})\n'
-
-        # Check if adding this line will exceed the Telegram limit
-        if len(harem_message + new_line) > 3000:
-            page_messages.append(harem_message)
-            harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
-            total_pages += 1
-
-        harem_message += new_line
+        harem_message += f'🏖️ <b>{anime}</b> - ({unique_characters} / {total_characters})\n'
+        harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
         character_counts = {i["id"]: characters.count(i) for i in characters}
 
@@ -477,28 +465,38 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             # Replace rarity name with corresponding emoji
             rarity = rarity_emojis.get(rarity, rarity)
             
-            new_line = f'{rarity} {character["name"]} × {count}\n'
+            new_line = f'{rarity} <b>🌸 {character["name"]} × {count}</b>\n'
             
             # Check if adding this line will exceed the Telegram limit
-            if len(harem_message + new_line) > 3000:
+            if len(harem_message + new_line) > MESSAGE_LIMIT:
                 break
             
             harem_message += new_line
+            
+            harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
         harem_message += '\n'
 
         # Check if the message is too long
-        if len(harem_message) > 3000:
+        if len(harem_message) > MESSAGE_LIMIT:
             break
-
-    page_messages.append(harem_message)
-
-    # Now, page_messages contains the messages for each page
-    # and total_pages is the total number of pages
 
     total_count = len(user['characters'])
     
     keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
+
+    # Split the harem message into pages
+    pages = [harem_message[i:i+MESSAGE_LIMIT] for i in range(0, len(harem_message), MESSAGE_LIMIT)]
+
+    # Calculate the total number of pages
+    total_pages = len(pages)
+
+    # Check if page is within bounds
+    if page < 0 or page >= total_pages:
+        page = 0  # Reset to first page if out of bounds
+
+    # Get the message for the current page
+    current_message = pages[page]
 
     # Add navigation buttons if there are multiple pages
     if total_pages > 1:
@@ -511,17 +509,10 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Only add the page number if there is more than one page
-    if total_pages > 1:
-        harem_message += f"\nPage {page+1} of {total_pages}"
+    harem_message += f"\nPage {page+1} of {total_pages}"
 
     if 'favorites' in user and user['favorites']:
-        fav_character_id = user['favorites'][0]
-        fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
-    else:
-        # If the user doesn't have a favorite character, choose a random one
-        fav_character = random.choice(user['characters'])
-
+    fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
     if fav_character and 'img_url' in fav_character:
         if update.message:
             await update.message.reply_photo(photo=fav_character['img_url'], parse_mode='HTML', caption=harem_message, reply_markup=reply_markup)
@@ -538,19 +529,6 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
                 await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
 
 # Define a pattern for the harem command
-HAREM_PATTERN = r"harem:(\d+)"
-
-async def handle_callback(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-    (command, page, user_id) = query.data.split(":")
-
-    # Check if the user who clicked the button is the same user who triggered the command
-    if int(user_id) != update.effective_user.id:
-        await query.answer("Don't Stalk Others Harem mf ❗️", show_alert=True)
-        return
-
-    if command == "harem":
-        await harem(update, context, int(page))
 
 def main() -> None:
     """Run bot."""
