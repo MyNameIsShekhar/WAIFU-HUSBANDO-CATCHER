@@ -445,21 +445,14 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     current_grouped_characters = {k: list(v) for k, v in groupby(current_characters, key=lambda x: x['anime'])}
 
     for anime, characters in current_grouped_characters.items():
-        harem_message += f'🏖️ <b>{anime}</b> - ({len(characters)} / {await collection.count_documents({"anime": anime})})\n'
-        
+        harem_message += f'🏖️ <b>{anime} ({len(characters)} / {await collection.count_documents({"anime": anime})})</b>\n'
         for character in characters:
             rarity = character.get('rarity', "Don't have rarity...") 
-            rarity_emojis = {
-            '⚪ Common': '⚪',
-            '🟣 Rare': '🟣',
-            '🟡 Legendary': '🟡',
-            '🟢 Medium': '🟢'
-            }
             rarity = rarity_emojis.get(rarity, rarity)
-            
             count = character_counts[character['id']]  # Get the count from the character_counts dictionary
-            harem_message += f'{rarity} <b>🌸 {character["name"]} × {count}</b>\n\n'
-            
+            harem_message += f'{rarity} <b>🌸 {character["name"]} × {count}</b>\n'
+        harem_message += '\n\n'
+
     total_count = len(user['characters'])
     
     keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
