@@ -477,7 +477,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             # Replace rarity name with corresponding emoji
             rarity = rarity_emojis.get(rarity, rarity)
             
-            new_line = f'{rarity} {character["name"]} × {count}</b>\n'
+            new_line = f'{rarity} {character["name"]} × {count}\n'
             
             # Check if adding this line will exceed the Telegram limit
             if len(harem_message + new_line) > 3000:
