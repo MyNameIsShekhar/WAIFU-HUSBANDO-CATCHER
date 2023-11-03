@@ -410,9 +410,7 @@ async def gift(update: Update, context: CallbackContext) -> None:
 
 
 
-import math
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import CallbackContext
+
 
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
@@ -471,7 +469,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             # Replace rarity name with corresponding emoji
             rarity = rarity_emojis.get(rarity, rarity)
             
-            new_line = f'{rarity} <b>{character["name"]} × {count}</b>\n'
+            new_line = f'{rarity} {character["name"]} × {count}\n'
             
             # Check if adding this line will exceed the Telegram limit
             if len(harem_message + new_line) > 4000:
@@ -507,21 +505,17 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     if 'favorites' in user and user['favorites']:
         fav_character_id = user['favorites'][0]
         fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
-        
-        if fav_character and 'img_url' in fav_character:
-            if update.message:
-                await update.message.reply_photo(photo=fav_character['img_url'], parse_mode='HTML', caption=harem_message, reply_markup=reply_markup)
-            else:
-                # Check if the new caption is different from the existing one
-                if update.callback_query.message.caption != harem_message:
-                    await update.callback_query.edit_message_caption(caption=harem_message, reply_markup=reply_markup, parse_mode='HTML')
+    else:
+        # If the user doesn't have a favorite character, choose a random one
+        fav_character = random.choice(user['characters'])
+
+    if fav_character and 'img_url' in fav_character:
+        if update.message:
+            await update.message.reply_photo(photo=fav_character['img_url'], parse_mode='HTML', caption=harem_message, reply_markup=reply_markup)
         else:
-            if update.message:
-                await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
-            else:
-                # Check if the new text is different from the existing one
-                if update.callback_query.message.text != harem_message:
-                    await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+            # Check if the new caption is different from the existing one
+            if update.callback_query.message.caption != harem_message:
+                await update.callback_query.edit_message_caption(caption=harem_message, reply_markup=reply_markup, parse_mode='HTML')
     else:
         if update.message:
             await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
@@ -529,7 +523,6 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             # Check if the new text is different from the existing one
             if update.callback_query.message.text != harem_message:
                 await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
-
        
 # Define a pattern for the harem command
 HAREM_PATTERN = r"harem:(\d+)"
