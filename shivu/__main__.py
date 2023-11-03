@@ -409,9 +409,7 @@ async def gift(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
 
 
-MESSAGE_LIMIT = 3000
-
-async def harem(update: Update, context: CallbackContext, page=0, start_anime=0) -> None:
+async def harem(update: Update, context: CallbackContext, page=0, start_anime=0, start_character=0) -> None:
     user_id = update.effective_user.id
 
     user = await user_collection.find_one({'id': user_id})
@@ -432,32 +430,41 @@ async def harem(update: Update, context: CallbackContext, page=0, start_anime=0)
     harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
 
     rarity_emojis = {
-        '⚪ Common': '⚪',
-        '🟣 Rare': '🟣',
-        '🟡 Legendary': '🟡',
-        '🟢 Medium': '🟢'
+        'Common': '⚪',
+        'Rare': '🟣',
+        'Legendary': '🟡',
+        'Medium': '🟢'
     }
 
     character_count = 0
     for i in range(start_anime, len(animes)):
         anime = animes[i]
-        characters = grouped_characters[anime]
+        characters = grouped_characters[anime][start_character:]
 
-        # Remove duplicates
-        characters = list(dict.fromkeys(characters))
+        total_characters = await collection.count_documents({'anime': anime})
 
-        harem_message += f'🏖️ <b>{anime}</b>\n'
+        # Count each unique character only once
+        unique_characters = len(set(c['id'] for c in characters))
 
-        for character in characters:
+        harem_message += f'🏖️ <b>{anime}</b> - ({unique_characters} / {total_characters})\n'
+        harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
+
+        character_counts = {i["id"]: characters.count(i) for i in characters}
+
+        for character_id, count in character_counts.items():
+            character = next((c for c in characters if c["id"] == character_id), None)
+            rarity = character.get('rarity', "Don't have rarity...") 
+            
             # Replace rarity name with corresponding emoji
-            rarity = rarity_emojis.get(character.get('rarity', "Don't have rarity..."), character.get('rarity', "Don't have rarity..."))
-            # Count how many times the user has guessed this character
-            guess_count = characters.count(character)
-            harem_message += f'• {character["id"]} {character["name"]} | {rarity} | ×{guess_count}\n'
+            rarity = rarity_emojis.get(rarity, rarity)
+            
+            new_line = f'{rarity} <b>🌸 {character["name"]} × {count}</b>\n'
+            
+            harem_message += new_line
             character_count += 1
 
             # Check if the message is too long or if we have added enough characters for this page
-            if len(harem_message) > MESSAGE_LIMIT or character_count >= 25:
+            if len(harem_message) > 4000 or character_count >= 25:
                 # If it is, remove the last character and break the loop
                 harem_message = harem_message.rsplit('•', 1)[0]
                 break
@@ -474,7 +481,7 @@ async def harem(update: Update, context: CallbackContext, page=0, start_anime=0)
 
     # Add navigation buttons if there are more characters
     if character_count >= 25 or i + 1 < len(animes):
-        nav_buttons = [InlineKeyboardButton("Next", callback_data=f"harem:{page+1}:{i}:{user_id}")]
+        nav_buttons = [InlineKeyboardButton("Next", callback_data=f"harem:{page+1}:{i}:{character_count}:{user_id}")]
         keyboard.append(nav_buttons)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -483,9 +490,6 @@ async def harem(update: Update, context: CallbackContext, page=0, start_anime=0)
 
     # Rest of the function...
 
-    # Rest of the function...
-
-    # Rest of the function...
 
 
 
