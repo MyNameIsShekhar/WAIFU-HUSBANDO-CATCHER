@@ -442,6 +442,12 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
     for character in current_characters:
         rarity = character.get('rarity', "Don't have rarity...") 
+        rarity_emojis = {
+        'Common': '⚪',
+        'Rare': '🟣',
+        'Legendary': '🟡',
+        'Medium': '🟢'
+        }
         rarity = rarity_emojis.get(rarity, rarity)
         harem_message += f'🏖️ <b>{character["anime"]}</b> - ({len(grouped_characters[character["anime"]])} / {await collection.count_documents({"anime": character["anime"]})})\n'
         harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
