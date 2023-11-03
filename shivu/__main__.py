@@ -412,6 +412,11 @@ async def gift(update: Update, context: CallbackContext) -> None:
 
 
 
+import math
+import random
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import CallbackContext
+
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
 
@@ -430,25 +435,16 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     # Get a list of animes
     animes = list(grouped_characters.keys())
 
-    # Calculate the total number of pages
-    total_pages = math.ceil(len(animes) / 3)  # Number of animes divided by 3 animes per page, rounded up
-
-    # Check if page is within bounds
-    if page < 0 or page >= total_pages:
-        page = 0  # Reset to first page if out of bounds
+    rarity_emojis = {
+        'Common': '⚪',
+        'Rare': '🟣',
+        'Legendary': '🟡',
+        'Medium': '🟢'
+    }
 
     harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
-
-    # Get the animes for the current page
-    current_animes = animes[page*3:(page+1)*3]
-
-    rarity_emojis = {
-        '⚪ Common': '⚪',
-        '🟣 Rare': '🟣',
-        '🟡 Legendary': '🟡',
-        '🟢 Medium': '🟢'
-    }
-    
+    total_pages = 1
+    page_messages = []
 
     for anime in animes:
         characters = grouped_characters[anime]
@@ -458,11 +454,13 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
         # Count each unique character only once
         unique_characters = len(set(c['id'] for c in characters))
 
-        new_line = f'🏖️ <b>{anime}</b> - ({unique_characters} / {total_characters})\n'
+        new_line = f'<b>{anime}</b> - ({unique_characters} / {total_characters})\n'
 
         # Check if adding this line will exceed the Telegram limit
         if len(harem_message + new_line) > 3000:
-            break
+            page_messages.append(harem_message)
+            harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
+            total_pages += 1
 
         harem_message += new_line
 
@@ -489,6 +487,11 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
         if len(harem_message) > 3000:
             break
 
+    page_messages.append(harem_message)
+
+    # Now, page_messages contains the messages for each page
+    # and total_pages is the total number of pages
+
     total_count = len(user['characters'])
     
     keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
@@ -504,7 +507,9 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    harem_message += f"\nPage {page+1} of {total_pages}"
+    # Only add the page number if there is more than one page
+    if total_pages > 1:
+        harem_message += f"\nPage {page+1} of {total_pages}"
 
     if 'favorites' in user and user['favorites']:
         fav_character_id = user['favorites'][0]
