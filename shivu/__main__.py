@@ -448,17 +448,9 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
         harem_message += f'\n🏖️ <b>{anime} {len(characters)}/{await collection.count_documents({"anime": anime})}</b>\n'
 
         for character in characters:
-            rarity = character.get('rarity', "Don't have rarity...") 
-            rarity_emojis = {
-            '⚪ Common': '⚪',
-            '🟣 Rare': '🟣',
-            '🟡 Legendary': '🟡',
-            '🟢 Medium': '🟢'
-            }
-
-            rarity = rarity_emojis.get(rarity, rarity)
+            
             count = character_counts[character['id']]  # Get the count from the character_counts dictionary
-            harem_message += f'{character["id"]} {character["name"]} |{rarity}| ×{count}\n'
+            harem_message += f'{character["id"]} {character["name"]} ×{count}\n'
 
          # Add a line break after each anime group
 
@@ -485,7 +477,6 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
         # Check if the new text is different from the existing one
         if update.callback_query.message.text != harem_message:
             await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
-
 async def harem_callback(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     data = query.data
@@ -499,6 +490,7 @@ async def harem_callback(update: Update, context: CallbackContext) -> None:
 
     # Call the harem function with the page number and user_id
     await harem(update, context, page)
+
 
 # Create a handler for the harem callback
 
