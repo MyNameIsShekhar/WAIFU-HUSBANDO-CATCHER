@@ -426,7 +426,7 @@ from telegram.ext import CallbackContext
 MESSAGE_LIMIT = 200
 
 
-async def harem(update: Update, context: CallbackContext, page=0) -> None:
+async def harem(update: Update, context: CallbackContext, page=0, start_anime=0) -> None:
     user_id = update.effective_user.id
 
     user = await user_collection.find_one({'id': user_id})
@@ -444,19 +444,10 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     # Sort the animes by the number of characters a user has from each anime
     animes = sorted(grouped_characters.keys(), key=lambda x: len(grouped_characters[x]), reverse=True)
 
-    # Calculate the total number of pages
-    total_pages = math.ceil(len(animes) / 3)
-
-    # Check if page is within bounds
-    if page < 0 or page >= total_pages:
-        page = 0  # Reset to first page if out of bounds
-
-    # Get the animes for the current page
-    current_animes = animes[page*3:(page+1)*3]
-
     harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
 
-    for anime in current_animes:
+    for i in range(start_anime, len(animes)):
+        anime = animes[i]
         characters = grouped_characters[anime]
 
         total_characters = await collection.count_documents({'anime': anime})
@@ -497,23 +488,15 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
 
     # Add navigation buttons if there are multiple pages
-    if total_pages > 1:
-        nav_buttons = []
-        if page > 0:
-            nav_buttons.append(InlineKeyboardButton("Prev", callback_data=f"harem:{page-1}:{user_id}"))
-        if page < total_pages - 1:
-            nav_buttons.append(InlineKeyboardButton("Next", callback_data=f"harem:{page+1}:{user_id}"))
+    if i + 1 < len(animes):
+        nav_buttons = [InlineKeyboardButton("Next", callback_data=f"harem:{page+1}:{i+1}:{user_id}")]
         keyboard.append(nav_buttons)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    harem_message += f"\nPage {page+1} of {total_pages}"
+    harem_message += f"\nPage {page+1}"
 
-    # ... (your existing code to send or edit the message) ...
-
-    # ... (your existing code to send or edit the message) ...
-
-    # ... (your existing code to send or edit the message) ...
+    # Rest of the function...
 
     if 'favorites' in user and user['favorites']:
         fav_character_id = user['favorites'][0]
