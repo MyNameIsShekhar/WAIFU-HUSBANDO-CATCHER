@@ -426,7 +426,7 @@ from telegram.ext import CallbackContext
 MESSAGE_LIMIT = 200
 
 
-async def harem(update: Update, context: CallbackContext, page=0, start_anime=0) -> None:
+async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
 
     user = await user_collection.find_one({'id': user_id})
@@ -437,66 +437,52 @@ async def harem(update: Update, context: CallbackContext, page=0, start_anime=0)
             await update.callback_query.edit_message_text('You have not guessed any characters yet.')
         return
 
-    characters = sorted(user['characters'], key=lambda x: x['anime'])
+    # Define the number of characters per page
+    characters_per_page = 15
 
-    grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['anime'])}
+    # Calculate the start and end indices for the characters to display on this page
+    start = page * characters_per_page
+    end = start + characters_per_page
 
-    # Sort the animes by the number of characters a user has from each anime
-    animes = sorted(grouped_characters.keys(), key=lambda x: len(grouped_characters[x]), reverse=True)
+    # Get the characters for this page
+    characters = user['characters'][start:end]
 
     harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
 
-    for i in range(start_anime, len(animes)):
-        anime = animes[i]
-        characters = grouped_characters[anime]
+    rarity_emojis = {
+        '⚪ Common': '⚪',
+        '🟣 Rare': '🟣',
+        '🟡 Legendary': '🟡',
+        '🟢 Medium': '🟢'
+    }
 
-        total_characters = await collection.count_documents({'anime': anime})
-
-        # Count each unique character only once
-        unique_characters = len(set(c['id'] for c in characters))
-
-        harem_message += f'🏖️ <b>{anime}</b> - ({unique_characters} / {total_characters})\n'
-
-        character_counts = {i["id"]: characters.count(i) for i in characters}
-
-        for character_id, count in character_counts.items():
-            character = next((c for c in characters if c["id"] == character_id), None)
-            rarity = character.get('rarity', "Don't have rarity...") 
-            rarity_emojis = {
-            '⚪ Common': '⚪',
-            '🟣 Rare': '🟣',
-            '🟡 Legendary': '🟡',
-            '🟢 Medium': '🟢'
-            }
-            # Replace rarity name with corresponding emoji
-            rarity = rarity_emojis.get(rarity, rarity)
-            
-            new_line = f'{rarity} <b>🌸 {character["name"]} × {count}</b>\n'
-            
-            harem_message += new_line
-
-        harem_message += '\n'
-
-        # Check if the message is too long
-        if len(harem_message) > MESSAGE_LIMIT:
-            # If it is, remove the last anime and break the loop
-            harem_message = harem_message.rsplit('🏖️', 1)[0]
-            break
+    for character in characters:
+        # Replace rarity name with corresponding emoji
+        rarity = rarity_emojis.get(character.get('rarity', "Don't have rarity..."), character.get('rarity', "Don't have rarity..."))
+        harem_message += f'• {character["id"]} {character["name"]} | {rarity} |\n'
 
     total_count = len(user['characters'])
     
     keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
 
+    # Calculate the total number of pages
+    total_pages = math.ceil(total_count / characters_per_page)
+
     # Add navigation buttons if there are multiple pages
-    if i + 1 < len(animes):
-        nav_buttons = [InlineKeyboardButton("Next", callback_data=f"harem:{page+1}:{i+1}:{user_id}")]
+    if total_pages > 1:
+        nav_buttons = []
+        if page > 0:
+            nav_buttons.append(InlineKeyboardButton("Prev", callback_data=f"harem:{page-1}:{user_id}"))
+        if page < total_pages - 1:
+            nav_buttons.append(InlineKeyboardButton("Next", callback_data=f"harem:{page+1}:{user_id}"))
         keyboard.append(nav_buttons)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    harem_message += f"\nPage {page+1}"
+    harem_message += f"\nPage {page+1} of {total_pages}"
 
     # Rest of the function...
+
 
     if 'favorites' in user and user['favorites']:
         fav_character_id = user['favorites'][0]
