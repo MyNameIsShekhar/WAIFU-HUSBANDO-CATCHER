@@ -448,8 +448,9 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
         '🟡 Legendary': '🟡',
         '🟢 Medium': '🟢'
     }
+    
 
-    for anime in current_animes:
+    for anime in animes:
         characters = grouped_characters[anime]
 
         total_characters = await collection.count_documents({'anime': anime})
@@ -457,8 +458,13 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
         # Count each unique character only once
         unique_characters = len(set(c['id'] for c in characters))
 
-        harem_message += f'🏖️ <b>{anime}</b> - ({unique_characters} / {total_characters})\n'
-        harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
+        new_line = f'🏖️ <b>{anime}</b> - ({unique_characters} / {total_characters})\n'
+
+        # Check if adding this line will exceed the Telegram limit
+        if len(harem_message + new_line) > 3000:
+            break
+
+        harem_message += new_line
 
         character_counts = {i["id"]: characters.count(i) for i in characters}
 
@@ -472,17 +478,15 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             new_line = f'{rarity} {character["name"]} × {count}\n'
             
             # Check if adding this line will exceed the Telegram limit
-            if len(harem_message + new_line) > 4000:
+            if len(harem_message + new_line) > 3000:
                 break
             
             harem_message += new_line
-            
-            harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
         harem_message += '\n'
 
         # Check if the message is too long
-        if len(harem_message) > 4000:
+        if len(harem_message) > 3000:
             break
 
     total_count = len(user['characters'])
@@ -523,7 +527,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             # Check if the new text is different from the existing one
             if update.callback_query.message.text != harem_message:
                 await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
-       
+
 # Define a pattern for the harem command
 HAREM_PATTERN = r"harem:(\d+)"
 
