@@ -439,7 +439,12 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     characters = sorted(user['characters'], key=lambda x: x['anime'])
 
     grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['anime'])}
-
+    rarity_emojis = {
+        '⚪ Common': '⚪',
+        '🟣 Rare': '🟣',
+        '🟡 Legendary': '🟡',
+        '🟢 Medium': '🟢'
+    }
     # Get a list of animes
     animes = list(grouped_characters.keys())
 
