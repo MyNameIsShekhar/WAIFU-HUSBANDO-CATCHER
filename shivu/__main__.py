@@ -410,6 +410,9 @@ async def gift(update: Update, context: CallbackContext) -> None:
 
 
 
+import math
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import CallbackContext
 
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
@@ -430,9 +433,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     animes = list(grouped_characters.keys())
 
     # Calculate the total number of pages
-    # Calculate the total number of pages
     total_pages = math.ceil(len(animes) / 3)  # Number of animes divided by 3 animes per page, rounded up
-
 
     # Check if page is within bounds
     if page < 0 or page >= total_pages:
@@ -443,6 +444,13 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     # Get the animes for the current page
     current_animes = animes[page*3:(page+1)*3]
 
+    rarity_emojis = {
+        '⚪ Common': '⚪',
+        '🟣 Rare': '🟣',
+        '🟡 Legendary': '🟡',
+        '🟢 Medium': '🟢'
+    }
+
     for anime in current_animes:
         characters = grouped_characters[anime]
 
@@ -451,7 +459,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
         # Count each unique character only once
         unique_characters = len(set(c['id'] for c in characters))
 
-        harem_message += f'🏖️ <b>{anime} - ({unique_characters} / {total_characters})</b>\n'
+        harem_message += f'🏖️ <b>{anime}</b> - ({unique_characters} / {total_characters})\n'
         harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
         character_counts = {i["id"]: characters.count(i) for i in characters}
@@ -460,7 +468,10 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             character = next((c for c in characters if c["id"] == character_id), None)
             rarity = character.get('rarity', "Don't have rarity...") 
             
-            new_line = f'🆔️ <b>{character_id}</b>| {rarity} \n<b>🌸 {character["name"]} × {count}</b>\n'
+            # Replace rarity name with corresponding emoji
+            rarity = rarity_emojis.get(rarity, rarity)
+            
+            new_line = f'{rarity} <b>{character["name"]} × {count}</b>\n'
             
             # Check if adding this line will exceed the Telegram limit
             if len(harem_message + new_line) > 4000:
@@ -482,16 +493,16 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
     # Add navigation buttons if there are multiple pages
     if total_pages > 1:
+        nav_buttons = []
         if page > 0:
-            keyboard.append([InlineKeyboardButton("Prev", callback_data=f"harem:{page-1}:{user_id}")])
+            nav_buttons.append(InlineKeyboardButton("Prev", callback_data=f"harem:{page-1}:{user_id}"))
         if page < total_pages - 1:
-            keyboard.append([InlineKeyboardButton("Next", callback_data=f"harem:{page+1}:{user_id}")])
+            nav_buttons.append(InlineKeyboardButton("Next", callback_data=f"harem:{page+1}:{user_id}"))
+        keyboard.append(nav_buttons)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     harem_message += f"\nPage {page+1} of {total_pages}"
-
-    
 
     if 'favorites' in user and user['favorites']:
         fav_character_id = user['favorites'][0]
@@ -501,18 +512,25 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             if update.message:
                 await update.message.reply_photo(photo=fav_character['img_url'], parse_mode='HTML', caption=harem_message, reply_markup=reply_markup)
             else:
-                await update.callback_query.edit_message_caption(caption=harem_message, reply_markup=reply_markup, parse_mode='HTML')
+                # Check if the new caption is different from the existing one
+                if update.callback_query.message.caption != harem_message:
+                    await update.callback_query.edit_message_caption(caption=harem_message, reply_markup=reply_markup, parse_mode='HTML')
         else:
             if update.message:
                 await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
             else:
-                await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+                # Check if the new text is different from the existing one
+                if update.callback_query.message.text != harem_message:
+                    await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
     else:
         if update.message:
             await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
         else:
-            await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+            # Check if the new text is different from the existing one
+            if update.callback_query.message.text != harem_message:
+                await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
 
+       
 # Define a pattern for the harem command
 HAREM_PATTERN = r"harem:(\d+)"
 
