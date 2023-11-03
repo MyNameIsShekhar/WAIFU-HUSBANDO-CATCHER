@@ -440,19 +440,24 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     # Get the characters for the current page
     current_characters = flat_characters[page*15:(page+1)*15]
 
-    for character in current_characters:
-        rarity = character.get('rarity', "Don't have rarity...") 
-        rarity_emojis = {
-        'Common': '⚪',
-        'Rare': '🟣',
-        'Legendary': '🟡',
-        'Medium': '🟢'
-        }
-        rarity = rarity_emojis.get(rarity, rarity)
-        harem_message += f'🏖️ <b>{character["anime"]}</b> - ({len(grouped_characters[character["anime"]])} / {await collection.count_documents({"anime": character["anime"]})})\n'
+    # Group the current characters by anime
+    current_grouped_characters = {k: list(v) for k, v in groupby(current_characters, key=lambda x: x['anime'])}
+
+    for anime, characters in current_grouped_characters.items():
+        harem_message += f'🏖️ <b>{anime}</b> - ({len(characters)} / {await collection.count_documents({"anime": anime})})\n'
         harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
-        harem_message += f'{rarity} <b>🌸 {character["name"]} × {grouped_characters[character["anime"]].count(character)}</b>\n'
-        harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
+
+        for character in characters:
+            rarity = character.get('rarity', "Don't have rarity...") 
+            rarity_emojis = {
+            '⚪ Common': '⚪',
+            '🟣 Rare': '🟣',
+            '🟡 Legendary': '🟡',
+            '🟢 Medium': '🟢'
+            }
+            rarity = rarity_emojis.get(rarity, rarity)
+            harem_message += f'{rarity} <b>🌸 {character["name"]} × {characters.count(character)}</b>\n'
+            harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
     total_count = len(user['characters'])
     
