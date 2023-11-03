@@ -460,8 +460,8 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             '🟢 Medium': '🟢'
             }
             rarity = rarity_emojis.get(rarity, rarity)
-            harem_message += f'{rarity} {character["name"]}\n'
-            harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
+            harem_message += f'{rarity} {character["name"]} ×({characters.count(character)})\n'
+            
 
     total_count = len(user['characters'])
     
