@@ -410,10 +410,6 @@ async def gift(update: Update, context: CallbackContext) -> None:
 
 
 
-import math
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import CallbackContext
-
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
 
@@ -429,11 +425,11 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
     grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['anime'])}
 
-    # Get a list of animes
-    animes = list(grouped_characters.keys())
+    # Flatten the grouped characters into a list for pagination
+    flat_characters = [item for sublist in list(grouped_characters.values()) for item in sublist]
 
     # Calculate the total number of pages
-    total_pages = math.ceil(len(animes) / 3)  # Number of animes divided by 3 animes per page, rounded up
+    total_pages = math.ceil(len(flat_characters) / 15)  # Number of characters divided by 15 characters per page, rounded up
 
     # Check if page is within bounds
     if page < 0 or page >= total_pages:
@@ -441,51 +437,16 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
     harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
 
-    # Get the animes for the current page
-    current_animes = animes[page*3:(page+1)*3]
+    # Get the characters for the current page
+    current_characters = flat_characters[page*15:(page+1)*15]
 
-    rarity_emojis = {
-        'Common': '⚪',
-        'Rare': '🟣',
-        'Legendary': '🟡',
-        'Medium': '🟢'
-    }
-
-    for anime in current_animes:
-        characters = grouped_characters[anime]
-
-        total_characters = await collection.count_documents({'anime': anime})
-
-        # Count each unique character only once
-        unique_characters = len(set(c['id'] for c in characters))
-
-        harem_message += f'🏖️ <b>{anime}</b> - ({unique_characters} / {total_characters})\n'
+    for character in current_characters:
+        rarity = character.get('rarity', "Don't have rarity...") 
+        rarity = rarity_emojis.get(rarity, rarity)
+        harem_message += f'🏖️ <b>{character["anime"]}</b> - ({len(grouped_characters[character["anime"]])} / {await collection.count_documents({"anime": character["anime"]})})\n'
         harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
-
-        character_counts = {i["id"]: characters.count(i) for i in characters}
-
-        for character_id, count in character_counts.items():
-            character = next((c for c in characters if c["id"] == character_id), None)
-            rarity = character.get('rarity', "Don't have rarity...") 
-            
-            # Replace rarity name with corresponding emoji
-            rarity = rarity_emojis.get(rarity, rarity)
-            
-            new_line = f'{rarity} <b>🌸 {character["name"]} × {count}</b>\n'
-            
-            # Check if adding this line will exceed the Telegram limit
-            if len(harem_message + new_line) > 4000:
-                break
-            
-            harem_message += new_line
-            
-            harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
-
-        harem_message += '\n'
-
-        # Check if the message is too long
-        if len(harem_message) > 4000:
-            break
+        harem_message += f'{rarity} <b>🌸 {character["name"]} × {grouped_characters[character["anime"]].count(character)}</b>\n'
+        harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
     total_count = len(user['characters'])
     
@@ -504,43 +465,29 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
     harem_message += f"\nPage {page+1} of {total_pages}"
 
-
-
-    if 'favorites' in user and user['favorites']:
-        fav_character_id = user['favorites'][0]
-        fav_character = next((c for c in user['characters'] if c['id'] == fav_character_id), None)
-        
-    if fav_character and 'img_url' in fav_character:
-        if update.message:
-            await update.message.reply_photo(photo=fav_character['img_url'], parse_mode='HTML', caption=harem_message, reply_markup=reply_markup)
-        else:
-            # Check if the new caption is different from the existing one
-            if update.callback_query.message.caption != harem_message:
-                await update.callback_query.edit_message_caption(caption=harem_message, reply_markup=reply_markup, parse_mode='HTML')
+    if update.message:
+        await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
     else:
-        if update.message:
-            await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
-        else:
-            # Check if the new text is different from the existing one
-            if update.callback_query.message.text != harem_message:
-                await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+        # Check if the new text is different from the existing one
+        if update.callback_query.message.text != harem_message:
+            await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
 
-
-HAREM_PATTERN = r"harem:(\d+)"
-
-
-
-async def handle_callback(update: Update, context: CallbackContext) -> None:
+async def harem_callback(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
-    (command, page, user_id) = query.data.split(":")
+    data = query.data
 
-    # Check if the user who clicked the button is the same user who triggered the command
-    if int(user_id) != update.effective_user.id:
-        await query.answer("Don't Stalk Others Harem mf ❗️", show_alert=True)
-        return
+    # Split the data to get the page number and user_id
+    _, page, user_id = data.split(':')
 
-    if command == "harem":
-        await harem(update, context, int(page))
+    # Convert the page number and user_id to integers
+    page = int(page)
+    user_id = int(user_id)
+
+    # Call the harem function with the page number and user_id
+    await harem(update, context, page)
+
+# Create a handler for the harem callback
+
 
 
 
@@ -558,7 +505,9 @@ def main() -> None:
     application.add_handler(CommandHandler('fav', fav, block=False))
     application.add_handler(CommandHandler("give", gift, block=False))
     application.add_handler(CommandHandler("collection", harem,block=False))
-    application.add_handler(CallbackQueryHandler(handle_callback, pattern=HAREM_PATTERN))
+    
+    harem_handler = CallbackQueryHandler(harem_callback, pattern='^harem')
+    application.add_handler(harem_handler)
 
     
 
