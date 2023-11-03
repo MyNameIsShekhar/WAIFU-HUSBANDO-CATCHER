@@ -471,12 +471,24 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
     harem_message += f"\nPage {page+1} of {total_pages}"
 
-    if update.message:
-        await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+    if fav_character and 'img_url' in fav_character:
+            if update.message:
+                await update.message.reply_photo(photo=fav_character['img_url'], parse_mode='HTML', caption=harem_message, reply_markup=reply_markup)
+            else:
+                # Check if the new caption is different from the existing one
+                if update.callback_query.message.caption != harem_message:
+                    await update.callback_query.edit_message_caption(caption=harem_message, reply_markup=reply_markup, parse_mode='HTML')
+        else:
+            if update.message:
+                await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+            else:
+                # Check if the new text is different from the existing one
+                if update.callback_query.message.text != harem_message:
+                    await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
     else:
-        # Check if the new text is different from the existing one
-        if update.callback_query.message.text != harem_message:
-            await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+        if update.message:
+            await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup
+
 async def harem_callback(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     data = query.data
@@ -487,6 +499,11 @@ async def harem_callback(update: Update, context: CallbackContext) -> None:
     # Convert the page number and user_id to integers
     page = int(page)
     user_id = int(user_id)
+
+    # Check if the user who clicked the button is the same as the user who owns the collection
+    if query.from_user.id != user_id:
+        await query.answer("Don't Stalk Other User's Harem.. lmao", show_alert=True)
+        return
 
     # Call the harem function with the page number and user_id
     await harem(update, context, page)
