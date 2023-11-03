@@ -427,7 +427,9 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     animes = list(grouped_characters.keys())
 
     # Calculate the total number of pages
-    total_pages = len(animes)
+    # Calculate the total number of pages
+    total_pages = math.ceil(len(animes) / 3)  # Number of animes divided by 3 animes per page, rounded up
+
 
     # Check if page is within bounds
     if page < 0 or page >= total_pages:
