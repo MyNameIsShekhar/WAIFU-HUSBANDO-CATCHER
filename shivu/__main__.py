@@ -431,13 +431,6 @@ async def harem(update: Update, context: CallbackContext, page=0, start_anime=0,
 
     harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
 
-    rarity_emojis = {
-        '⚪ Common': '⚪',
-        '🟣 Rare': '🟣',
-        '🟡 Legendary': '🟡',
-        '🟢 Medium': '🟢'
-    }
-
     character_count = 0
     for i in range(start_anime, len(animes)):
         anime = animes[i]
@@ -446,11 +439,7 @@ async def harem(update: Update, context: CallbackContext, page=0, start_anime=0,
         harem_message += f'🏖️ <b>{anime}</b>\n'
 
         for character in characters:
-            # Replace rarity name with corresponding emoji
-            rarity = rarity_emojis.get(character.get('rarity', "Don't have rarity..."), character.get('rarity', "Don't have rarity..."))
-            # Count how many times the user has guessed this character
-            guess_count = characters.count(character)
-            harem_message += f'• {character["id"]} {character["name"]} | {rarity} | ×{guess_count}\n'
+            harem_message += f'• {character["id"]}\n'
             character_count += 1
 
             # Check if the message is too long or if we have added enough characters for this page
@@ -477,6 +466,8 @@ async def harem(update: Update, context: CallbackContext, page=0, start_anime=0,
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     harem_message += f"\nPage {page+1}"
+
+    # Rest of the function...
 
     # Rest of the function...
 
