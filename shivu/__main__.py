@@ -409,6 +409,8 @@ async def gift(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
 
 
+
+
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
 
@@ -481,15 +483,15 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     # Add navigation buttons if there are multiple pages
     if total_pages > 1:
         if page > 0:
-            keyboard.append([InlineKeyboardButton("Prev", callback_data=f"harem:{page-1}")])
+            keyboard.append([InlineKeyboardButton("Prev", callback_data=f"harem:{page-1}:{user_id}")])
         if page < total_pages - 1:
-            keyboard.append([InlineKeyboardButton("Next", callback_data=f"harem:{page+1}")])
+            keyboard.append([InlineKeyboardButton("Next", callback_data=f"harem:{page+1}:{user_id}")])
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
     harem_message += f"\nPage {page+1} of {total_pages}"
 
-    # ... rest of your code ...
+    
 
     if 'favorites' in user and user['favorites']:
         fav_character_id = user['favorites'][0]
@@ -516,12 +518,15 @@ HAREM_PATTERN = r"harem:(\d+)"
 
 async def handle_callback(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
-    (command, page) = query.data.split(":")
-    
-    if command == "harem":
-        
-        await harem(update, context, int(page))
+    (command, page, user_id) = query.data.split(":")
 
+    # Check if the user who clicked the button is the same user who triggered the command
+    if int(user_id) != update.effective_user.id:
+        await query.answer("This is not your collection.", show_alert=True)
+        return
+
+    if command == "harem":
+        await harem(update, context, int(page))
 
 def main() -> None:
     """Run bot."""
