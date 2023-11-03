@@ -411,22 +411,7 @@ async def gift(update: Update, context: CallbackContext) -> None:
 
 
 
-
-import math
-import random
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import CallbackContext
-
-import math
-import random
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
-from telegram.ext import CallbackContext
-
-# Define a constant for the Telegram message limit
-MESSAGE_LIMIT = 200
-
-
-async def harem(update: Update, context: CallbackContext, page=0) -> None:
+async def harem(update: Update, context: CallbackContext, page=0, start_anime=0, start_character=0) -> None:
     user_id = update.effective_user.id
 
     user = await user_collection.find_one({'id': user_id})
@@ -437,15 +422,12 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             await update.callback_query.edit_message_text('You have not guessed any characters yet.')
         return
 
-    # Define the number of characters per page
-    characters_per_page = 15
+    characters = sorted(user['characters'], key=lambda x: x['anime'])
 
-    # Calculate the start and end indices for the characters to display on this page
-    start = page * characters_per_page
-    end = start + characters_per_page
+    grouped_characters = {k: list(v) for k, v in groupby(characters, key=lambda x: x['anime'])}
 
-    # Get the characters for this page
-    characters = user['characters'][start:end]
+    # Sort the animes by the number of characters a user has from each anime
+    animes = sorted(grouped_characters.keys(), key=lambda x: len(grouped_characters[x]), reverse=True)
 
     harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
 
@@ -456,32 +438,48 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
         '🟢 Medium': '🟢'
     }
 
-    for character in characters:
-        # Replace rarity name with corresponding emoji
-        rarity = rarity_emojis.get(character.get('rarity', "Don't have rarity..."), character.get('rarity', "Don't have rarity..."))
-        harem_message += f'• {character["id"]} {character["name"]} | {rarity} |\n'
+    character_count = 0
+    for i in range(start_anime, len(animes)):
+        anime = animes[i]
+        characters = grouped_characters[anime][start_character:]
+
+        harem_message += f'🏖️ <b>{anime}</b>\n'
+
+        for character in characters:
+            # Replace rarity name with corresponding emoji
+            rarity = rarity_emojis.get(character.get('rarity', "Don't have rarity..."), character.get('rarity', "Don't have rarity..."))
+            # Count how many times the user has guessed this character
+            guess_count = characters.count(character)
+            harem_message += f'• {character["id"]} {character["name"]} | {rarity} | ×{guess_count}\n'
+            character_count += 1
+
+            # Check if the message is too long or if we have added enough characters for this page
+            if len(harem_message) > MESSAGE_LIMIT or character_count >= 25:
+                # If it is, remove the last character and break the loop
+                harem_message = harem_message.rsplit('•', 1)[0]
+                break
+
+        harem_message += '\n'
+
+        # If we have added enough characters for this page, stop adding more
+        if character_count >= 25:
+            break
 
     total_count = len(user['characters'])
     
     keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
 
-    # Calculate the total number of pages
-    total_pages = math.ceil(total_count / characters_per_page)
-
-    # Add navigation buttons if there are multiple pages
-    if total_pages > 1:
-        nav_buttons = []
-        if page > 0:
-            nav_buttons.append(InlineKeyboardButton("Prev", callback_data=f"harem:{page-1}:{user_id}"))
-        if page < total_pages - 1:
-            nav_buttons.append(InlineKeyboardButton("Next", callback_data=f"harem:{page+1}:{user_id}"))
+    # Add navigation buttons if there are more characters
+    if character_count >= 25 or i + 1 < len(animes):
+        nav_buttons = [InlineKeyboardButton("Next", callback_data=f"harem:{page+1}:{i}:{character_count}:{user_id}")]
         keyboard.append(nav_buttons)
 
     reply_markup = InlineKeyboardMarkup(keyboard)
 
-    harem_message += f"\nPage {page+1} of {total_pages}"
+    harem_message += f"\nPage {page+1}"
 
     # Rest of the function...
+
 
 
     if 'favorites' in user and user['favorites']:
