@@ -409,7 +409,6 @@ async def gift(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
 
 
-
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
 
@@ -436,7 +435,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     if page < 0 or page >= total_pages:
         page = 0  # Reset to first page if out of bounds
 
-    harem_message = f"<b>{update.effective_user.first_name}'s Harem</b>\n\n"
+    harem_message = f"<b>{update.effective_user.first_name}'s Harem - Page {page+1}/{total_pages}</b>\n\n"
 
     # Get the characters for the current page
     current_characters = unique_characters[page*15:(page+1)*15]
@@ -445,19 +444,15 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     current_grouped_characters = {k: list(v) for k, v in groupby(current_characters, key=lambda x: x['anime'])}
 
     for anime, characters in current_grouped_characters.items():
-        harem_message += f'🏖️ <b>{anime} ({len(characters)} / {await collection.count_documents({"anime": anime})})</b>\n'
+        harem_message += f'🏖️ <b>{anime} {len(characters)}/{await collection.count_documents({"anime": anime})}</b>\n'
+        harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
+
         for character in characters:
             rarity = character.get('rarity', "Don't have rarity...") 
-            rarity_emojis = {
-            '⚪ Common': '⚪',
-            '🟣 Rare': '🟣',
-            '🟡 Legendary': '🟡',
-            '🟢 Medium': '🟢'
-            }
             rarity = rarity_emojis.get(rarity, rarity)
             count = character_counts[character['id']]  # Get the count from the character_counts dictionary
-            harem_message += f'{rarity} <b>🌸 {character["name"]} × {count}</b>\n'
-        harem_message += '\n\n'
+            harem_message += f'ID: {character["id"]} <b>🌸 {character["name"]} × {count} |{rarity}|</b>\n'
+            harem_message += '⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋⚋\n'
 
     total_count = len(user['characters'])
     
@@ -482,6 +477,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
         # Check if the new text is different from the existing one
         if update.callback_query.message.text != harem_message:
             await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
+
 
 async def harem_callback(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
