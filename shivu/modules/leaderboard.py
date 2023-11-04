@@ -188,6 +188,7 @@ async def user(update: Update, context: CallbackContext) -> None:
 
 application.add_handler(CommandHandler('ctop', ctop, block=False))
 application.add_handler(CommandHandler('stats', stats, block=False))
+application.add_handler(CommandHandler('user', user, block=False))
 
 
 application.add_handler(CommandHandler('top', leaderboard, block=False))
