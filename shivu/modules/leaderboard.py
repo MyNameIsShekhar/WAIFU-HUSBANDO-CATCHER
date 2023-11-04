@@ -157,6 +157,34 @@ async def stats(update: Update, context: CallbackContext) -> None:
 
     # Send the statistics to the bot owner
     await update.message.reply_text(f'Total Users: {user_count}\nTotal groups: {len(group_count)}')
+async def user(update: Update, context: CallbackContext) -> None:
+    # Ensure this command is only run by the bot owner for security
+    if update.effective_user.id != BOT_OWNER_ID:
+        return
+
+    # Check if a user ID was provided
+    if not context.args or not context.args[0].isdigit():
+        await update.message.reply_text('Working Shigeoo')
+        return
+
+    user_id = int(context.args[0])
+
+    # Find the groups the user is in
+    groups = await group_user_totals_collection.find({'user_id': user_id})
+
+    if not groups:
+        await update.message.reply_text('This user is not in any groups.')
+        return
+
+    # Construct a message with the group information
+    message = f'User {user_id} is in the following groups:\n\n'
+    for group in groups:
+        group_id = group['group_id']
+        group_name = group.get('group_name', 'None')
+        username = group.get('username', 'None')
+        message += f'Group ID: {group_id}\nGroup Name: {group_name}\nUsername: {username}\n\n'
+
+    await update.message.reply_text(message)
 
 application.add_handler(CommandHandler('ctop', ctop, block=False))
 application.add_handler(CommandHandler('stats', stats, block=False))
