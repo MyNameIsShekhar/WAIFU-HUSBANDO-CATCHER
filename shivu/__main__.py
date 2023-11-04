@@ -551,12 +551,12 @@ def main() -> None:
     """Run bot."""
     
     
-    application.add_handler(command_handler(["guess", "protecc", "collect", "grab", "hunt"], guess, block=False))
-    application.add_handler(command_handler(["changetime"], change_time, block=False))
+    application.add_handler(CommandHandler(["guess", "protecc", "collect", "grab", "hunt"], guess, block=False))
+    application.add_handler(CommandHandler(["changetime"], change_time, block=False))
     application.add_handler(InlineQueryHandler(inlinequery, block=False))
-    application.add_handler(command_handler('fav', fav, block=False))
-    application.add_handler(command_handler("give", gift, block=False))
-    application.add_handler(command_handler("collection", harem, block=False))
+    application.add_handler(CommandHandler('fav', fav, block=False))
+    application.add_handler(CommandHandler("give", gift, block=False))
+    application.add_handler(CommandHandler("collection", harem, block=False))
 
     harem_handler = CallbackQueryHandler(harem_callback, pattern='^harem')
     application.add_handler(harem_handler)
