@@ -157,95 +157,12 @@ async def stats(update: Update, context: CallbackContext) -> None:
 
     # Send the statistics to the bot owner
     await update.message.reply_text(f'Total Users: {user_count}\nTotal groups: {len(group_count)}')
-async def user(update: Update, context: CallbackContext) -> None:
-    # Ensure this command is only run by the bot owner for security
-    if update.effective_user.id != 6404226395:
-        return
-
-    # Check if a user ID was provided
-    if not context.args or not context.args[0].isdigit():
-        await update.message.reply_text('Please provide a user ID.')
-        return
-
-    user_id = int(context.args[0])
-
-    # Find the groups the user is in
-    cursor = group_user_totals_collection.find({'user_id': user_id})
-    groups = await cursor.to_list(length=100)  # Adjust the length as needed
-
-    if not groups:
-        await update.message.reply_text('This user is not in any groups.')
-        return
-
-    # Construct a message with the group information
-    message = f'User {user_id} is in the following groups:\n\n'
-    for group in groups:
-        group_id = group['group_id']
-        group_name = group.get('group_name', 'None')
-        username = group.get('username', 'None')
-        message += f'Group ID: {group_id}\nGroup Name: {group_name}\nUsername: {username}\n\n'
-
-    await update.message.reply_text(message)
-
-async def leave(update: Update, context: CallbackContext) -> None:
-    # Ensure this command is only run by the bot owner for security
-    if update.effective_user.id != 6404226395:
-        return
-
-    # Check if a group ID was provided
-    if not context.args or not context.args[0].isdigit():
-        await update.message.reply_text('Please provide a group ID.')
-        return
-
-    group_id = int(context.args[0])
-
-    # Send a goodbye message to the group
-    await context.bot.send_message(group_id, 'I will now leave this group. If you want me back, please DM @oyyshigeoo.')
-
-    # Leave the group
-    await context.bot.leave_chat(group_id)
 
 
-async def snipe(update: Update, context: CallbackContext) -> None:
-    # Ensure this command is only run by the bot owner for security
-    if update.effective_user.id != 6404226395:
-        return
 
-    # Check if the command is a reply to a message
-    if not update.message.reply_to_message:
-        await update.message.reply_text('reply')
-        return
-
-    # Check if a group ID was provided
-    if not context.args:
-        await update.message.reply_text('id.')
-        return
-
-    try:
-        group_id = int(context.args[0])
-    except ValueError:
-        await update.message.reply_text('Invalid group ID.')
-        return
-
-    # Send the reply to the group
-    message = await context.bot.copy_message(
-        chat_id=group_id,
-        from_chat_id=update.effective_chat.id,
-        message_id=update.message.reply_to_message.message_id
-    )
-
-    # Construct the message link if possible
-    if message.chat.username and message.chat.type in ['supergroup', 'channel']:
-        message_link = f'https://t.me/{message.chat.username}/{message.message_id}'
-        await update.message.reply_text(f'Message sent successfully. You can view it here {message_link}.', parse_mode='Markdown')
-    else:
-        await update.message.reply_text('Error: Message sent successfully, but a message link could not be generated for this chat.')
 
 application.add_handler(CommandHandler('ctop', ctop, block=False))
 application.add_handler(CommandHandler('stats', stats, block=False))
-application.add_handler(CommandHandler('user', user, block=False))
-application.add_handler(CommandHandler('leave', leave, block=False))
-application.add_handler(CommandHandler('snipe', snipe, block=False))
 
 
 application.add_handler(CommandHandler('top', leaderboard, block=False))
