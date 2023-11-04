@@ -544,7 +544,7 @@ def main() -> None:
     command_prefixes = ('/', '.', '!')
 
     def command_handler(*args, **kwargs):
-        return CommandHandler(*args, filters=filters.regex(fr'^[{"|".join(command_prefixes)}]'), **kwargs)
+        return CommandHandler(*args, filters=filters.Regex(fr'^[{"|".join(command_prefixes)}]'), **kwargs)
 
     application.add_handler(command_handler(["guess", "protecc", "collect", "grab", "hunt"], guess, block=False))
     application.add_handler(command_handler(["changetime"], change_time, block=False))
