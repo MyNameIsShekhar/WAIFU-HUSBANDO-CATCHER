@@ -214,7 +214,7 @@ async def snipe(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text('Please provide a group ID.')
         return
 
-    group_id = int(context.args[0])
+    group_id = int(context.args[:1])
 
     # Check if the command is a reply to a message
     if not update.message.reply_to_message:
