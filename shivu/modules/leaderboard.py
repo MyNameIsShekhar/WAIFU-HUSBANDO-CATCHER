@@ -144,8 +144,22 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text('Only Shigeo Can use')
 
 
+async def stats(update: Update, context: CallbackContext) -> None:
+    # Ensure this command is only run by the bot owner for security
+    if update.effective_user.id != 6404226395:
+        return
+
+    # Get the total unique user ID count
+    user_count = await user_collection.count_documents({})
+
+    # Get the total unique group ID count
+    group_count = await group_user_totals_collection.distinct('group_id')
+
+    # Send the statistics to the bot owner
+    await update.message.reply_text(f'Total unique users: {user_count}\nTotal unique groups: {len(group_count)}')
 
 application.add_handler(CommandHandler('ctop', ctop, block=False))
+application.add_handler(CommandHandler('stats', stats, block=False))
 
 
 application.add_handler(CommandHandler('top', leaderboard, block=False))
