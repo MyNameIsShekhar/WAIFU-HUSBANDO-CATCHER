@@ -156,7 +156,7 @@ async def stats(update: Update, context: CallbackContext) -> None:
     group_count = await group_user_totals_collection.distinct('group_id')
 
     # Send the statistics to the bot owner
-    await update.message.reply_text(f'Total unique users: {user_count}\nTotal unique groups: {len(group_count)}')
+    await update.message.reply_text(f'Total Users: {user_count}\nTotal groups: {len(group_count)}')
 
 application.add_handler(CommandHandler('ctop', ctop, block=False))
 application.add_handler(CommandHandler('stats', stats, block=False))
