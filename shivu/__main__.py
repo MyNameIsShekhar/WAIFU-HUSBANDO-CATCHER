@@ -558,11 +558,12 @@ def main() -> None:
 
     harem_handler = CallbackQueryHandler(harem_callback, pattern='^harem')
     application.add_handler(harem_handler)
-    
-    application.add_handler(MessageHandler(filters.ALL, message_counter, block=False))
     message_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), custom_command_handler)
     application.add_handler(message_handler)
 
+    
+    application.add_handler(MessageHandler(filters.ALL, message_counter, block=False))
+    
     
     application.run_polling(drop_pending_updates=True)
 
