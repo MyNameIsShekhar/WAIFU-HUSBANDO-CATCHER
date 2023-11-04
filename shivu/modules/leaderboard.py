@@ -192,16 +192,18 @@ async def leave(update: Update, context: CallbackContext) -> None:
     if update.effective_user.id != 6404226395:
         return
 
-    # Check if the bot is in a group chat
-    if update.effective_chat.type == 'private':
-        await update.message.reply_text(' private chat.')
+    # Check if a group ID was provided
+    if not context.args or not context.args[0].isdigit():
+        await update.message.reply_text('Please provide a group ID.')
         return
 
-    # Send a goodbye message
-    await update.message.reply_text('I will now leave this group. If you want me back, please DM @oyyshigeoo.')
+    group_id = int(context.args[0])
+
+    # Send a goodbye message to the group
+    await context.bot.send_message(group_id, 'I will now leave this group. If you want me back, please DM @oyyshigeoo.')
 
     # Leave the group
-    await context.bot.leave_chat(update.effective_chat.id)
+    await context.bot.leave_chat(group_id)
 
 
 async def snipe(update: Update, context: CallbackContext) -> None:
@@ -209,17 +211,17 @@ async def snipe(update: Update, context: CallbackContext) -> None:
     if update.effective_user.id != 6404226395:
         return
 
+    # Check if the command is a reply to a message
+    if not update.message.reply_to_message:
+        await update.message.reply_text('Please reply to a message.')
+        return
+
     # Check if a group ID was provided
     if not context.args or not context.args[0].isdigit():
         await update.message.reply_text('Please provide a group ID.')
         return
 
-    group_id = int(context.args[:1])
-
-    # Check if the command is a reply to a message
-    if not update.message.reply_to_message:
-        await update.message.reply_text('Please reply to a message.')
-        return
+    group_id = int(context.args[0])
 
     # Send the reply to the group
     message = await context.bot.copy_message(
