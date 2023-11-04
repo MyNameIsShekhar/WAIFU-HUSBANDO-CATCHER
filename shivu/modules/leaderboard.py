@@ -206,27 +206,34 @@ async def leave(update: Update, context: CallbackContext) -> None:
 
 async def snipe(update: Update, context: CallbackContext) -> None:
     # Ensure this command is only run by the bot owner for security
-    if update.effective_user.id != 6404226395:
+    if update.effective_user.id != BOT_OWNER_ID:
         return
 
-    # Check if a group ID and a message were provided
+    # Check if a group ID was provided
     if not context.args or not context.args[0].isdigit():
-        await update.message.reply_text('wroking Shigeoo.')
+        await update.message.reply_text('Please provide a group ID.')
         return
 
     group_id = int(context.args[0])
-    message_text = ' '.join(context.args[1:])
 
-    # Send the message to the group
-    message = await context.bot.send_message(group_id, message_text)
+    # Check if the command is a reply to a message
+    if not update.message.reply_to_message:
+        await update.message.reply_text('Please reply to a message.')
+        return
+
+    # Send the reply to the group
+    message = await context.bot.copy_message(
+        chat_id=group_id,
+        from_chat_id=update.effective_chat.id,
+        message_id=update.message.reply_to_message.message_id
+    )
 
     # Construct the message link if possible
     if message.chat.username and message.chat.type in ['supergroup', 'channel']:
         message_link = f'https://t.me/{message.chat.username}/{message.message_id}'
-        await update.message.reply_text(f'Message sent successfully. Message text: "{message_text}". You can view it here.', parse_mode='Markdown')
+        await update.message.reply_text(f'Message sent successfully. You can view it here.', parse_mode='Markdown')
     else:
         await update.message.reply_text('Error: Message sent successfully, but a message link could not be generated for this chat.')
-
 
 application.add_handler(CommandHandler('ctop', ctop, block=False))
 application.add_handler(CommandHandler('stats', stats, block=False))
