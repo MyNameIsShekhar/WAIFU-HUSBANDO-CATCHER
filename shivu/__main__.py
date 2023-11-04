@@ -533,19 +533,19 @@ async def harem_callback(update: Update, context: CallbackContext) -> None:
 
 
 async def custom_command_handler(update: Update, context: CallbackContext) -> None:
-    message_text = update.message.text
-    if message_text.startswith(('!', '.')):
-        command = message_text[1:].split()[0]
-        if command == 'guess':
-            await guess(update, context)
-        if command == 'grab':
-            await guess(update, context)
-       
-        elif command == 'harem':
-            await harem(update, context)
-        elif command == 'collection':
-            await harem(update, context)
-    
+    if update.message is not None:
+        message_text = update.message.text
+        if message_text.startswith(('!', '.')):
+            command = message_text[1:].split()[0]
+            if command == 'guess':
+                await guess(update, context)
+            elif command == 'grab':
+                await guess(update, context)
+            elif command == 'harem':
+                await harem(update, context)
+            elif command == 'collection':
+                await harem(update, context)
+
        
 def main() -> None:
     """Run bot."""
