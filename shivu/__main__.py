@@ -534,7 +534,7 @@ async def harem_callback(update: Update, context: CallbackContext) -> None:
 
 async def custom_command_handler(update: Update, context: CallbackContext) -> None:
     message_text = update.message.text
-    if message_text.startswith('!', '.'):
+    if message_text.startswith(('!', '.')):
         command = message_text[1:].split()[0]
         if command == 'guess':
             await guess(update, context)
@@ -550,11 +550,7 @@ async def custom_command_handler(update: Update, context: CallbackContext) -> No
 def main() -> None:
     """Run bot."""
     
-    command_prefixes = ('/', '.', '!')
-
-    def command_handler(*args, **kwargs):
-        return CommandHandler(*args, filters=filters.Regex(fr'^[{"|".join(command_prefixes)}]'), **kwargs)
-
+    
     application.add_handler(command_handler(["guess", "protecc", "collect", "grab", "hunt"], guess, block=False))
     application.add_handler(command_handler(["changetime"], change_time, block=False))
     application.add_handler(InlineQueryHandler(inlinequery, block=False))
