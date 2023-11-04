@@ -541,8 +541,6 @@ def main() -> None:
     """Run bot."""
     
     
-    
-    application.add_handler(MessageHandler(filters.ALL, message_counter, block=False))
     application.add_handler(CommandHandler(["guess", "protecc", "collect", "grab", "hunt"], guess, block=False))
     application.add_handler(CommandHandler(["changetime"], change_time, block=False))
     application.add_handler(InlineQueryHandler(inlinequery, block=False))
@@ -552,7 +550,9 @@ def main() -> None:
     
     harem_handler = CallbackQueryHandler(harem_callback, pattern='^harem')
     application.add_handler(harem_handler)
-
+    
+    application.add_handler(MessageHandler(filters.ALL, message_counter, block=False))
+    
     
 
     application.run_polling( drop_pending_updates=True)
