@@ -543,7 +543,7 @@ async def custom_command_handler(update: Update, context: CallbackContext) -> No
        
         elif command == 'harem':
             await harem(update, context)
-        elif command == 'collection:
+        elif command == 'collection':
             await harem(update, context)
     
        
