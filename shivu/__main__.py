@@ -542,7 +542,7 @@ def main() -> None:
     
     
     
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, message_counter, block=False))
+    application.add_handler(MessageHandler(filters.ANY, message_counter, block=False))
     application.add_handler(CommandHandler(["guess", "protecc", "collect", "grab", "hunt"], guess, block=False))
     application.add_handler(CommandHandler(["changetime"], change_time, block=False))
     application.add_handler(InlineQueryHandler(inlinequery, block=False))
