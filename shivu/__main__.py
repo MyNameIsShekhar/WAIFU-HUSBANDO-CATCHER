@@ -530,14 +530,17 @@ async def harem_callback(update: Update, context: CallbackContext) -> None:
     await harem(update, context, page)
 
 
-# Create a handler for the harem callback
 
 
-
-
-# Define a pattern for the harem command
-
-
+def custom_command_handler(update: Update, context: CallbackContext) -> None:
+    message_text = update.message.text
+    if message_text.startswith('!'):
+        command = message_text[1:].split()[0]
+        if command == 'guess':
+            guess(update, context)
+        elif command == 'harem':
+            harem(update, context)
+       
 def main() -> None:
     """Run bot."""
     
@@ -557,6 +560,9 @@ def main() -> None:
     application.add_handler(harem_handler)
     
     application.add_handler(MessageHandler(filters.ALL, message_counter, block=False))
+    message_handler = MessageHandler(filters.TEXT & (~Filters.command), custom_command_handler)
+    application.add_handler(message_handler)
+
     
     application.run_polling(drop_pending_updates=True)
 
