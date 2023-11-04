@@ -556,18 +556,19 @@ def main() -> None:
     application.add_handler(InlineQueryHandler(inlinequery, block=False))
     application.add_handler(CommandHandler('fav', fav, block=False))
     application.add_handler(CommandHandler("give", gift, block=False))
-    application.add_handler(CommandHandler("collection", harem, block=False))
-
+    application.add_handler(CommandHandler("collection", harem,block=False))
+    
     harem_handler = CallbackQueryHandler(harem_callback, pattern='^harem')
     application.add_handler(harem_handler)
+    
     message_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), custom_command_handler)
     application.add_handler(message_handler)
 
-    
     application.add_handler(MessageHandler(filters.ALL, message_counter, block=False))
     
     
-    application.run_polling(drop_pending_updates=True)
 
+    application.run_polling( drop_pending_updates=True)
+    
 if __name__ == "__main__":
     main()
