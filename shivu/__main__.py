@@ -545,7 +545,6 @@ async def custom_command_handler(update: Update, context: CallbackContext) -> No
                 await harem(update, context)
             elif command == 'collection':
                 await harem(update, context)
-
        
 def main() -> None:
     """Run bot."""
