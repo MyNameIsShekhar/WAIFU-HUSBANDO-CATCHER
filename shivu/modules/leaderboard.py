@@ -208,17 +208,17 @@ async def leave(update: Update, context: CallbackContext) -> None:
 
 async def snipe(update: Update, context: CallbackContext) -> None:
     # Ensure this command is only run by the bot owner for security
-    if update.effective_user.id != BOT_OWNER_ID:
+    if update.effective_user.id != 6404226395:
         return
 
     # Check if the command is a reply to a message
     if not update.message.reply_to_message:
-        await update.message.reply_text('Please reply to a message.')
+        await update.message.reply_text('reply')
         return
 
     # Check if a group ID was provided
     if not context.args:
-        await update.message.reply_text('Please provide a group ID.')
+        await update.message.reply_text('id.')
         return
 
     try:
