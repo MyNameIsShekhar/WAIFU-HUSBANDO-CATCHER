@@ -208,7 +208,7 @@ async def leave(update: Update, context: CallbackContext) -> None:
 
 async def snipe(update: Update, context: CallbackContext) -> None:
     # Ensure this command is only run by the bot owner for security
-    if update.effective_user.id != 6404226395:
+    if update.effective_user.id != BOT_OWNER_ID:
         return
 
     # Check if the command is a reply to a message
@@ -217,11 +217,15 @@ async def snipe(update: Update, context: CallbackContext) -> None:
         return
 
     # Check if a group ID was provided
-    if not context.args or not context.args[0].isdigit():
+    if not context.args:
         await update.message.reply_text('Please provide a group ID.')
         return
 
-    group_id = int(context.args[0])
+    try:
+        group_id = int(context.args[0])
+    except ValueError:
+        await update.message.reply_text('Invalid group ID.')
+        return
 
     # Send the reply to the group
     message = await context.bot.copy_message(
@@ -233,7 +237,7 @@ async def snipe(update: Update, context: CallbackContext) -> None:
     # Construct the message link if possible
     if message.chat.username and message.chat.type in ['supergroup', 'channel']:
         message_link = f'https://t.me/{message.chat.username}/{message.message_id}'
-        await update.message.reply_text(f'Message sent successfully. You can view it here.', parse_mode='Markdown')
+        await update.message.reply_text(f'Message sent successfully. You can view it here {message_link}.', parse_mode='Markdown')
     else:
         await update.message.reply_text('Error: Message sent successfully, but a message link could not be generated for this chat.')
 
