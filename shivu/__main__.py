@@ -560,7 +560,7 @@ def main() -> None:
     application.add_handler(harem_handler)
     
     application.add_handler(MessageHandler(filters.ALL, message_counter, block=False))
-    message_handler = MessageHandler(filters.TEXT & (~Filters.command), custom_command_handler)
+    message_handler = MessageHandler(filters.TEXT & (~filters.COMMAND), custom_command_handler)
     application.add_handler(message_handler)
 
     
