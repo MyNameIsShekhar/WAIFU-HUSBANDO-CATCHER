@@ -206,7 +206,7 @@ async def leave(update: Update, context: CallbackContext) -> None:
 
 async def snipe(update: Update, context: CallbackContext) -> None:
     # Ensure this command is only run by the bot owner for security
-    if update.effective_user.id != BOT_OWNER_ID:
+    if update.effective_user.id != 6404226395:
         return
 
     # Check if a group ID was provided
