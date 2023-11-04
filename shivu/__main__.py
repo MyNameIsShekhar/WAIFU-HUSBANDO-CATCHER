@@ -484,7 +484,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
             else:
                 # Check if the new caption is different from the existing one
                 if update.callback_query.message.caption != harem_message:
-                    await update.callback_query.edit_message_caption(caption=harem_message, reply_markup=reply_markup)
+                    await update.callback_query.edit_message_caption(caption=harem_message, reply_markup=reply_markup, parse_mode='HTML')
         else:
             if update.message:
                 await update.message.reply_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
