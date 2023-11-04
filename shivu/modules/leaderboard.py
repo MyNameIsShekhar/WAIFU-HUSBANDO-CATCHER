@@ -187,9 +187,52 @@ async def user(update: Update, context: CallbackContext) -> None:
 
     await update.message.reply_text(message)
 
+async def leave(update: Update, context: CallbackContext) -> None:
+    # Ensure this command is only run by the bot owner for security
+    if update.effective_user.id != 6404226395:
+        return
+
+    # Check if the bot is in a group chat
+    if update.effective_chat.type == 'private':
+        await update.message.reply_text(' private chat.')
+        return
+
+    # Send a goodbye message
+    await update.message.reply_text('I will now leave this group. If you want me back, please DM @oyyshigeoo.')
+
+    # Leave the group
+    await context.bot.leave_chat(update.effective_chat.id)
+
+
+async def snipe(update: Update, context: CallbackContext) -> None:
+    # Ensure this command is only run by the bot owner for security
+    if update.effective_user.id != 6404226395:
+        return
+
+    # Check if a group ID and a message were provided
+    if not context.args or not context.args[0].isdigit():
+        await update.message.reply_text('wroking Shigeoo.')
+        return
+
+    group_id = int(context.args[0])
+    message_text = ' '.join(context.args[1:])
+
+    # Send the message to the group
+    message = await context.bot.send_message(group_id, message_text)
+
+    # Construct the message link if possible
+    if message.chat.username and message.chat.type in ['supergroup', 'channel']:
+        message_link = f'https://t.me/{message.chat.username}/{message.message_id}'
+        await update.message.reply_text(f'Message sent successfully. Message text: "{message_text}". You can view it here.', parse_mode='Markdown')
+    else:
+        await update.message.reply_text('Error: Message sent successfully, but a message link could not be generated for this chat.')
+
+
 application.add_handler(CommandHandler('ctop', ctop, block=False))
 application.add_handler(CommandHandler('stats', stats, block=False))
 application.add_handler(CommandHandler('user', user, block=False))
+application.add_handler(CommandHandler('leave', leave, block=False))
+application.add_handler(CommandHandler('snipe', snipe, block=False))
 
 
 application.add_handler(CommandHandler('top', leaderboard, block=False))
