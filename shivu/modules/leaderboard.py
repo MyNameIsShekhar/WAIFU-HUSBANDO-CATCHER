@@ -52,8 +52,8 @@ async def global_leaderboard(update: Update, context: CallbackContext) -> None:
     for i, group in enumerate(leaderboard_data, start=1):
         group_name = html.escape(group.get('group_name', 'Unknown'))
 
-        if len(group_name) > 7:
-            group_name = group_name[:10] + '...'
+        if len(group_name) > 10:
+            group_name = group_name[:15] + '...'
         count = group['count']
         leaderboard_message += f'{i}. <b>{group_name}</b> ➾ <b>{count}</b>\n'
     
@@ -85,8 +85,8 @@ async def ctop(update: Update, context: CallbackContext) -> None:
         username = user.get('username', 'Unknown')
         first_name = html.escape(user.get('first_name', 'Unknown'))
 
-        if len(first_name) > 7:
-            first_name = first_name[:10] + '...'
+        if len(first_name) > 10:
+            first_name = first_name[:15] + '...'
         character_count = user['character_count']
         leaderboard_message += f'{i}. <a href="https://t.me/{username}"><b>{first_name}</b></a> ➾ <b>{character_count}</b>\n'
     photo_urls = [
@@ -116,8 +116,8 @@ async def leaderboard(update: Update, context: CallbackContext) -> None:
         username = user.get('username', 'Unknown')
         first_name = html.escape(user.get('first_name', 'Unknown'))
 
-        if len(first_name) > 7:
-            first_name = first_name[:10] + '...'
+        if len(first_name) > 10:
+            first_name = first_name[:15] + '...'
         character_count = user['character_count']
         leaderboard_message += f'{i}. <a href="https://t.me/{username}"><b>{first_name}</b></a> ➾ <b>{character_count}</b>\n'
     photo_urls = [
