@@ -157,7 +157,6 @@ async def guess(update: Update, context: CallbackContext) -> None:
     if sorted(name_parts) == sorted(guess.split()) or any(part == guess for part in name_parts):
         # Rest of the function...
 
-    
         first_correct_guesses[chat_id] = user_id
         
         user = await user_collection.find_one({'id': user_id})
@@ -184,10 +183,8 @@ async def guess(update: Update, context: CallbackContext) -> None:
         group_user_total = await group_user_totals_collection.find_one({'user_id': user_id, 'group_id': chat_id})
         if group_user_total:
             update_fields = {}
-            if hasattr(update.effective_user, 'username') and update.effective_user.username != group_user_total.get('username'):
-                update_fields['username'] = update.effective_user.username
-            if update.effective_user.first_name != group_user_total.get('first_name'):
-                update_fields['first_name'] = update.effective_user.first_name
+            if update.effective_chat.title != group_user_total.get('group_name'):
+                update_fields['group_name'] = update.effective_chat.title
             if update_fields:
                 await group_user_totals_collection.update_one({'user_id': user_id, 'group_id': chat_id}, {'$set': update_fields})
             
@@ -197,8 +194,7 @@ async def guess(update: Update, context: CallbackContext) -> None:
             await group_user_totals_collection.insert_one({
                 'user_id': user_id,
                 'group_id': chat_id,
-                'username': update.effective_user.username,
-                'first_name': update.effective_user.first_name,
+                'group_name': update.effective_chat.title,
                 'count': 1,
             })
 
