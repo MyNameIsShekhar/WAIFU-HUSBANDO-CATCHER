@@ -389,18 +389,14 @@ async def fav(update: Update, context: CallbackContext) -> None:
 
     
     
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-
 async def gift(update: Update, context: CallbackContext) -> None:
     sender_id = update.effective_user.id
-    sender_username = update.effective_user.username
 
     if not update.message.reply_to_message:
         await update.message.reply_text("You need to reply to a user's message to gift a character!")
         return
 
     receiver_id = update.message.reply_to_message.from_user.id
-    receiver_username = update.message.reply_to_message.from_user.username
 
     if sender_id == receiver_id:
         await update.message.reply_text("You can't gift a character to yourself!")
@@ -420,50 +416,25 @@ async def gift(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text("You don't have this character in your collection!")
         return
 
-    # Create a confirmation button
-    keyboard = [[InlineKeyboardButton("Confirm Gift", callback_data=f'confirm_gift:{sender_id}:{receiver_id}:{character_id}')]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
+    # Remove only one instance of the character from the sender's collection
+    sender['characters'].remove(character)
+    await user_collection.update_one({'id': sender_id}, {'$set': {'characters': sender['characters']}})
 
-    # Send a message with the confirmation button
-    await update.message.reply_text(f"@{sender_username} is about to gift a character to @{receiver_username}. Please confirm.", reply_markup=reply_markup)
+    # Add the character to the receiver's collection
+    receiver = await user_collection.find_one({'id': receiver_id})
 
-async def button(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
+    if receiver:
+        await user_collection.update_one({'id': receiver_id}, {'$push': {'characters': character}})
+    else:
+        # Create new user document
+        await user_collection.insert_one({
+            'id': receiver_id,
+            'username': update.message.reply_to_message.from_user.username,
+            'first_name': update.message.reply_to_message.from_user.first_name,
+            'characters': [character],
+        })
 
-    # CallbackQueries need to be answered
-    query.answer()
-
-    command, sender_id, receiver_id, character_id = query.data.split(':')
-
-    if command == 'confirm_gift':
-        if str(query.from_user.id) != sender_id:
-            await query.answer("This confirmation button is not for you!", show_alert=True)
-            return
-
-        # Transfer the character
-        sender = await user_collection.find_one({'id': sender_id})
-        character = next((character for character in sender['characters'] if character['id'] == character_id), None)
-
-        # Remove only one instance of the character from the sender's collection
-        sender['characters'].remove(character)
-        await user_collection.update_one({'id': sender_id}, {'$set': {'characters': sender['characters']}})
-
-        # Add the character to the receiver's collection
-        receiver = await user_collection.find_one({'id': receiver_id})
-
-        if receiver:
-            await user_collection.update_one({'id': receiver_id}, {'$push': {'characters': character}})
-        else:
-            # Create new user document
-            await user_collection.insert_one({
-                'id': receiver_id,
-                'username': update.message.reply_to_message.from_user.username,
-                'first_name': update.message.reply_to_message.from_user.first_name,
-                'characters': [character],
-            })
-
-        await query.edit_message_text(text=f"You have successfully gifted your character to @{update.message.reply_to_message.from_user.username}!")
-
+    await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
 
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
@@ -688,8 +659,7 @@ def main() -> None:
     application.add_handler(InlineQueryHandler(inlinequery, block=False))
     application.add_handler(CommandHandler("fav", fav, block=False))
     application.add_handler(CommandHandler("give", gift, block=False))
-    application.add_handler(CallbackQueryHandler(button, pattern=re.compile(r'^confirm_gift:')))
-
+    
     application.add_handler(CommandHandler("trade", trade, block=False))
     application.add_handler(CallbackQueryHandler(tradebutton, pattern='^confirm_trade$', block=False))
     application.add_handler(CallbackQueryHandler(tradebutton, pattern='^cancel_trade$', block=False))
