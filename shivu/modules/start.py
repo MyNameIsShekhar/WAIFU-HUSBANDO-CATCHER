@@ -51,17 +51,17 @@ async def button(update: Update, context: CallbackContext) -> None:
 
     if query.data == 'help':
         help_text = """
-    Help Section :
+    ***Help Section :***
     
-/guess: To Guess character (only works in group)
-/fav: Add Your fav
-/trade : To trade Characters 
-/give: Give any Character from Your Collection to another user.. (only works in groups)
-/collection: To see Your Collection
-/topgroups : See Top Groups.. Ppl Guesses Most in that Groups
-/top: Too See Top Users
-/ctop : Your ChatTop
-/changetime: Change Character appear time (only works in Groups)
+***/guess: To Guess character (only works in group)***
+***/fav: Add Your fav***
+***/trade : To trade Characters***
+***/give: Give any Character from Your Collection to another user.. (only works in groups)***
+***/collection: To see Your Collection***
+***/topgroups : See Top Groups.. Ppl Guesses Most in that Groups***
+***/top: Too See Top Users***
+***/ctop : Your ChatTop***
+***/changetime: Change Character appear time (only works in Groups)***
    """
         help_keyboard = [[InlineKeyboardButton("Back", callback_data='back')]]
         reply_markup = InlineKeyboardMarkup(help_keyboard)
@@ -71,9 +71,9 @@ async def button(update: Update, context: CallbackContext) -> None:
     elif query.data == 'back':
 
         caption = f"""
-        Hey there! ***{update.effective_user.first_name}*** 🌻
+        ***Hey there! {update.effective_user.first_name}*** 🌻
         
-i Am Collect 'Em All Bot.. Add Me in You're Group And I will send Random Characters in group after every 100 messages and who guessed that character's name Correct.. I will add That Character in That user's Collection.. Tap on help Button To See All Commands
+***i Am Collect 'Em All Bot.. Add Me in You're Group And I will send Random Characters in group after every 100 messages and who guessed that character's name Correct.. I will add That Character in That user's Collection.. Tap on help Button To See All Commands***
         """
         keyboard = [
             [InlineKeyboardButton("Add Me", url=f'http://t.me/Collect_emAll_Bot?startgroup=new')],
