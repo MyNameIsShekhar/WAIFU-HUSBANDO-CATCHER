@@ -613,7 +613,7 @@ async def harem_callback(update: Update, context: CallbackContext) -> None:
 # This dictionary will hold the trade offers until they are confirmed or cancelled
 pending_trades = {}
 
-@Client.on_message(filters.command("trade"))
+@app.on_message(filters.command(["couple", "trade"]))
 async def trade(client, message):
     sender_id = message.from_user.id
 
@@ -646,7 +646,7 @@ async def trade(client, message):
 
     await message.reply_text(f"{message.reply_to_message.from_user.mention}, do you accept this trade?", reply_markup=keyboard)
 
-@Client.on_callback_query(filters.create(lambda _, __, query: query.data in ["confirm_trade", "cancel_trade"]))
+@app.on_callback_query(filters.create(lambda _, __, query: query.data in ["confirm_trade", "cancel_trade"]))
 async def on_callback_query(client, callback_query):
     receiver_id = callback_query.from_user.id
 
