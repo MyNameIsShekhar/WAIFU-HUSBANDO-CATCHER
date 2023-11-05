@@ -597,63 +597,79 @@ async def harem_callback(update: Update, context: CallbackContext) -> None:
     await harem(update, context, page)
 
 
-trade_info = {}
-
 async def trade(update: Update, context: CallbackContext) -> None:
-    # Check if the command is issued as a reply to another user
+    sender_id = update.effective_user.id
+
     if not update.message.reply_to_message:
-        await update.message.reply_text('Please reply to the user you want to trade with and provide the ID of the character you want to give.')
+        await update.message.reply_text("You need to reply to a user's message to trade a character!")
         return
 
-    # Check if a character ID is provided
-    if not context.args:
-        await update.message.reply_text('Please provide the ID of the character you want to give.')
-        return
-
-    giving_id = context.args[0]
-    user_id = update.effective_user.id
     receiver_id = update.message.reply_to_message.from_user.id
 
-    # Check if the user has the character they're giving
-    user = await user_collection.find_one({'id': user_id})
-    giving_character = next((c for c in user['characters'] if c['id'] == giving_id), None)
-    if not giving_character:
-        await update.message.reply_text('You do not have the character you\'re trying to give.')
+    if sender_id == receiver_id:
+        await update.message.reply_text("You can't trade a character with yourself!")
         return
 
-    # Store the user_id of the receiving user and the character to trade
-    trade_info[chat_id] = {'giver_id': user_id, 'receiver_id': receiver_id, 'character_id': giving_id}
+    if len(context.args) < 2:
+        await update.message.reply_text("You need to provide both your character ID and the other user's character ID!")
+        return
 
-    # Send a confirmation message with an inline keyboard
-    keyboard = InlineKeyboardMarkup([[InlineKeyboardButton('Confirm trade', callback_data='confirm_trade')]])
-    await update.message.reply_text(f'<a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> wants to trade {giving_character["name"]} with <a href="tg://user?id={receiver_id}">{update.message.reply_to_message.from_user.first_name}</a>. Please confirm the trade.', reply_markup=keyboard, parse_mode='HTML')
+    sender_character_id, receiver_character_id = context.args
 
-async def tradebutton(update: Update, context: CallbackContext) -> None:
+    sender = await user_collection.find_one({'id': sender_id})
+    receiver = await user_collection.find_one({'id': receiver_id})
+
+    sender_character = next((character for character in sender['characters'] if character['id'] == sender_character_id), None)
+    receiver_character = next((character for character in receiver['characters'] if character['id'] == receiver_character_id), None)
+
+    if not sender_character:
+        await update.message.reply_text("You don't have this character in your collection!")
+        return
+
+    if not receiver_character:
+        await update.message.reply_text("The other user doesn't have this character in their collection!")
+        return
+
+    # Ask for the receiver's permission
+    trade_request_message = await update.message.reply_text(
+        f"{update.message.reply_to_message.from_user.first_name}, do you agree to trade your character with {update.effective_user.first_name}?",
+        reply_markup=InlineKeyboardMarkup([
+            [InlineKeyboardButton("Yes", callback_data=f"trade:{sender_id}:{sender_character_id}:{receiver_character_id}"),
+             InlineKeyboardButton("No", callback_data="trade_decline")]
+        ])
+    )
+
+# Callback function to handle the receiver's response
+async def handle_trade_response(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
-    if query.data == 'confirm_trade':
-        chat_id = update.effective_chat.id
+    query.answer()
 
-        # Get the trade info
-        trade = trade_info.get(chat_id)
-        if not trade:
-            await query.answer('No trade to confirm.')
-            return
+    if query.data == "trade_decline":
+        await query.message.delete()
+        return
 
-        # Get the user who is giving the character
-        giving_user = await user_collection.find_one({'id': trade['giver_id']})
-        giving_character = next((c for c in giving_user['characters'] if c['id'] == trade['character_id']), None)
+    sender_id, sender_character_id, receiver_character_id = map(int, query.data.split(':')[1:])
 
-        # Remove the character from the giving user's collection
-        giving_user['characters'].remove(giving_character)
-        await user_collection.update_one({'id': trade['giver_id']}, {'$set': {'characters': giving_user['characters']}})
+    sender = await user_collection.find_one({'id': sender_id})
+    receiver = await user_collection.find_one({'id': query.from_user.id})
 
-        # Add the character to the receiving user's collection
-        receiving_user = await user_collection.find_one({'id': trade['receiver_id']})
-        receiving_user['characters'].append(giving_character)
-        await user_collection.update_one({'id': trade['receiver_id']}, {'$set': {'characters': receiving_user['characters']}})
+    sender_character = next((character for character in sender['characters'] if character['id'] == sender_character_id), None)
+    receiver_character = next((character for character in receiver['characters'] if character['id'] == receiver_character_id), None)
 
-        # Edit the message after the trade is completed
-        await context.bot.edit_message_text('Trade completed successfully.', chat_id=query.message.chat_id, message_id=query.message.message_id)
+    # Remove the characters from the original owners' collections
+    sender['characters'].remove(sender_character)
+    receiver['characters'].remove(receiver_character)
+
+    # Add the characters to the new owners' collections
+    sender['characters'].append(receiver_character)
+    receiver['characters'].append(sender_character)
+
+    # Update the collections in the database
+    await user_collection.update_one({'id': sender_id}, {'$set': {'characters': sender['characters']}})
+    await user_collection.update_one({'id': receiver_id}, {'$set': {'characters': receiver['characters']}})
+
+    await query.message.edit_text(f"You have successfully traded your character with {query.from_user.first_name}!")
+
 
 def main() -> None:
     """Run bot."""
@@ -667,7 +683,7 @@ def main() -> None:
     application.add_handler(CallbackQueryHandler(gift, pattern='^confirm_gift$', block=False))
     
     application.add_handler(CommandHandler("trade", trade, block=False))
-    application.add_handler(CallbackQueryHandler(tradebutton, pattern='^confirm_trade$', block=False))
+    application.add_handler(CallbackQueryHandler(handle_trade_response, pattern='^trade', block=False))
     
 
     application.add_handler(CommandHandler("collection", harem,block=False))
