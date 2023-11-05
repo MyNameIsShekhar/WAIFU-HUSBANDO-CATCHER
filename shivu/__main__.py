@@ -601,9 +601,8 @@ async def tradebutton(update: Update, context: CallbackContext) -> None:
         chat_id = update.effective_chat.id
 
         # Check if the user who tapped the button is the same user who is supposed to receive the trade
-        if user_id != trade_receivers.get(chat_id):
-            await query.answer('This is not your trade.', show_alert=True)
-            return
+        
+
 
 
         # Get the giving and taking character ids from the original message
