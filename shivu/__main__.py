@@ -384,13 +384,11 @@ async def fav(update: Update, context: CallbackContext) -> None:
 
 
 
-
-
-
-    
-    
-
 async def gift(update: Update, context: CallbackContext) -> None:
+    if not update.message:
+        # Handle the case when update.message is None
+        return
+
     sender_id = update.effective_user.id
 
     if not update.message.reply_to_message:
@@ -417,6 +415,10 @@ async def gift(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text("You don't have this character in your collection!")
         return
 
+    # Store sender_id and character in context
+    context.user_data['sender_id'] = sender_id
+    context.user_data['character'] = character
+
     # Create a confirmation button
     keyboard = [[InlineKeyboardButton("Confirm Gift", callback_data='confirm_gift')]]
     reply_markup = InlineKeyboardMarkup(keyboard)
@@ -427,11 +429,15 @@ async def gift(update: Update, context: CallbackContext) -> None:
 # Callback function to handle the confirmation button
 async def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
-    query.answer()
+
+    # Retrieve sender_id and character from context
+    sender_id = context.user_data.get('sender_id')
+    character = context.user_data.get('character')
 
     # Check if the button is clicked by the user who triggered the /gift command
     if update.effective_user.id != sender_id:
-        query.edit_message_text("This is not your gift!")
+        # Show an alert to the user
+        query.answer("This is not your gift!", show_alert=True)
         return
 
     # If confirmed, proceed with the gifting process
@@ -455,6 +461,11 @@ async def button(update: Update, context: CallbackContext) -> None:
             })
 
         await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
+
+
+
+    
+    
 
 
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
