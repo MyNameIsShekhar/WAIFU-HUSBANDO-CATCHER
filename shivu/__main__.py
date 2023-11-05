@@ -16,6 +16,8 @@ from threading import Lock
 import time
 import re
 import math
+import html
+
 from shivu.modules import ALL_MODULES
 from shivu import application 
 from shivu import db
@@ -383,6 +385,7 @@ async def fav(update: Update, context: CallbackContext) -> None:
 
 
 
+
 async def gift(update: Update, context: CallbackContext) -> None:
     sender_id = update.effective_user.id
 
@@ -410,25 +413,40 @@ async def gift(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text("You don't have this character in your collection!")
         return
 
-    # Remove only one instance of the character from the sender's collection
-    sender['characters'].remove(character)
-    await user_collection.update_one({'id': sender_id}, {'$set': {'characters': sender['characters']}})
+    # Create a confirmation button
+    keyboard = [[InlineKeyboardButton("Confirm Gift", callback_data='confirm_gift')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Add the character to the receiver's collection
-    receiver = await user_collection.find_one({'id': receiver_id})
+    # Send a message with the confirmation button
+    await update.message.reply_text(f"<a href='tg://user?id={sender_id}'>{update.effective_user.first_name}</a> is trying to gift the character <b>{character['name']}</b> to <a href='tg://user?id={receiver_id}'>{update.message.reply_to_message.from_user.first_name}</a>. Confirm?", reply_markup=reply_markup, parse_mode='HTML')
 
-    if receiver:
-        await user_collection.update_one({'id': receiver_id}, {'$push': {'characters': character}})
+# Callback function to handle the confirmation button
+async def giftbutton(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+
+    # Check if the sender is the one who clicked the button
+    if query.from_user.id != update.effective_user.id:
+        await query.answer("This is not your character!", show_alert=True)
     else:
-        # Create new user document
-        await user_collection.insert_one({
-            'id': receiver_id,
-            'username': update.message.reply_to_message.from_user.username,
-            'first_name': update.message.reply_to_message.from_user.first_name,
-            'characters': [character],
-        })
+        # Remove only one instance of the character from the sender's collection
+        sender['characters'].remove(character)
+        await user_collection.update_one({'id': sender_id}, {'$set': {'characters': sender['characters']}})
 
-    await update.message.reply_text(f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
+        # Add the character to the receiver's collection
+        receiver = await user_collection.find_one({'id': receiver_id})
+
+        if receiver:
+            await user_collection.update_one({'id': receiver_id}, {'$push': {'characters': character}})
+        else:
+            # Create new user document
+            await user_collection.insert_one({
+                'id': receiver_id,
+                'username': update.message.reply_to_message.from_user.username,
+                'first_name': update.message.reply_to_message.from_user.first_name,
+                'characters': [character],
+            })
+
+        await query.answer(f"You have successfully gifted your character {character['name']}!")
 
 
 
@@ -562,6 +580,88 @@ async def harem_callback(update: Update, context: CallbackContext) -> None:
     await harem(update, context, page)
 
 
+async def trade(update: Update, context: CallbackContext) -> None:
+    asking_user_id = update.effective_user.id
+
+    if not update.message.reply_to_message:
+        await update.message.reply_text("You need to reply to a user's message to trade a character!")
+        return
+
+    replied_user_id = update.message.reply_to_message.from_user.id
+
+    if asking_user_id == replied_user_id:
+        await update.message.reply_text("You can't trade a character with yourself!")
+        return
+
+    if len(context.args) < 2:
+        await update.message.reply_text("You need to provide two character IDs!")
+        return
+
+    asking_character_id = context.args[0]
+    replied_character_id = context.args[1]
+
+    asking_user = await user_collection.find_one({'id': asking_user_id})
+    replied_user = await user_collection.find_one({'id': replied_user_id})
+
+    asking_character = next((character for character in asking_user['characters'] if character['id'] == asking_character_id), None)
+    replied_character = next((character for character in replied_user['characters'] if character['id'] == replied_character_id), None)
+
+    if not asking_character or not replied_character:
+        await update.message.reply_text("One of the characters is not in the respective user's collection!")
+        return
+
+    # Create confirmation and cancel buttons
+    keyboard = [[InlineKeyboardButton("Confirm Trade", callback_data='confirm_trade'), InlineKeyboardButton("Cancel Trade", callback_data='cancel_trade')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
+
+    # Send a message with the confirmation and cancel buttons
+    await update.message.reply_text(f"<a href='tg://user?id={asking_user_id}'>{update.effective_user.first_name}</a> is trying to trade the character <b>{asking_character['name']}</b> with <a href='tg://user?id={replied_user_id}'>{update.message.reply_to_message.from_user.first_name}</a>'s character <b>{replied_character['name']}</b>. Confirm or cancel?", reply_markup=reply_markup, parse_mode='HTML')
+
+# Callback function to handle the confirmation and cancel buttons
+async def tradebutton(update: Update, context: CallbackContext) -> None:
+    query = update.callback_query
+
+    # Check if the replied user is the one who clicked the button
+    if query.from_user.id != update.effective_user.id:
+        await query.answer("This is not your trade!", show_alert=True)
+    else:
+        if query.data == 'confirm_trade':
+            # Remove only one instance of the character from the asking user's collection
+            asking_user['characters'].remove(asking_character)
+            await user_collection.update_one({'id': asking_user_id}, {'$set': {'characters': asking_user['characters']}})
+
+            # Add the replied character to the asking user's collection
+            if asking_user:
+                await user_collection.update_one({'id': asking_user_id}, {'$push': {'characters': replied_character}})
+            else:
+                # Create new user document
+                await user_collection.insert_one({
+                    'id': asking_user_id,
+                    'username': update.effective_user.username,
+                    'first_name': update.effective_user.first_name,
+                    'characters': [replied_character],
+                })
+
+            # Remove only one instance of the character from the replied user's collection
+            replied_user['characters'].remove(replied_character)
+            await user_collection.update_one({'id': replied_user_id}, {'$set': {'characters': replied_user['characters']}})
+
+            # Add the asking character to the replied user's collection
+            if replied_user:
+                await user_collection.update_one({'id': replied_user_id}, {'$push': {'characters': asking_character}})
+            else:
+                # Create new user document
+                await user_collection.insert_one({
+                    'id': replied_user_id,
+                    'username': update.message.reply_to_message.from_user.username,
+                    'first_name': update.message.reply_to_message.from_user.first_name,
+                    'characters': [asking_character],
+                })
+
+            await query.answer(f"You have successfully traded your character {replied_character['name']} for {asking_character['name']}!")
+        elif query.data == 'cancel_trade':
+            await query.answer("Trade cancelled.")
+
 
 
 
@@ -574,6 +674,12 @@ def main() -> None:
     application.add_handler(InlineQueryHandler(inlinequery, block=False))
     application.add_handler(CommandHandler('fav', fav, block=False))
     application.add_handler(CommandHandler("give", gift, block=False))
+    application.add_handler(CallbackQueryHandler(giftbutton, pattern='^confirm_gift$')
+    application.add_handler(CommandHandler("trade", trade,block=False))
+    application.add_handler(CallbackQueryHandler(tradebutton, pattern='^confirm_trade$')
+    application.add_handler(CallbackQueryHandler(tradebutton, pattern='^cancel_trade$')
+    
+
     application.add_handler(CommandHandler("collection", harem,block=False))
     
     harem_handler = CallbackQueryHandler(harem_callback, pattern='^harem')
