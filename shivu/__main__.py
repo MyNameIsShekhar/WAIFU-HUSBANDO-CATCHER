@@ -386,16 +386,21 @@ async def fav(update: Update, context: CallbackContext) -> None:
 
 
 
+
+    
+    
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
 async def gift(update: Update, context: CallbackContext) -> None:
     sender_id = update.effective_user.id
+    sender_username = update.effective_user.username
 
     if not update.message.reply_to_message:
         await update.message.reply_text("You need to reply to a user's message to gift a character!")
         return
 
     receiver_id = update.message.reply_to_message.from_user.id
+    receiver_username = update.message.reply_to_message.from_user.username
 
     if sender_id == receiver_id:
         await update.message.reply_text("You can't gift a character to yourself!")
@@ -415,28 +420,12 @@ async def gift(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text("You don't have this character in your collection!")
         return
 
-    # Remove only one instance of the character from the sender's collection
-    sender['characters'].remove(character)
-    await user_collection.update_one({'id': sender_id}, {'$set': {'characters': sender['characters']}})
+    # Create a confirmation button
+    keyboard = [[InlineKeyboardButton("Confirm Gift", callback_data=f'confirm_gift:{sender_id}:{receiver_id}:{character_id}')]]
+    reply_markup = InlineKeyboardMarkup(keyboard)
 
-    # Add the character to the receiver's collection
-    receiver = await user_collection.find_one({'id': receiver_id})
-
-    if receiver:
-        # Create a confirmation button
-        keyboard = [[InlineKeyboardButton("Confirm Gift", callback_data=f'confirm_gift:{sender_id}:{character_id}:{receiver_id}')]]
-        reply_markup = InlineKeyboardMarkup(keyboard)
-
-        # Send a message with the confirmation button
-        await update.message.reply_text(f"You are about to gift your character from {character['anime']} to {update.message.reply_to_message.from_user.first_name}. Please confirm.", reply_markup=reply_markup)
-    else:
-        # Create new user document
-        await user_collection.insert_one({
-            'id': receiver_id,
-            'username': update.message.reply_to_message.from_user.username,
-            'first_name': update.message.reply_to_message.from_user.first_name,
-            'characters': [character],
-        })
+    # Send a message with the confirmation button
+    await update.message.reply_text(f"@{sender_username} is about to gift a character to @{receiver_username}. Please confirm.", reply_markup=reply_markup)
 
 async def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
@@ -473,7 +462,7 @@ async def button(update: Update, context: CallbackContext) -> None:
                 'characters': [character],
             })
 
-        await query.edit_message_text(text=f"You have successfully gifted your character to {update.message.reply_to_message.from_user.first_name}!")
+        await query.edit_message_text(text=f"You have successfully gifted your character to @{update.message.reply_to_message.from_user.username}!")
 
 
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
