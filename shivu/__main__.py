@@ -438,7 +438,7 @@ async def gift(update: Update, context: CallbackContext) -> None:
             'characters': [character],
         })
 
-async def giftbutton(update: Update, context: CallbackContext) -> None:
+async def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
 
     # CallbackQueries need to be answered
@@ -452,7 +452,6 @@ async def giftbutton(update: Update, context: CallbackContext) -> None:
             return
 
         # Transfer the character
-        character_id = context.args[0]
         receiver_id = update.message.reply_to_message.from_user.id
 
         sender = await user_collection.find_one({'id': sender_id})
