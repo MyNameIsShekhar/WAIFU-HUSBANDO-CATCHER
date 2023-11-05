@@ -33,7 +33,7 @@ top_global_groups_collection = db['top_global_groups']
 
 
 
-sudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651','5813403535', '6393627898', '5952787198', '6614280216','6248411931','5216262234','1608353423']
+aaàqaaasudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651','5813403535', '6393627898', '5952787198', '6614280216','6248411931','5216262234','1608353423']
 
 
 
@@ -444,16 +444,14 @@ async def button(update: Update, context: CallbackContext) -> None:
     # CallbackQueries need to be answered
     query.answer()
 
-    command, sender_id, character_id, receiver_id = query.data.split(':')
+    command, sender_id, receiver_id, character_id = query.data.split(':')
 
     if command == 'confirm_gift':
-        if str(update.effective_user.id) != sender_id:
+        if str(query.from_user.id) != sender_id:
             await query.answer("This confirmation button is not for you!", show_alert=True)
             return
 
         # Transfer the character
-        receiver_id = update.message.reply_to_message.from_user.id
-
         sender = await user_collection.find_one({'id': sender_id})
         character = next((character for character in sender['characters'] if character['id'] == character_id), None)
 
