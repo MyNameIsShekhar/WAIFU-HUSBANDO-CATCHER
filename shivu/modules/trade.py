@@ -2,7 +2,14 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from shivu import shivuu 
 from shivu import db
+collection = db['anime_characters_lol']
 
+
+user_totals_collection = db['user_totals_lmaoooo']
+user_collection = db["user_collection_lmaoooo"]
+
+group_user_totals_collection = db['group_user_totalsssssss']
+top_global_groups_collection = db['top_global_groups']
 # This dictionary will hold the trade offers until they are confirmed or cancelled
 pending_trades = {}
 
