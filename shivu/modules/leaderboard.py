@@ -15,6 +15,7 @@ from shivu import application
 from shivu import db
 import random
 import json
+import html
 
 import re
 
@@ -49,7 +50,7 @@ async def global_leaderboard(update: Update, context: CallbackContext) -> None:
     leaderboard_message = "<b>TOP 10 GLOBAL GROUPS</b>\n\n"
 
     for i, group in enumerate(leaderboard_data, start=1):
-        group_name = group.get('group_name', 'Unknown')
+        group_name = html.escape(group.get('group_name', 'Unknown'))
 
         if len(group_name) > 7:
             group_name = group_name[:10] + '...'
@@ -82,7 +83,7 @@ async def ctop(update: Update, context: CallbackContext) -> None:
 
     for i, user in enumerate(leaderboard_data, start=1):
         username = user.get('username', 'Unknown')
-        first_name = escape_markdown(user.get('first_name', 'Unknown'))
+        first_name = html.escape(user.get('first_name', 'Unknown'))
 
         if len(first_name) > 7:
             first_name = first_name[:10] + '...'
@@ -113,7 +114,7 @@ async def leaderboard(update: Update, context: CallbackContext) -> None:
 
     for i, user in enumerate(leaderboard_data, start=1):
         username = user.get('username', 'Unknown')
-        first_name = escape_markdown(user.get('first_name', 'Unknown'))
+        first_name = html.escape(user.get('first_name', 'Unknown'))
 
         if len(first_name) > 7:
             first_name = first_name[:10] + '...'
