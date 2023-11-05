@@ -3,8 +3,6 @@ from telegram import InputMediaPhoto
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent, InputMediaPhoto
 from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
 import asyncio
-from pyrogram import Client, filters
-from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from itertools import groupby
 from telegram import Update
 from motor.motor_asyncio import AsyncIOMotorClient 
@@ -23,7 +21,6 @@ import html
 from shivu.modules import ALL_MODULES
 from shivu import application 
 from shivu import db
-from shivu import shivuu
 
 collection = db['anime_characters_lol']
 
@@ -38,9 +35,7 @@ top_global_groups_collection = db['top_global_groups']
 
 
 
-
-
-aaàqaaasudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651','5813403535', '6393627898', '5952787198', '6614280216','6248411931','5216262234','1608353423']
+sudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651','5813403535', '6393627898', '5952787198', '6614280216','6248411931','5216262234','1608353423']
 
 
 
@@ -634,6 +629,5 @@ def main() -> None:
     application.run_polling( drop_pending_updates=True)
     
 if __name__ == "__main__":
-    shivuu.start()
     main()
     
