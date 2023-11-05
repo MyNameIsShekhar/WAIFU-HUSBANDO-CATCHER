@@ -423,7 +423,11 @@ async def gift(update: Update, context: CallbackContext) -> None:
 # Callback function to handle the confirmation button
 async def giftbutton(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
+    receiver_id = update.message.reply_to_message.from_user.id
+    sender_id = update.effective_user.id
 
+    sender = await user_collection.find_one({'id': sender_id})
+    
     # Check if the sender is the one who clicked the button
     if query.from_user.id != update.effective_user.id:
         await query.answer("This is not your character!", show_alert=True)
