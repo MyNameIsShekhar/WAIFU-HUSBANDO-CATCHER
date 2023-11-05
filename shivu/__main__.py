@@ -158,6 +158,7 @@ async def guess(update: Update, context: CallbackContext) -> None:
     if sorted(name_parts) == sorted(guess.split()) or any(part == guess for part in name_parts):
         # Rest of the function...
 
+    
         first_correct_guesses[chat_id] = user_id
         
         user = await user_collection.find_one({'id': user_id})
@@ -184,8 +185,10 @@ async def guess(update: Update, context: CallbackContext) -> None:
         group_user_total = await group_user_totals_collection.find_one({'user_id': user_id, 'group_id': chat_id})
         if group_user_total:
             update_fields = {}
-            if update.effective_chat.title != group_user_total.get('group_name'):
-                update_fields['group_name'] = update.effective_chat.title
+            if hasattr(update.effective_user, 'username') and update.effective_user.username != group_user_total.get('username'):
+                update_fields['username'] = update.effective_user.username
+            if update.effective_user.first_name != group_user_total.get('first_name'):
+                update_fields['first_name'] = update.effective_user.first_name
             if update_fields:
                 await group_user_totals_collection.update_one({'user_id': user_id, 'group_id': chat_id}, {'$set': update_fields})
             
@@ -195,14 +198,36 @@ async def guess(update: Update, context: CallbackContext) -> None:
             await group_user_totals_collection.insert_one({
                 'user_id': user_id,
                 'group_id': chat_id,
+                'username': update.effective_user.username,
+                'first_name': update.effective_user.first_name,
+                'count': 1,
+            })
+
+
+        # Update the top global groups leaderboard
+        group_info = await top_global_groups_collection.find_one({'group_id': chat_id})
+        if group_info:
+            update_fields = {}
+            if update.effective_chat.title != group_info.get('group_name'):
+                update_fields['group_name'] = update.effective_chat.title
+            if update_fields:
+                await top_global_groups_collection.update_one({'group_id': chat_id}, {'$set': update_fields})
+            
+            await top_global_groups_collection.update_one({'group_id': chat_id}, {'$inc': {'count': 1}})
+      
+        else:
+            await top_global_groups_collection.insert_one({
+                'group_id': chat_id,
                 'group_name': update.effective_chat.title,
                 'count': 1,
             })
+
 
         await update.message.reply_text(f'<b>Congratulations 🪼! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> \nYou Got New Character 💮</b> \n\n<b>👒 Character name: {last_characters[chat_id]["name"]}</b> \n<b>♋ Anime: {last_characters[chat_id]["anime"]}</b> \n<b>🫧 Rairty: {last_characters[chat_id]["rarity"]}</b>\n\n<b>This character has been added to your harem now do /collection to check your new character</b>', parse_mode='HTML')
 
     else:
         await update.message.reply_text('Incorrect guess. Try again.')
+
 
 
 
