@@ -634,7 +634,8 @@ async def tradebutton(update: Update, context: CallbackContext) -> None:
         await user_collection.update_one({'id': user_id}, {'$set': {'characters': giving_user['characters']}})
         await user_collection.update_one({'id': chat_id}, {'$set': {'characters': taking_user['characters']}})
 
-        await query.answer('Trade completed successfully.')
+        # Edit the message after the trade is completed
+        await context.bot.edit_message_text('Trade completed successfully.', chat_id=query.message.chat_id, message_id=query.message.message_id)
 
 
 def main() -> None:
