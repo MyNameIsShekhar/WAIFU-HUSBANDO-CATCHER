@@ -424,7 +424,7 @@ async def gift(update: Update, context: CallbackContext) -> None:
 
     if receiver:
         # Create a confirmation button
-        keyboard = [[InlineKeyboardButton("Confirm Gift", callback_data=f'confirm_gift:{sender_id}')]]
+        keyboard = [[InlineKeyboardButton("Confirm Gift", callback_data=f'confirm_gift:{sender_id}:{character_id}')]]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         # Send a message with the confirmation button
@@ -444,7 +444,7 @@ async def giftbutton(update: Update, context: CallbackContext) -> None:
     # CallbackQueries need to be answered
     query.answer()
 
-    command, sender_id = query.data.split(':')
+    command, sender_id, character_id = query.data.split(':')
 
     if command == 'confirm_gift':
         if str(update.effective_user.id) != sender_id:
