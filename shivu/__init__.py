@@ -2,7 +2,6 @@ import telegram.ext as tg
 import logging 
 from motor.motor_asyncio import AsyncIOMotorClient 
 from telegram.ext import Application 
-from pyrogram import Client
 
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
@@ -21,12 +20,7 @@ LOGGER = logging.getLogger(__name__)
 TOKEN = "6420751168:AAG63ZLO8kMgMa6SZCQWjJV0-onZqVsGfsI"
 application = Application.builder().token(TOKEN).build()
 
-shivuu = Client(
-    "lmao",
-    api_id="24427150",
-    api_hash="9fcc60263a946ef550d11406667404fa",
-    bot_token=TOKEN
-)
+
 
 
 client = AsyncIOMotorClient('mongodb+srv://shuyaashivu:9fcc60263a946ef550d11406667404fa@cluster0.ikub9lo.mongodb.net/?retryWrites=true&w=majority')
