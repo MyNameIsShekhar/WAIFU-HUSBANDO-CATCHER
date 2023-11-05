@@ -676,8 +676,8 @@ def main() -> None:
     application.add_handler(CommandHandler("give", gift, block=False))
     application.add_handler(CallbackQueryHandler(giftbutton, pattern='^confirm_gift$', block=False)
     application.add_handler(CommandHandler("trade", trade, block=False))
-    application.add_handler(CallbackQueryHandler(tradebutton, pattern='^confirm_trade$', block=False)
-    application.add_handler(CallbackQueryHandler(tradebutton, pattern='^cancel_trade$', block=False)
+    application.add_handler(CallbackQueryHandler(tradebutton, pattern='^confirm_trade$', block=False))
+    application.add_handler(CallbackQueryHandler(tradebutton, pattern='^cancel_trade$', block=False))
     
 
     application.add_handler(CommandHandler("collection", harem,block=False))
