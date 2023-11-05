@@ -568,6 +568,9 @@ async def harem_callback(update: Update, context: CallbackContext) -> None:
 # Store the user_id of the receiving user in a dictionary
 trade_receivers = {}
 
+# Store the user_id of the receiving user in a dictionary
+trade_receivers = {}
+
 async def trade(update: Update, context: CallbackContext) -> None:
     args = context.args
     if len(args) != 2:
@@ -576,6 +579,7 @@ async def trade(update: Update, context: CallbackContext) -> None:
 
     giving_id, taking_id = args
     user_id = update.effective_user.id
+    chat_id = update.effective_chat.id
 
     # Check if the user has the character they're giving
     user = await user_collection.find_one({'id': user_id})
@@ -600,6 +604,7 @@ async def tradebutton(update: Update, context: CallbackContext) -> None:
         if user_id != trade_receivers.get(chat_id):
             await query.answer('This is not your trade.', show_alert=True)
             return
+
 
         # Get the giving and taking character ids from the original message
         giving_id, taking_id = query.message.text.split()[2:4]
