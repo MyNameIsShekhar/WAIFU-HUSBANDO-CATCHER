@@ -224,7 +224,7 @@ async def change_time(update: Update, context: CallbackContext) -> None:
 
         
         new_frequency = int(args[0])
-        if new_frequency < 100:
+        if new_frequency < 10:
             await update.message.reply_text('The message frequency must be greater than or equal to 100.')
             return
 
