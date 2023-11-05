@@ -497,7 +497,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     if page < 0 or page >= total_pages:
         page = 0  # Reset to first page if out of bounds
 
-    harem_message = f"<b>{update.effective_user.first_name}'s Harem - Page {page+1}/{total_pages}</b>\n\n"
+    harem_message = f"<b>{update.effective_user.first_name}'s Harem - Page {page+1}/{total_pages}</b>\n"
 
     # Get the characters for the current page
     current_characters = unique_characters[page*15:(page+1)*15]
