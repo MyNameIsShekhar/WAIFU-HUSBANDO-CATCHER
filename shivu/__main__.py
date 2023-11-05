@@ -3,6 +3,8 @@ from telegram import InputMediaPhoto
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent, InputMediaPhoto
 from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
 import asyncio
+from pyrogram import Client, filters
+from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from itertools import groupby
 from telegram import Update
 from motor.motor_asyncio import AsyncIOMotorClient 
@@ -30,6 +32,16 @@ user_collection = db["user_collection_lmaoooo"]
 
 group_user_totals_collection = db['group_user_totalsssssss']
 top_global_groups_collection = db['top_global_groups']
+
+
+app = Client(
+    "lmao",
+    api_id="24427150",
+    api_hash="9fcc60263a946ef550d11406667404fa",
+    bot_token="6420751168:AAG63ZLO8kMgMa6SZCQWjJV0-onZqVsGfsI"
+)
+
+app.run()
 
 
 
@@ -597,78 +609,69 @@ async def harem_callback(update: Update, context: CallbackContext) -> None:
     await harem(update, context, page)
 
 
-async def trade(update: Update, context: CallbackContext) -> None:
-    sender_id = update.effective_user.id
 
-    if not update.message.reply_to_message:
-        await update.message.reply_text("You need to reply to a user's message to trade a character!")
+# This dictionary will hold the trade offers until they are confirmed or cancelled
+pending_trades = {}
+
+@Client.on_message(filters.command("trade"))
+async def trade(client, message):
+    sender_id = message.from_user.id
+
+    if not message.reply_to_message:
+        await message.reply_text("You need to reply to a user's message to trade a character!")
         return
 
-    receiver_id = update.message.reply_to_message.from_user.id
+    receiver_id = message.reply_to_message.from_user.id
 
     if sender_id == receiver_id:
-        await update.message.reply_text("You can't trade a character with yourself!")
+        await message.reply_text("You can't trade a character with yourself!")
         return
 
-    if len(context.args) < 2:
-        await update.message.reply_text("You need to provide both your character ID and the other user's character ID!")
+    if len(message.command) != 3:
+        await message.reply_text("You need to provide two character IDs!")
         return
 
-    sender_character_id, receiver_character_id = context.args
+    sender_character_id, receiver_character_id = message.command[1], message.command[2]
 
-    sender = await user_collection.find_one({'id': sender_id})
-    receiver = await user_collection.find_one({'id': receiver_id})
+    # Add the trade offer to the pending trades
+    pending_trades[(sender_id, receiver_id)] = (sender_character_id, receiver_character_id)
 
-    sender_character = next((character for character in sender['characters'] if character['id'] == sender_character_id), None)
-    receiver_character = next((character for character in receiver['characters'] if character['id'] == receiver_character_id), None)
-
-    if not sender_character:
-        await update.message.reply_text("You don't have this character in your collection!")
-        return
-
-    if not receiver_character:
-        await update.message.reply_text("The other user doesn't have this character in their collection!")
-        return
-
-    # Ask for the receiver's permission
-    trade_request_message = await update.message.reply_text(
-        f"{update.message.reply_to_message.from_user.first_name}, do you agree to trade your character with {update.effective_user.first_name}?",
-        reply_markup=InlineKeyboardMarkup([
-            [InlineKeyboardButton("Yes", callback_data=f"trade:{sender_id}:{sender_character_id}:{receiver_character_id}"),
-             InlineKeyboardButton("No", callback_data="trade_decline")]
-        ])
+    # Create a confirmation button
+    keyboard = InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("Confirm Trade", callback_data="confirm_trade")],
+            [InlineKeyboardButton("Cancel Trade", callback_data="cancel_trade")]
+        ]
     )
 
-# Callback function to handle the receiver's response
-async def handle_trade_response(update: Update, context: CallbackContext) -> None:
-    query = update.callback_query
-    query.answer()
+    await message.reply_text(f"{message.reply_to_message.from_user.mention}, do you accept this trade?", reply_markup=keyboard)
 
-    if query.data == "trade_decline":
-        await query.message.delete()
+@Client.on_callback_query(filters.create(lambda _, __, query: query.data in ["confirm_trade", "cancel_trade"]))
+async def on_callback_query(client, callback_query):
+    receiver_id = callback_query.from_user.id
+
+    # Find the trade offer
+    for (sender_id, _receiver_id), (sender_character_id, receiver_character_id) in pending_trades.items():
+        if _receiver_id == receiver_id:
+            break
+    else:
+        await callback_query.message.edit_text("You don't have any pending trade offers!")
         return
 
-    sender_id, sender_character_id, receiver_character_id = map(int, query.data.split(':')[1:])
+    if callback_query.data == "confirm_trade":
+        # Perform the trade
+        # This is where you would add your code to swap the characters in the users' collections
 
-    sender = await user_collection.find_one({'id': sender_id})
-    receiver = await user_collection.find_one({'id': query.from_user.id})
+        # Remove the trade offer from the pending trades
+        del pending_trades[(sender_id, receiver_id)]
 
-    sender_character = next((character for character in sender['characters'] if character['id'] == sender_character_id), None)
-    receiver_character = next((character for character in receiver['characters'] if character['id'] == receiver_character_id), None)
+        await callback_query.message.edit_text(f"You have successfully traded your character with {callback_query.message.reply_to_message.from_user.mention}!")
 
-    # Remove the characters from the original owners' collections
-    sender['characters'].remove(sender_character)
-    receiver['characters'].remove(receiver_character)
+    elif callback_query.data == "cancel_trade":
+        # Remove the trade offer from the pending trades
+        del pending_trades[(sender_id, receiver_id)]
 
-    # Add the characters to the new owners' collections
-    sender['characters'].append(receiver_character)
-    receiver['characters'].append(sender_character)
-
-    # Update the collections in the database
-    await user_collection.update_one({'id': sender_id}, {'$set': {'characters': sender['characters']}})
-    await user_collection.update_one({'id': receiver_id}, {'$set': {'characters': receiver['characters']}})
-
-    await query.message.edit_text(f"You have successfully traded your character with {query.from_user.first_name}!")
+        await callback_query.message.edit_text("You have successfully cancelled the trade.")
 
 
 def main() -> None:
@@ -700,3 +703,4 @@ def main() -> None:
     
 if __name__ == "__main__":
     main()
+    app.run()
