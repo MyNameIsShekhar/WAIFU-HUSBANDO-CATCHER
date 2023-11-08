@@ -268,8 +268,11 @@ async def change_time(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text(f'Successfully changed character appearance frequency to every {new_frequency} messages.')
     except Exception as e:
         await update.message.reply_text('Failed to change character appearance frequency.')
+
+
 async def inlinequery(update: Update, context: CallbackContext) -> None:
-    import time
+    from collections import Counter
+
     query = update.inline_query.query
     offset = int(update.inline_query.offset) if update.inline_query.offset else 0
 
@@ -277,6 +280,12 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
         user = await user_collection.find_one({'id': int(query)})
 
         if user:
+            # Get a list of all character IDs for the user
+            character_ids = [character['id'] for character in user['characters']]
+
+            # Count the occurrences of each character ID
+            character_counts = Counter(character_ids)
+
             characters = list({v['id']:v for v in user['characters']}.values())[offset:offset+50]
             if len(characters) > 50:
                 characters = characters[:50]
@@ -291,12 +300,15 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
 
                 rarity = character.get('rarity', "Don't have rarity.. ")
 
+                # Get the count for this character
+                count = character_counts[character['id']]
+
                 results.append(
                     InlineQueryResultPhoto(
                         thumbnail_url=character['img_url'],
                         id=f"{character['id']}_{time.time()}",
                         photo_url=character['img_url'],
-                        caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a></b>'s Character\n\n🌸: <b>{character['name']}</b>\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n\n🆔: <b>{character['id']}</b>",
+                        caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a>'s Character</b>\n\n🌸: <b>{character['name']}</b>\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n\n🆔: <b>{character['id']}</b> (x{count})",
                         parse_mode='HTML'
                     )
                 )
@@ -308,6 +320,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 title="User not found", 
                 input_message_content=InputTextMessageContent("User not found")
             )], cache_time=5)
+    
     else:
         
         # If the query is empty, fetch all characters from the database
@@ -328,8 +341,6 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                     cursor = [c for c in user['characters'] if search_term.lower() in c['name'].lower() or search_term.lower() in c['anime'].lower()]
                 else:
                     cursor = []
-            
-            
             else:
                 cursor = collection.find({'$or': [{'anime': {'$regex': query, '$options': 'i'}}, {'name': {'$regex': query, '$options': 'i'}}]}).skip(offset).limit(50)
 
@@ -338,41 +349,20 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
 
         results = []
         for character in all_characters:
-            # Find all users who have this character
             users_with_character = await user_collection.find({'characters.id': character['id']}).to_list(length=100)
-
-            # Count how many times each user guessed this character
-            user_counts = Counter(user['id'] for user in users_with_character)
-
-            # Get the top 5 users who guessed this character the most times
-            top_users = user_counts.most_common(5)
-
-            # Create a string with the top users' names, counts, and HTML mentions
-            top_users_str = "\n".join(f"<a href='tg://user?id={user_id}'>{user_id}</a>: {count}" for user_id, count in top_users)
-
-            # Fetch the user names for the top users
-            top_user_names = []
-            for user_id, _ in top_users:
-                user = await user_collection.find_one({'id': int(user_id)})
-                top_user_names.append(user['first_name'])
-
-            # Replace the user IDs with their names in the top_users_str
-            # Replace the user IDs with their names in the top_users_str
-            for user_id, user_name in zip(top_users, top_user_names):
-                top_users_str = top_users_str.replace(str(user_id[0]), user_name)
+            total_guesses = sum(character.get("count", 1) for user in users_with_character)
+            rarity = character.get('rarity', "Don't have rarity...")
 
             results.append(
                 InlineQueryResultPhoto(
-                    id=f"{character['id']}_{time.time()}",
                     thumbnail_url=character['img_url'],
+                    id=f"{character['id']}_{time.time()}",
                     photo_url=character['img_url'],
-                    caption=f"🌸: <b>{character['name']}</b>\n🏖️: <b>{character['anime']}</b>\n\n<b>Top users:</b>\n{top_users_str}",
+                    caption=f"<b>Look at this character!</b>\n\n🌸 <b>{character['name']}</b>\n🏖️ <b>{character['anime']}</b>\n<b>{rarity}</b>\n🆔: {character['id']}\n\n<b>Guessed {total_guesses} times In Globally</b>",
                     parse_mode='HTML'
                 )
             )
-
         await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
-
 
 async def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
