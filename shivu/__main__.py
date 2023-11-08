@@ -322,7 +322,6 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
             )], cache_time=5)
     
     else:
-        
         # If the query is empty, fetch all characters from the database
         if not query:
             cursor = collection.find().skip(offset).limit(50)
@@ -351,6 +350,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
         for character in all_characters:
             users_with_character = await user_collection.find({'characters.id': character['id']}).to_list(length=100)
             total_guesses = sum(character.get("count", 1) for user in users_with_character)
+
             rarity = character.get('rarity', "Don't have rarity...")
 
             results.append(
@@ -362,7 +362,11 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                     parse_mode='HTML'
                 )
             )
+
+        # If there is only one character, show it
+        
         await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
+
 
 async def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
