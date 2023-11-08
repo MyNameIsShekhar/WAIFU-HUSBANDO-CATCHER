@@ -273,6 +273,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
     import time
     query = update.inline_query.query
     offset = int(update.inline_query.offset) if update.inline_query.offset else 0
+    character_counts = {k: len(list(v)) for k, v in groupby(characters, key=lambda x: x['id'])}
 
     if query.isdigit():
         user = await user_collection.find_one({'id': int(query)})
