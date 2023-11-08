@@ -58,6 +58,10 @@ for module_name in ALL_MODULES:
 
 last_user = {}
 warned_users = {}
+def escape_markdown(text):
+    escape_chars = r'\*_`\\~>#+-=|{}.!'
+    return re.sub(r'([%s])' % re.escape(escape_chars), r'\\\1', text)
+
 
 async def message_counter(update: Update, context: CallbackContext) -> None:
     chat_id = str(update.effective_chat.id)
@@ -317,7 +321,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
         if query.startswith('collection.'):
             caption = f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a>'s Character</b>\n\n🌸: <b>{character['name']}</b>\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{character['rarity']}</b>\n\n🆔: <b>{character['id']}</b> (x{user_count})"
         else:
-            caption = f'Look at this character!\n\n🌸 {character["name"]}\n🏖️ {character["anime"]}\n{character["rarity"]}\n🆔: {character["id"]}\n\nGuessed {user_count} times globally.\n\nTop guessers:\n{top_users_text}'
+            html.escape(caption = f'Look at this character!\n\n🌸 {character["name"]}\n🏖️ {character["anime"]}\n{character["rarity"]}\n🆔: {character["id"]}\n\nGuessed {user_count} times globally.\n\nTop guessers:\n{top_users_text}')
 
         results.append(InlineQueryResultPhoto(
             id=character['id'],
