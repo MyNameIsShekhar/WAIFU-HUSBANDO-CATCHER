@@ -278,6 +278,7 @@ from bson.son import SON
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
     offset = int(update.inline_query.offset) if update.inline_query.offset else 0
+    user_id = None  
 
     if query.startswith('collection.'):
         user_id = int(query.split('.')[1])
