@@ -271,16 +271,16 @@ async def change_time(update: Update, context: CallbackContext) -> None:
 
 
 
+
 from telegram import InlineQueryResultPhoto
 from bson.son import SON
 
-from telegram import InlineQueryResultPhoto
-
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
+    offset = int(update.inline_query.offset) if update.inline_query.offset else 0
 
     # Fetch all characters from the database
-    characters = await collection.find({}).to_list(None)
+    characters = await collection.find({}).skip(offset).limit(50).to_list(None)
 
     results = []
     for character in characters:
@@ -288,20 +288,27 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
         user_count = await user_collection.count_documents({'characters.id': character['id']})
 
         # Find the top 5 users who have this character the most times
-        top_users = await user_collection.find({'characters.id': character['id']}).sort('characters', -1).limit(5).to_list(None)
-        top_users_text = '\n'.join([f'{user["first_name"]} ({len([c for c in user["characters"] if c["id"] == character["id"]])})' for user in top_users])
+        pipeline = [
+            {"$unwind": "$characters"},
+            {"$match": {"characters.id": character['id']}},
+            {"$group": {"_id": "$id", "count": {"$sum": 1}, "username": {"$first": "$username"}, "first_name": {"$first": "$first_name"}}},
+            {"$sort": SON([("count", -1), ("_id", -1)])},
+            {"$limit": 5}
+        ]
+        top_users = await user_collection.aggregate(pipeline).to_list(None)
+        top_users_text = '\n'.join([f'{user["first_name"]} ({user["count"]})' for user in top_users])
 
         # Create an InlineQueryResultPhoto for each character
         results.append(InlineQueryResultPhoto(
             id=character['id'],
             photo_url=character['img_url'],
-            thumbnail_url=character['img_url'],  # Use the same image for the thumbnail
+            thumb_url=character['img_url'],  # Use the same image for the thumbnail
             caption=f'Look at this character!\n\n🌸 {character["name"]}\n🏖️ {character["anime"]}\n{character["rarity"]}\n🆔: {character["id"]}\n\nGuessed {user_count} times globally.\n\nTop guessers:\n{top_users_text}'
         ))
 
-    # Answer the inline query
-    await update.inline_query.answer(results)
-
+    # Answer the inline query with the results and the next offset
+    next_offset = str(offset + 50) if len(characters) == 50 else None
+    await update.inline_query.answer(results, next_offset=next_offset)
 
 async def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
