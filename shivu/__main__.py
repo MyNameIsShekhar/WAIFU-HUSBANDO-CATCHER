@@ -274,6 +274,8 @@ async def change_time(update: Update, context: CallbackContext) -> None:
 from telegram import InlineQueryResultPhoto
 from bson.son import SON
 
+from telegram import InlineQueryResultPhoto
+
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
 
@@ -286,15 +288,8 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
         user_count = await user_collection.count_documents({'characters.id': character['id']})
 
         # Find the top 5 users who have this character the most times
-        pipeline = [
-            {"$unwind": "$characters"},
-            {"$match": {"characters.id": character['id']}},
-            {"$group": {"_id": "$id", "count": {"$sum": 1}, "username": {"$first": "$username"}, "first_name": {"$first": "$first_name"}}},
-            {"$sort": SON([("count", -1), ("_id", -1)])},
-            {"$limit": 5}
-        ]
-        top_users = await user_collection.aggregate(pipeline).to_list(None)
-        top_users_text = '\n'.join([f'{user["first_name"]} ({user["count"]})' for user in top_users])
+        top_users = await user_collection.find({'characters.id': character['id']}).sort('characters', -1).limit(5).to_list(None)
+        top_users_text = '\n'.join([f'{user["first_name"]} ({len([c for c in user["characters"] if c["id"] == character["id"]])})' for user in top_users])
 
         # Create an InlineQueryResultPhoto for each character
         results.append(InlineQueryResultPhoto(
