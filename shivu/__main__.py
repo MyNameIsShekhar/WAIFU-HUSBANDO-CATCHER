@@ -279,10 +279,15 @@ async def change_time(update: Update, context: CallbackContext) -> None:
 from telegram import InlineQueryResultPhoto
 from bson.son import SON
 
+
+from telegram import InlineQueryResultPhoto
+from bson.son import SON
+from html import escape
+import uuid
+
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
     offset = int(update.inline_query.offset) if update.inline_query.offset else 0
-    user_id = None  
 
     if query.startswith('collection.'):
         user_id = int(query.split('.')[1])
@@ -319,17 +324,15 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
 
         # Create an InlineQueryResultPhoto for each character
         if query.startswith('collection.'):
-            caption = f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a>'s Character</b>\n\n🌸: <b>{character['name']}</b>\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{character['rarity']}</b>\n\n🆔: <b>{character['id']}</b> (x{user_count})"
+            caption = f"🌻 <b><a href='tg://user?id={user['id']}'>{escape(user.get('first_name', user['id']))}</a>'s Character</b>\n\n🌸: <b>{escape(character['name'])}</b>\n🏖️: <b>{escape(character['anime'])} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{escape(character['rarity'])}</b>\n\n🆔: <b>{character['id']}</b> (x{user_count})"
         else:
-            html.escape(caption = f'Look at this character!\n\n🌸 {character["name"]}\n🏖️ {character["anime"]}\n{character["rarity"]}\n🆔: {character["id"]}\n\nGuessed {user_count} times globally.\n\nTop guessers:\n{top_users_text}')
+            caption = f'Look at this character!\n\n🌸 {escape(character["name"])}\n🏖️ {escape(character["anime"])}\n{escape(character["rarity"])}\n🆔: {character["id"]}\n\nGuessed {user_count} times globally.\n\nTop guessers:\n{top_users_text}'
 
         results.append(InlineQueryResultPhoto(
-            id=character['id'],
+            id=str(uuid.uuid4()),  # Generate a unique UUID for each result
             photo_url=character['img_url'],
             thumbnail_url=character['img_url'],  # Use the same image for the thumbnail
-            caption=caption,
-            parse_mode='html'
-        
+            caption=caption
         ))
 
     # Answer the inline query with the results and the next offset
