@@ -279,15 +279,25 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
     offset = int(update.inline_query.offset) if update.inline_query.offset else 0
 
-    # Fetch all characters from the database
-    characters = await collection.find({}).skip(offset).limit(50).to_list(None)
+    if query.startswith('collection.'):
+        user_id = int(query.split('.')[1])
+
+        # Fetch the user's characters from the database
+        user = await user_collection.find_one({'id': user_id})
+        characters = user['characters'][offset:offset+50] if user else []
+    elif not query:
+        # Fetch all characters from the database when the query is empty
+        characters = await collection.find({}).skip(offset).limit(50).to_list(None)
+    else:
+        # Fetch characters that match the query
+        characters = await collection.find({'name': {'$regex': query, '$options': 'i'}}).skip(offset).limit(50).to_list(None)
 
     results = []
     for character in characters:
         # Count how many users have this character
         user_count = await user_collection.count_documents({'characters.id': character['id']})
 
-        # Find the top 5 users who have this character the most times
+        # Find the top 5 users who have the most characters
         pipeline = [
             {"$unwind": "$characters"},
             {"$match": {"characters.id": character['id']}},
@@ -298,12 +308,23 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
         top_users = await user_collection.aggregate(pipeline).to_list(None)
         top_users_text = '\n'.join([f'{user["first_name"]} ({user["count"]})' for user in top_users])
 
+        # Count how many characters are in the same anime
+        total_anime_characters = await collection.count_documents({'anime': character['anime']})
+        anime_characters_guessed = await user_collection.count_documents({'id': user_id, 'characters.anime': character['anime']})
+
         # Create an InlineQueryResultPhoto for each character
+        if query.startswith('collection.'):
+            caption = f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a>'s Character</b>\n\n🌸: <b>{character['name']}</b>\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{character['rarity']}</b>\n\n🆔: <b>{character['id']}</b> (x{user_count})"
+        else:
+            caption = f'Look at this character!\n\n🌸 {character["name"]}\n🏖️ {character["anime"]}\n{character["rarity"]}\n🆔: {character["id"]}\n\nGuessed {user_count} times globally.\n\nTop guessers:\n{top_users_text}'
+
         results.append(InlineQueryResultPhoto(
             id=character['id'],
             photo_url=character['img_url'],
-            thumbnail_url=character['img_url'],  # Use the same image for the thumbnail
-            caption=f'Look at this character!\n\n🌸 {character["name"]}\n🏖️ {character["anime"]}\n{character["rarity"]}\n🆔: {character["id"]}\n\nGuessed {user_count} times globally.\n\nTop guessers:\n{top_users_text}'
+            thumb_url=character['img_url'],  # Use the same image for the thumbnail
+            caption=caption,
+            parse_mode='html'
+        
         ))
 
     # Answer the inline query with the results and the next offset
