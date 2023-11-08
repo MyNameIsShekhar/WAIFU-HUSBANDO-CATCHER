@@ -276,74 +276,102 @@ async def change_time(update: Update, context: CallbackContext) -> None:
 
 
 
-from telegram import InlineQueryResultPhoto
-from bson.son import SON
-
-
-from telegram import InlineQueryResultPhoto
-from bson.son import SON
-from html import escape
-import uuid
-
-from telegram import InlineQueryResultPhoto
-from bson.son import SON
-from html import escape
-import uuid
-
 async def inlinequery(update: Update, context: CallbackContext) -> None:
+    from collections import Counter
+
     query = update.inline_query.query
     offset = int(update.inline_query.offset) if update.inline_query.offset else 0
-    user_id=None
-    if query.startswith('collection.'):
-        user_id = int(query.split('.')[1])
 
-        # Fetch the user's characters from the database
-        user = await user_collection.find_one({'id': user_id})
-        characters = user['characters'][offset:offset+50] if user else []
-    elif not query:
-        # Fetch all characters from the database when the query is empty
-        characters = await collection.find({}).skip(offset).limit(50).to_list(None)
-    else:
-        # Fetch characters that match the query
-        characters = await collection.find({'name': {'$regex': query, '$options': 'i'}}).skip(offset).limit(50).to_list(None)
+    if query.isdigit():
+        user = await user_collection.find_one({'id': int(query)})
 
-    results = []
-    for character in characters:
-        # Count how many times the user has this character
-        user_character_count = user['characters'].count(character) if user else 0
+        if user:
+            # Get a list of all character IDs for the user
+            character_ids = [character['id'] for character in user['characters']]
 
-        # Find the top 5 users who have the most characters
-        pipeline = [
-            {"$unwind": "$characters"},
-            {"$match": {"characters.id": character['id']}},
-            {"$group": {"_id": "$id", "count": {"$sum": 1}, "username": {"$first": "$username"}, "first_name": {"$first": "$first_name"}}},
-            {"$sort": SON([("count", -1), ("_id", -1)])},
-            {"$limit": 5}
-        ]
-        top_users = await user_collection.aggregate(pipeline).to_list(None)
-        top_users_text = '\n'.join([f'{user["first_name"]} ({user["count"]})' for user in top_users])
+            # Count the occurrences of each character ID
+            character_counts = Counter(character_ids)
 
-        # Count how many characters are in the same anime
-        total_anime_characters = await collection.count_documents({'anime': character['anime']})
-        anime_characters_guessed = await user_collection.count_documents({'id': user_id, 'characters.anime': character['anime']})
+            characters = list({v['id']:v for v in user['characters']}.values())[offset:offset+50]
+            if len(characters) > 50:
+                characters = characters[:50]
+                next_offset = str(offset + 50)
+            else:
+                next_offset = str(offset + len(characters))
 
-        # Create an InlineQueryResultPhoto for each character
-        if query.startswith('collection.'):
-            caption = f"🌻 <b><a href='tg://user?id={user['id']}'>{escape(user.get('first_name', user['id']))}</a>'s Character</b>\n\n🌸: <b>{escape(character['name'])}</b>\n🏖️: <b>{escape(character['anime'])} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{escape(character['rarity'])}</b>\n\n🆔: <b>{character['id']}</b> (x{user_character_count})"
+            results = []
+            for character in characters:
+                anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
+                total_anime_characters = await collection.count_documents({'anime': character['anime']})
+
+                rarity = character.get('rarity', "Don't have rarity.. ")
+
+                # Get the count for this character
+                count = character_counts[character['id']]
+
+                results.append(
+                    InlineQueryResultPhoto(
+                        thumbnail_url=character['img_url'],
+                        id=f"{character['id']}_{time.time()}",
+                        photo_url=character['img_url'],
+                        caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a>'s Character</b>\n\n🌸: <b>{character['name']}</b>\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n\n🆔: <b>{character['id']}</b> (x{count})",
+                        parse_mode='HTML'
+                    )
+                )
+
+            await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
         else:
-            caption = f'Look at this character!\n\n🌸 {escape(character["name"])}\n🏖️ {escape(character["anime"])}\n{escape(character["rarity"])}\n🆔: {character["id"]}\n\nGuessed {user_character_count} times globally.\n\nTop guessers:\n{top_users_text}'
+            await update.inline_query.answer([InlineQueryResultArticle(
+                id='notfound', 
+                title="User not found", 
+                input_message_content=InputTextMessageContent("User not found")
+            )], cache_time=5)
+    
+    else:
+        # If the query is empty, fetch all characters from the database
+        if not query:
+            cursor = collection.find().skip(offset).limit(50)
+        else:
+            # Split the query into user ID and search term
+            parts = query.split(' ', 1)
 
-        results.append(InlineQueryResultPhoto(
-            id=str(uuid.uuid4()),  # Generate a unique UUID for each result
-            photo_url=character['img_url'],
-            thumbnail_url=character['img_url'],  # Use the same image for the thumbnail
-            caption=caption
-        ))
+            if len(parts) > 1 and parts[0].isdigit():
+                user_id, search_term = parts
 
-    # Answer the inline query with the results and the next offset
-    next_offset = str(offset + 50) if len(characters) == 50 else None
-    await update.inline_query.answer(results, next_offset=next_offset)
+                # Fetch the user from the database
+                user = await user_collection.find_one({'id': int(user_id)})
 
+                if user:
+                    # Filter the user's characters based on the search term
+                    cursor = [c for c in user['characters'] if search_term.lower() in c['name'].lower() or search_term.lower() in c['anime'].lower()]
+                else:
+                    cursor = []
+            else:
+                cursor = collection.find({'$or': [{'anime': {'$regex': query, '$options': 'i'}}, {'name': {'$regex': query, '$options': 'i'}}]}).skip(offset).limit(50)
+
+        all_characters = cursor if isinstance(cursor, list) else await cursor.to_list(length=None)
+        next_offset = str(offset + len(all_characters))
+
+        results = []
+        for character in all_characters:
+            users_with_character = await user_collection.find({'characters.id': character['id']}).to_list(length=100)
+            total_guesses = sum(character.get("count", 1) for user in users_with_character)
+            rarity = character.get('rarity', "Don't have rarity...")
+
+            results.append(
+                InlineQueryResultPhoto(
+                    thumbnail_url=character['img_url'],
+                    id=f"{character['id']}_{time.time()}",
+                    photo_url=character['img_url'],
+                    caption=f"<b>Look at this character!</b>\n\n🌸 <b>{character['name']}</b>\n🏖️ <b>{character['anime']}</b>\n<b>{rarity}</b>\n🆔: {character['id']}\n\n<b>Guessed {total_guesses} times In Globally</b>",
+                    parse_mode='HTML'
+                )
+            )
+
+        # If there is only one character, show it
+        
+        await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
+        
 async def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
