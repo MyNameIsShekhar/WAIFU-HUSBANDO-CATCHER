@@ -268,20 +268,22 @@ async def change_time(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text(f'Successfully changed character appearance frequency to every {new_frequency} messages.')
     except Exception as e:
         await update.message.reply_text('Failed to change character appearance frequency.')
-
 async def inlinequery(update: Update, context: CallbackContext) -> None:
-    user = await user_collection.find_one({'id': user_id})
-    characters = sorted(user['characters'], key=lambda x: (x['anime'], x['id']))
-    character_counts = {k: len(list(v)) for k, v in groupby(characters, key=lambda x: x['id'])}
+    from collections import Counter
 
     query = update.inline_query.query
     offset = int(update.inline_query.offset) if update.inline_query.offset else 0
-    
+
     if query.isdigit():
         user = await user_collection.find_one({'id': int(query)})
 
-        
         if user:
+            # Get a list of all character IDs for the user
+            character_ids = [character['id'] for character in user['characters']]
+
+            # Count the occurrences of each character ID
+            character_counts = Counter(character_ids)
+
             characters = list({v['id']:v for v in user['characters']}.values())[offset:offset+50]
             if len(characters) > 50:
                 characters = characters[:50]
@@ -293,9 +295,13 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
             for character in characters:
                 anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
                 total_anime_characters = await collection.count_documents({'anime': character['anime']})
-                count = character_counts[character['id']]
+
                 rarity = character.get('rarity', "Don't have rarity.. ")
 
+                # Get the count for this character
+                count = character_counts[character['id']]
+
+                
                 results.append(
                     InlineQueryResultPhoto(
                         thumbnail_url=character['img_url'],
