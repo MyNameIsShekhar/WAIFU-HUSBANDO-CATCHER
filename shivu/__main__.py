@@ -285,10 +285,15 @@ from bson.son import SON
 from html import escape
 import uuid
 
+from telegram import InlineQueryResultPhoto
+from bson.son import SON
+from html import escape
+import uuid
+
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
     offset = int(update.inline_query.offset) if update.inline_query.offset else 0
-
+    user_id=None
     if query.startswith('collection.'):
         user_id = int(query.split('.')[1])
 
@@ -304,8 +309,8 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
 
     results = []
     for character in characters:
-        # Count how many users have this character
-        user_count = await user_collection.count_documents({'characters.id': character['id']})
+        # Count how many times the user has this character
+        user_character_count = user['characters'].count(character) if user else 0
 
         # Find the top 5 users who have the most characters
         pipeline = [
@@ -324,9 +329,9 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
 
         # Create an InlineQueryResultPhoto for each character
         if query.startswith('collection.'):
-            caption = f"🌻 <b><a href='tg://user?id={user['id']}'>{escape(user.get('first_name', user['id']))}</a>'s Character</b>\n\n🌸: <b>{escape(character['name'])}</b>\n🏖️: <b>{escape(character['anime'])} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{escape(character['rarity'])}</b>\n\n🆔: <b>{character['id']}</b> (x{user_count})"
+            caption = f"🌻 <b><a href='tg://user?id={user['id']}'>{escape(user.get('first_name', user['id']))}</a>'s Character</b>\n\n🌸: <b>{escape(character['name'])}</b>\n🏖️: <b>{escape(character['anime'])} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{escape(character['rarity'])}</b>\n\n🆔: <b>{character['id']}</b> (x{user_character_count})"
         else:
-            caption = f'Look at this character!\n\n🌸 {escape(character["name"])}\n🏖️ {escape(character["anime"])}\n{escape(character["rarity"])}\n🆔: {character["id"]}\n\nGuessed {user_count} times globally.\n\nTop guessers:\n{top_users_text}'
+            caption = f'Look at this character!\n\n🌸 {escape(character["name"])}\n🏖️ {escape(character["anime"])}\n{escape(character["rarity"])}\n🆔: {character["id"]}\n\nGuessed {user_character_count} times globally.\n\nTop guessers:\n{top_users_text}'
 
         results.append(InlineQueryResultPhoto(
             id=str(uuid.uuid4()),  # Generate a unique UUID for each result
