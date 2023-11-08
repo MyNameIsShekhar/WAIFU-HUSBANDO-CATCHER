@@ -302,13 +302,12 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 # Get the count for this character
                 count = character_counts[character['id']]
 
-                
                 results.append(
                     InlineQueryResultPhoto(
                         thumbnail_url=character['img_url'],
                         id=f"{character['id']}_{time.time()}",
                         photo_url=character['img_url'],
-                        caption=f"<b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a>'s Character</b>\n\n🌸: <b>{character['name']} (×{count})</b>\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n\n🆔: <b>{character['id']}</b>",
+                        caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a>'s Character</b>\n\n🌸: <b>{character['name']}</b>\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n\n🆔: <b>{character['id']}</b> (x{count})",
                         parse_mode='HTML'
                     )
                 )
@@ -320,7 +319,6 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 title="User not found", 
                 input_message_content=InputTextMessageContent("User not found")
             )], cache_time=5)
-    
     else:
         # If the query is empty, fetch all characters from the database
         if not query:
@@ -369,6 +367,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
             )
 
         await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
+
 
 async def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
