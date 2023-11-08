@@ -364,8 +364,8 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
             results.append(
                 InlineQueryResultPhoto(
                     id=f"{character['id']}_{time.time()}",
+                    thumbnail_url=character['img_url'],
                     photo_url=character['img_url'],
-                    thumb_url=character['img_url'],
                     caption=f"🌸: <b>{character['name']}</b>\n🏖️: <b>{character['anime']}</b>\n\n<b>Top users:</b>\n{top_users_str}",
                     parse_mode='HTML'
                 )
