@@ -322,7 +322,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
         results.append(InlineQueryResultPhoto(
             id=character['id'],
             photo_url=character['img_url'],
-            thumb_url=character['img_url'],  # Use the same image for the thumbnail
+            thumbnail_url=character['img_url'],  # Use the same image for the thumbnail
             caption=caption,
             parse_mode='html'
         
