@@ -351,8 +351,12 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
             top_users_str = "\n".join(f"<a href='tg://user?id={user_id}'>{user_id}</a>: {count}" for user_id, count in top_users)
 
             # Fetch the user names for the top users
-            top_user_names = [await user_collection.find_one({'id': int(user_id)})['first_name'] for user_id, _ in top_users]
+            top_user_names = []
+            for user_id, _ in top_users:
+                user = await user_collection.find_one({'id': int(user_id)})
+                top_user_names.append(user['first_name'])
 
+            # Replace the user IDs with their names in the top_users_str
             # Replace the user IDs with their names in the top_users_str
             for user_id, user_name in zip(top_users, top_user_names):
                 top_users_str = top_users_str.replace(str(user_id[0]), user_name)
