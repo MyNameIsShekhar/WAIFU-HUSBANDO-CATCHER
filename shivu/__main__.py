@@ -270,14 +270,17 @@ async def change_time(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text('Failed to change character appearance frequency.')
 
 async def inlinequery(update: Update, context: CallbackContext) -> None:
-    import time
-    query = update.inline_query.query
-    offset = int(update.inline_query.offset) if update.inline_query.offset else 0
+    user = await user_collection.find_one({'id': int(query)})
+    characters = sorted(user['characters'], key=lambda x: (x['anime'], x['id']))
     character_counts = {k: len(list(v)) for k, v in groupby(characters, key=lambda x: x['id'])}
 
+    query = update.inline_query.query
+    offset = int(update.inline_query.offset) if update.inline_query.offset else 0
+    
     if query.isdigit():
         user = await user_collection.find_one({'id': int(query)})
 
+        
         if user:
             characters = list({v['id']:v for v in user['characters']}.values())[offset:offset+50]
             if len(characters) > 50:
