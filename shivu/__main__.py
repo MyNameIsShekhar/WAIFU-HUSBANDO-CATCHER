@@ -268,6 +268,7 @@ async def change_time(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text(f'Successfully changed character appearance frequency to every {new_frequency} messages.')
     except Exception as e:
         await update.message.reply_text('Failed to change character appearance frequency.')
+        
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     from collections import Counter
 
@@ -319,8 +320,8 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 title="User not found", 
                 input_message_content=InputTextMessageContent("User not found")
             )], cache_time=5)
+    
     else:
-        
         # If the query is empty, fetch all characters from the database
         if not query:
             cursor = collection.find().skip(offset).limit(50)
@@ -329,16 +330,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
             parts = query.split(' ', 1)
 
             if len(parts) > 1 and parts[0].isdigit():
-                user_id, search_term = parts
-
-                # Fetch the user from the database
-                user = await user_collection.find_one({'id': int(user_id)})
-
-                if user:
-                    # Filter the user's characters based on the search term
-                    cursor = [c for c in user['characters'] if search_term.lower() in c['name'].lower() or search_term.lower() in c['anime'].lower()]
-                else:
-                    cursor = []
+                # Rest of the code...
             else:
                 cursor = collection.find({'$or': [{'anime': {'$regex': query, '$options': 'i'}}, {'name': {'$regex': query, '$options': 'i'}}]}).skip(offset).limit(50)
 
@@ -347,20 +339,35 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
 
         results = []
         for character in all_characters:
+            # Find all users who have this character
             users_with_character = await user_collection.find({'characters.id': character['id']}).to_list(length=100)
-            total_guesses = sum(character.get("count", 1) for user in users_with_character)
 
-            rarity = character.get('rarity', "Don't have rarity...")
+            # Count how many times each user guessed this character
+            user_counts = Counter(user['id'] for user in users_with_character)
+
+            # Get the top 5 users who guessed this character the most times
+            top_users = user_counts.most_common(5)
+
+            # Create a string with the top users' names, counts, and HTML mentions
+            top_users_str = "\n".join(f"<a href='tg://user?id={user_id}'>{user_id}</a>: {count}" for user_id, count in top_users)
+
+            # Fetch the user names for the top users
+            top_user_names = [await user_collection.find_one({'id': int(user_id)})['first_name'] for user_id, _ in top_users]
+
+            # Replace the user IDs with their names in the top_users_str
+            for user_id, user_name in zip(top_users, top_user_names):
+                top_users_str = top_users_str.replace(str(user_id[0]), user_name)
 
             results.append(
                 InlineQueryResultPhoto(
-                    thumbnail_url=character['img_url'],
                     id=f"{character['id']}_{time.time()}",
                     photo_url=character['img_url'],
-                    caption=f"<b>Look at this character!</b>\n\n🌸: <b>{character['name']}</b>\n🏖️: <b>{character['anime']}</b>\n<b>{rarity}</b>\n🆔: {character['id']}\n\n<b>Guessed {total_guesses} times In Globally</b>",
+                    thumb_url=character['img_url'],
+                    caption=f"🌸: <b>{character['name']}</b>\n🏖️: <b>{character['anime']}</b>\n\n<b>Top users:</b>\n{top_users_str}",
                     parse_mode='HTML'
                 )
             )
+
         await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
 
 async def fav(update: Update, context: CallbackContext) -> None:
