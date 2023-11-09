@@ -276,8 +276,6 @@ return
 
 
 
-
-                caption = f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a>'s Character</b>\n\n🌸: <b>{character['name']}</b>\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n\n🆔: <b>{character['id']}</b> (x{count})"
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     from collections import Counter
 
@@ -370,10 +368,9 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 )
             )
 
-        
+        # If there is only one character, show it
         
     await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
-
 
 async def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
