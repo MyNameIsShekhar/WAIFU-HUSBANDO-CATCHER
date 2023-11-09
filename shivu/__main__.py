@@ -253,7 +253,7 @@ async def change_time(update: Update, context: CallbackContext) -> None:
         args = context.args
         if len(args) != 1:
             await update.message.reply_text('Incorrect format. Please use: /changetime NUMBER')
-return
+            return
 
         
         new_frequency = int(args[0])
@@ -367,11 +367,8 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                     parse_mode='HTML'
                 )
             )
-
-        # If there is only one character, show it
+        await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
         
-    await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
-
 async def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
