@@ -276,7 +276,6 @@ async def change_time(update: Update, context: CallbackContext) -> None:
 
 
 
- f"<b>Look at this character!</b>\n\n🌸 <b>{character['name']}</b>\n🏖️ <b>{character['anime']}</b>\n<b>{rarity}</b>\n🆔: {character['id']}\n\n<b>Guessed {total_guesses} times In Globally</b>"
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     from collections import Counter
 
