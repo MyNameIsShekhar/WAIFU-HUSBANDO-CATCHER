@@ -276,6 +276,7 @@ async def change_time(update: Update, context: CallbackContext) -> None:
 
 
 
+ f"<b>Look at this character!</b>\n\n🌸 <b>{character['name']}</b>\n🏖️ <b>{character['anime']}</b>\n<b>{rarity}</b>\n🆔: {character['id']}\n\n<b>Guessed {total_guesses} times In Globally</b>"
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     from collections import Counter
 
@@ -299,16 +300,17 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
             for character in characters:
                 anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
                 total_anime_characters = await collection.count_documents({'anime': character['anime']})
-
                 rarity = character.get('rarity', "Don't have rarity.. ")
                 count = character_counts[character['id']]
+
+                caption = f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a>'s Character</b>\n\n🌸: <b>{character['name']}</b>\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n\n🆔: <b>{character['id']}</b> (x{count})"
 
                 results.append(
                     InlineQueryResultPhoto(
                         thumbnail_url=character['img_url'],
                         id=f"{character['id']}_{time.time()}",
                         photo_url=character['img_url'],
-                        caption=f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a>'s Character</b>\n\n🌸: <b>{character['name']}</b>\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n\n🆔: <b>{character['id']}</b> (x{count})",
+                        caption=caption,
                         parse_mode='HTML'
                     )
                 )
@@ -331,12 +333,10 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
             if user:
                 cursor = [c for c in user['characters'] if search_term.lower() in c['name'].lower() or search_term.lower() in c['anime'].lower()]
                 cursor = cursor[:50]  # Limit to 50 results
-                caption = f"🌻 <b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a>'s Character</b>\n\n🌸: <b>{character['name']}</b>\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n\n🆔: <b>{character['id']}</b> (x{count})"
             else:
                 cursor = []
         else:
             cursor = collection.find({'$or': [{'anime': {'$regex': query, '$options': 'i'}}, {'name': {'$regex': query, '$options': 'i'}}]}).skip(offset).limit(50)
-            caption = f"<b>Look at this character!</b>\n\n🌸 <b>{character['name']}</b>\n🏖️ <b>{character['anime']}</b>\n<b>{rarity}</b>\n🆔: {character['id']}\n\n<b>Guessed {total_guesses} times In Globally</b>"
 
         all_characters = cursor if isinstance(cursor, list) else await cursor.to_list(length=None)
         next_offset = str(offset + len(all_characters))
@@ -346,6 +346,8 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
             users_with_character = await user_collection.find({'characters.id': character['id']}).to_list(length=100)
             total_guesses = sum(character.get("count", 1) for user in users_with_character)
             
+            caption = f"<b>Look at this character!</b>\n\n🌸 <b>{character['name']}</b>\n🏖️ <b>{character['anime']}</b>\n<b>{rarity}</b>\n🆔: {character['id']}\n\n<b>Guessed {total_guesses} times In Globally</b>"
+
             results.append(
                 InlineQueryResultPhoto(
                     thumbnail_url=character['img_url'],
