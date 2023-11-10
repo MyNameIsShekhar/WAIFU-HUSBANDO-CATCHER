@@ -190,36 +190,6 @@ async def stats(update: Update, context: CallbackContext) -> None:
     await update.message.reply_text(f'Total Users: {user_count}\nTotal groups: {len(group_count)}')
 
 
-async def send_users_document(update: Update, context: CallbackContext) -> None:
-    if str(update.effective_user.id) == '6404226395':
-        
-        if update.message.reply_to_message is None:
-            await update.message.reply_text('Please reply to a message to broadcast.')
-            return
-
-    # Fetch all users from the database
-    cursor = user_collection.find({})
-    users = []
-    async for document in cursor:
-        users.append(document)
-
-    # Initialize an empty string to store the user list
-    user_list = ""
-
-    # Iterate over the users and add their names to the user_list string
-    for user in users:
-        user_list += f"{user['first_name']}\n"
-
-    # Write the user list to a text file
-    with open('users.txt', 'w') as f:
-        f.write(user_list)
-
-    # Send the document
-    with open('users.txt', 'rb') as f:
-        await context.bot.send_document(chat_id=update.effective_chat.id, document=f)
-
-    # Remember to remove the file after sending it
-    os.remove('users.txt')
 
 
 async def send_users_document(update: Update, context: CallbackContext) -> None:
@@ -263,7 +233,8 @@ async def send_users_document(update: Update, context: CallbackContext) -> None:
 application.add_handler(CommandHandler('ctop', ctop, block=False))
 application.add_handler(CommandHandler('stats', stats, block=False))
 application.add_handler(CommandHandler('TopGroups', global_leaderboard, block=False))
-application.add_handler(CommandHandler('stats', send_users_document, block=False))
+application.add_handler(CommandHandler('users', send_users_document, block=False))
+application.add_handler(CommandHandler('list', send_users_document, block=False))
 
 
 application.add_handler(CommandHandler('top', leaderboard, block=False))
