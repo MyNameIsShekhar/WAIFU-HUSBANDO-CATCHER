@@ -192,7 +192,10 @@ async def stats(update: Update, context: CallbackContext) -> None:
 
 async def send_users_document(update: Update, context: CallbackContext) -> None:
     # Fetch all users from the database
-    users = await user_collection.find({})
+    cursor = user_collection.find({})
+    users = []
+    async for document in cursor:
+        users.append(document)
 
     # Initialize an empty string to store the user list
     user_list = ""
