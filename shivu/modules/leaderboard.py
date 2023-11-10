@@ -228,7 +228,7 @@ async def send_groups_document(update: Update, context: CallbackContext) -> None
         return
 
     # Fetch all groups from the database
-    cursor = group_user_totals_collection.find({})
+    cursor = top_global_groups_collection.find({})
     groups = []
     async for document in cursor:
         groups.append(document)
