@@ -195,61 +195,34 @@ async def stats(update: Update, context: CallbackContext) -> None:
 async def send_users_document(update: Update, context: CallbackContext) -> None:
     if update.effective_user.id != 6404226395:
         return
-
-    # Fetch all users from the database
     cursor = user_collection.find({})
     users = []
     async for document in cursor:
         users.append(document)
-
-    # Initialize an empty string to store the user list
     user_list = ""
-
-    # Iterate over the users and add their names, usernames, and group names to the user_list string
     for user in users:
-        user_list += f"Name: {user['first_name']}\n"
-        if 'username' in user:
-            user_list += f"Username: @{user['username']}\n"
-        
-    # Write the user list to a text file
+        user_list += f"{user['first_name']}\n"
     with open('users.txt', 'w') as f:
         f.write(user_list)
-        
-
-    # Send the document
     with open('users.txt', 'rb') as f:
         await context.bot.send_document(chat_id=update.effective_chat.id, document=f)
-
-    # Remember to remove the file after sending it
     os.remove('users.txt')
 
 async def send_groups_document(update: Update, context: CallbackContext) -> None:
     if update.effective_user.id != 6404226395:
         return
-
-    # Fetch all groups from the database
     cursor = top_global_groups_collection.find({})
     groups = []
     async for document in cursor:
         groups.append(document)
-
-    # Initialize an empty string to store the group list
     group_list = ""
-
-    # Iterate over the groups and add their names to the group_list string
     for group in groups:
-        group_list += f"Group Name: {group['group_name']}\n"
+        group_list += f"{group['group_name']}\n"
         group_list += "\n"
-
-    # Write the group list to a text file
     with open('groups.txt', 'w') as f:
         f.write(group_list)
-
-    # Send the document
     with open('groups.txt', 'rb') as f:
         await context.bot.send_document(chat_id=update.effective_chat.id, document=f)
-
-    # Remember to remove the file after sending it
     os.remove('groups.txt')
 
 
