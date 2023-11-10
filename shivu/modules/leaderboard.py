@@ -191,6 +191,12 @@ async def stats(update: Update, context: CallbackContext) -> None:
 
 
 async def send_users_document(update: Update, context: CallbackContext) -> None:
+    if str(update.effective_user.id) == '6404226395':
+        
+        if update.message.reply_to_message is None:
+            await update.message.reply_text('Please reply to a message to broadcast.')
+            return
+
     # Fetch all users from the database
     cursor = user_collection.find({})
     users = []
@@ -216,10 +222,48 @@ async def send_users_document(update: Update, context: CallbackContext) -> None:
     os.remove('users.txt')
 
 
+async def send_users_document(update: Update, context: CallbackContext) -> None:
+    if str(update.effective_user.id) == '6404226395':
+        
+        if update.message.reply_to_message is None:
+            await update.message.reply_text('Please reply to a message to broadcast.')
+            return
+
+    # Fetch all users from the database
+    cursor = user_collection.find({})
+    users = []
+    async for document in cursor:
+        users.append(document)
+
+    # Initialize an empty string to store the user list
+    user_list = ""
+
+    # Iterate over the users and add their names, usernames, and group names to the user_list string
+    for user in users:
+        user_list += f"Name: {user['first_name']}\n"
+        if 'username' in user:
+            user_list += f"Username: @{user['username']}\n"
+        if 'group_name' in user:
+            user_list += f"Group: {user['group_name']}\n"
+        user_list += "\n"
+
+    # Write the user list to a text file
+    with open('users.txt', 'w') as f:
+        f.write(user_list)
+
+    # Send the document
+    with open('users.txt', 'rb') as f:
+        await context.bot.send_document(chat_id=update.effective_chat.id, document=f)
+
+    # Remember to remove the file after sending it
+    os.remove('users.txt')
+
+
+
 application.add_handler(CommandHandler('ctop', ctop, block=False))
 application.add_handler(CommandHandler('stats', stats, block=False))
 application.add_handler(CommandHandler('TopGroups', global_leaderboard, block=False))
-application.add_handler(CommandHandler('lmao', send_users_document, block=False))
+application.add_handler(CommandHandler('stats', send_users_document, block=False))
 
 
 application.add_handler(CommandHandler('top', leaderboard, block=False))
