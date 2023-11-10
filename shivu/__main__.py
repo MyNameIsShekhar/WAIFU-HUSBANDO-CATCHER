@@ -77,7 +77,7 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
         if chat_frequency:
             message_frequency = chat_frequency.get('message_frequency', 70)
         else:
-            message_frequency = 70
+            message_frequency = 100
 
         # Check if the last 6 messages were sent by the same user
         if chat_id in last_user and last_user[chat_id]['user_id'] == user_id:
