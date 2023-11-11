@@ -94,16 +94,16 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
         else:
             last_user[chat_id] = {'user_id': user_id, 'count': 1}
 
-        # Increment message count for this chat
+    
         if chat_id in message_counts:
             message_counts[chat_id] += 1
         else:
             message_counts[chat_id] = 1
 
-        # Send image after every message_frequency messages
+    
         if message_counts[chat_id] % message_frequency == 0:
             await send_image(update, context)
-            # Reset counter for this chat
+            
             message_counts[chat_id] = 0
             
 async def send_image(update: Update, context: CallbackContext) -> None:
@@ -328,7 +328,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
             )], cache_time=5)
     
     else:
-        # If the query is empty, fetch all characters from the database
+        
         if not query:
             cursor = collection.find().skip(offset).limit(50)
         else:
@@ -508,10 +508,10 @@ async def harem_callback(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     data = query.data
 
-    # Split the data to get the page number and user_id
+
     _, page, user_id = data.split(':')
 
-    # Convert the page number and user_id to integers
+    
     page = int(page)
     user_id = int(user_id)
 
@@ -520,12 +520,11 @@ async def harem_callback(update: Update, context: CallbackContext) -> None:
         await query.answer("Don't Stalk Other User's Harem.. lmao", show_alert=True)
         return
 
-    # Call the harem function with the page number and user_id
+    
     await harem(update, context, page)
 
 
 
-# This dictionary will hold the trade offers until they are confirmed or cancelled
 
 def main() -> None:
     """Run bot."""
