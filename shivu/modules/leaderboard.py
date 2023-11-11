@@ -57,13 +57,7 @@ async def global_leaderboard(update: Update, context: CallbackContext) -> None:
         count = group['count']
         leaderboard_message += f'{i}. <b>{group_name}</b> ➾ <b>{count}</b>\n'
     
-    photo_urls = [
-        "https://graph.org/file/38767e79402baa8b04125.jpg",
-        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
-        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg",
-        "https://graph.org//file/e65e9605f3beb5c76026b.jpg",
-        "https://graph.org//file/88c0fc2309930c591d98b.jpg"
-    ]
+    
     photo_url = random.choice(photo_urls)
 
     await update.message.reply_photo(photo=photo_url, caption=leaderboard_message, parse_mode='HTML')
@@ -89,13 +83,7 @@ async def ctop(update: Update, context: CallbackContext) -> None:
             first_name = first_name[:15] + '...'
         character_count = user['character_count']
         leaderboard_message += f'{i}. <a href="https://t.me/{username}"><b>{first_name}</b></a> ➾ <b>{character_count}</b>\n'
-    photo_urls = [
-        "https://graph.org/file/38767e79402baa8b04125.jpg",
-        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
-        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg",
-        "https://graph.org//file/e65e9605f3beb5c76026b.jpg",
-        "https://graph.org//file/88c0fc2309930c591d98b.jpg"
-    ]
+    
     photo_url = random.choice(photo_urls)
 
     await update.message.reply_photo(photo=photo_url, caption=leaderboard_message, parse_mode='HTML')
@@ -120,13 +108,7 @@ async def leaderboard(update: Update, context: CallbackContext) -> None:
             first_name = first_name[:15] + '...'
         character_count = user['character_count']
         leaderboard_message += f'{i}. <a href="https://t.me/{username}"><b>{first_name}</b></a> ➾ <b>{character_count}</b>\n'
-    photo_urls = [
-        "https://graph.org/file/38767e79402baa8b04125.jpg",
-        "https://graph.org/file/9bbee80d02c720004ab8d.jpg",
-        "https://graph.org/file/cd0d8ca9bcfe489a23f82.jpg",
-        "https://graph.org//file/e65e9605f3beb5c76026b.jpg",
-        "https://graph.org//file/88c0fc2309930c591d98b.jpg"
-    ]
+    
     photo_url = random.choice(photo_urls)
 
     await update.message.reply_photo(photo=photo_url, caption=leaderboard_message, parse_mode='HTML')
@@ -176,17 +158,17 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
 
 
 async def stats(update: Update, context: CallbackContext) -> None:
-    # Ensure this command is only run by the bot owner for security
+    
     if update.effective_user.id != 6404226395:
         return
 
-    # Get the total unique user ID count
+    
     user_count = await user_collection.count_documents({})
 
-    # Get the total unique group ID count
+
     group_count = await group_user_totals_collection.distinct('group_id')
 
-    # Send the statistics to the bot owner
+
     await update.message.reply_text(f'Total Users: {user_count}\nTotal groups: {len(group_count)}')
 
 
