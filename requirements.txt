@@ -6,4 +6,4 @@ pymongo
 pyrate-limiter==3.1.0
 apscheduler==3.6.3
 beautifulsoup4
- 
+virtualenv-clone==0.3.0 
