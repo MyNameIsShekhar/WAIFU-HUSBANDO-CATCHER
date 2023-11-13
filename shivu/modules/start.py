@@ -1,4 +1,3 @@
-
 import csv
 import os
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
@@ -13,11 +12,6 @@ from shivu import db
 import random
 
 
-
-photo_url_list = ["https://graph.org/file/38767e79402baa8b04125.jpg", 
-                  "https://telegra.ph/file/c940700435ff6d27bf49d.jpg",
-                  "https://graph.org//file/11eb3e6eb3b59b844ffa8.jpg" ]
-
     
     
 
@@ -26,6 +20,7 @@ collection = db['total_pm_users']
 photo_url_list = ["https://graph.org/file/38767e79402baa8b04125.jpg", 
                   "https://telegra.ph/file/c940700435ff6d27bf49d.jpg",
                   "https://graph.org//file/11eb3e6eb3b59b844ffa8.jpg" ]
+photo_url = random.choice(photo_url_list)
 
 async def start(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
@@ -47,7 +42,7 @@ async def start(update: Update, context: CallbackContext) -> None:
 
     if update.effective_chat.type == "group":
         # Reply with "I am alive" and a random photo
-        photo_url = random.choice(photo_url_list)
+        
         await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_url, caption="I am alive")
 
     else:
