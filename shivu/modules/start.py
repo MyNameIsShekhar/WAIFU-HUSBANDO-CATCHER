@@ -35,15 +35,16 @@ async def start(update: Update, context: CallbackContext) -> None:
         photo_url = random.choice(photo_url_list)
         await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_url, caption="I am alive")
 
-     if update.effective_chat.type == "private":
-       photo_url = random.choice(photo_url_list)
-       caption = f"""
+     else
+       
+        photo_url = random.choice(photo_url_list)
+        caption = f"""
         ***Hey there! {update.effective_user.first_name} 🌻***
               
 ***i Am Collect 'Em All Bot.. Add Me in You're Group And I will send Random Characters in group after every 100 messages and who guessed that character's name Correct.. I will add That Character in That user's Collection.. Tap on help Button To See All Commands***
                """
        
-       keyboard = [
+        keyboard = [
             [InlineKeyboardButton("Add Me", url=f'http://t.me/Collect_emAll_Bot?startgroup=new')],
         
             [InlineKeyboardButton("Help", callback_data='help'),
@@ -51,8 +52,8 @@ async def start(update: Update, context: CallbackContext) -> None:
             [InlineKeyboardButton("Updates", url=f'https://t.me/CollectEmAllUpdates')],
            
     ]
-      reply_markupp = InlineKeyboardMarkup(keyboard)
-      await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_url, caption=caption, reply_markup=reply_markupp, parse_mode='markdown')
+       reply_markupp = InlineKeyboardMarkup(keyboard)
+       await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_url, caption=caption, reply_markup=reply_markupp, parse_mode='markdown')
 
     
     
