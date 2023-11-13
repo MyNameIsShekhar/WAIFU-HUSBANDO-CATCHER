@@ -60,7 +60,7 @@ async def start(update: Update, context: CallbackContext) -> None:
         reply_markup = InlineKeyboardMarkup(keyboard)
         await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_url, caption=caption, reply_markup=reply_markup, parse_mode='markdown')
 
-     else:
+    else:
         # Reply with "I am alive" and a random photo
         
         await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_url, caption="I am alive")
