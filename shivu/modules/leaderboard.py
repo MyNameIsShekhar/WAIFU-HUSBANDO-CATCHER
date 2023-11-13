@@ -23,6 +23,9 @@ def escape_markdown(text):
     escape_chars = r'\*_`\\~>#+-=|{}.!'
     return re.sub(r'([%s])' % re.escape(escape_chars), r'\\\1', text)
 
+photo_url = ["https://graph.org/file/38767e79402baa8b04125.jpg", 
+                  "https://telegra.ph/file/c940700435ff6d27bf49d.jpg",
+                  "https://graph.org//file/11eb3e6eb3b59b844ffa8.jpg" ]
 
 
 
