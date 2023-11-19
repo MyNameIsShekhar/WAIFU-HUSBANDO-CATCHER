@@ -367,7 +367,7 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                     parse_mode='HTML'
                 )
             )
-        await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
+        await update.inline_query.answer(results, next_offset=next_offset, cache_time=0)
         
 async def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
