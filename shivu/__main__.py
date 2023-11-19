@@ -327,48 +327,8 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 input_message_content=InputTextMessageContent("User not found")
             )], cache_time=5)
     
-    else:
-        
-        if not query:
-            cursor = collection.find().skip(offset).limit(50)
-        else:
-            # Split the query into user ID and search term
-            parts = query.split(' ', 1)
-
-            if len(parts) > 1 and parts[0].isdigit():
-                user_id, search_term = parts
-
-                # Fetch the user from the database
-                user = await user_collection.find_one({'id': int(user_id)})
-
-                if user:
-                    # Filter the user's characters based on the search term
-                    cursor = [c for c in user['characters'] if search_term.lower() in c['name'].lower() or search_term.lower() in c['anime'].lower()]
-                else:
-                    cursor = []
-            else:
-                cursor = collection.find({'$or': [{'anime': {'$regex': query, '$options': 'i'}}, {'name': {'$regex': query, '$options': 'i'}}]}).skip(offset).limit(50)
-
-        all_characters = cursor if isinstance(cursor, list) else await cursor.to_list(length=None)
-        next_offset = str(offset + len(all_characters))
-
-        results = []
-        for character in all_characters:
-            users_with_character = await user_collection.find({'characters.id': character['id']}).to_list(length=100)
-            total_guesses = sum(character.get("count", 1) for user in users_with_character)
-            rarity = character.get('rarity', "Don't have rarity...")
-
-            results.append(
-                InlineQueryResultPhoto(
-                    thumbnail_url=character['img_url'],
-                    id=f"{character['id']}_{time.time()}",
-                    photo_url=character['img_url'],
-                    caption=f"<b>Look at this character!</b>\n\n🌸 <b>{character['name']}</b>\n🏖️ <b>{character['anime']}</b>\n<b>{rarity}</b>\n🆔: {character['id']}\n\n<b>Guessed {total_guesses} times In Globally</b>",
-                    parse_mode='HTML'
-                )
-            )
-        await update.inline_query.answer(results, next_offset=next_offset, cache_time=0)
-        
+    
+    
 async def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
