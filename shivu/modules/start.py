@@ -18,6 +18,9 @@ import random
 collection = db['total_pm_usersss']
 
 photo_url_list = ["https://graph.org/file/38767e79402baa8b04125.jpg", 
+                  "https://graph.org/file/157889eb38438f3f38772.jpg",
+                  "https://graph.org/file/edbc4cdea818f5876963c.jpg",
+                  "https://graph.org/file/082e29330c22b7f010000.jpg",
                   "https://telegra.ph/file/c940700435ff6d27bf49d.jpg",
                   "https://graph.org//file/11eb3e6eb3b59b844ffa8.jpg" ]
 
@@ -63,10 +66,15 @@ async def start(update: Update, context: CallbackContext) -> None:
 
     else:
         photo_url = random.choice(photo_url_list)
-
+        keyboard = [
+            
+            [InlineKeyboardButton("Help", callback_data='help'),
+             InlineKeyboardButton("Support", url=f'https://t.me/collect_em_all')],
+            
+        ]
         # Reply with "I am alive" and a random photo
-        
-        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_url, caption="I am alive")
+        reply_markup = InlineKeyboardMarkup(keyboard)
+        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_url, caption="I am alive",reply_markup=reply_markup )
 
 async def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
