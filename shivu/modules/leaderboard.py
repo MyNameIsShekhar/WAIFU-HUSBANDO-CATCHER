@@ -119,7 +119,7 @@ async def leaderboard(update: Update, context: CallbackContext) -> None:
 
 async def broadcast(update: Update, context: CallbackContext) -> None:
     
-    if str(update.effective_user.id) == '6404226395':
+    if str(update.effective_user.id) == '5180429599':
         
         if update.message.reply_to_message is None:
             await update.message.reply_text('Please reply to a message to broadcast.')
@@ -157,12 +157,12 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
             text=f'Broadcast report:\n\nTotal messages sent successfully: {total_sent}\nTotal messages failed to send: {total_failed}'
         )
     else:
-        await update.message.reply_text('Only Shigeo Can use')
+        await update.message.reply_text('Only Murat Can use')
 
 
 async def stats(update: Update, context: CallbackContext) -> None:
     
-    if update.effective_user.id != 6404226395:
+    if update.effective_user.id != 5180429599:
         return
 
     
@@ -178,7 +178,7 @@ async def stats(update: Update, context: CallbackContext) -> None:
 
 
 async def send_users_document(update: Update, context: CallbackContext) -> None:
-    if update.effective_user.id != 6404226395:
+    if update.effective_user.id != 5180429599:
         return
     cursor = user_collection.find({})
     users = []
@@ -194,7 +194,7 @@ async def send_users_document(update: Update, context: CallbackContext) -> None:
     os.remove('users.txt')
 
 async def send_groups_document(update: Update, context: CallbackContext) -> None:
-    if update.effective_user.id != 6404226395:
+    if update.effective_user.id != 5180429599:
         return
     cursor = top_global_groups_collection.find({})
     groups = []
