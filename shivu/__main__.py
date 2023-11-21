@@ -22,14 +22,6 @@ from shivu.modules import ALL_MODULES
 from shivu import application 
 from shivu import db
 
-collection = db['anime_characters_lol']
-
-
-user_totals_collection = db['user_totals_lmaoooo']
-user_collection = db["user_collection_lmaoooo"]
-
-group_user_totals_collection = db['group_user_totalsssssss']
-top_global_groups_collection = db['top_global_groups']
 
 
 
