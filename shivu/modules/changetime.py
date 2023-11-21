@@ -38,4 +38,4 @@ async def change_time(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text('Failed to change character appearance frequency.')
 
 
-application.add_handler(CommandHandler("changetime", changetime, block=False))
+application.add_handler(CommandHandler("changetime", change_time, block=False))
