@@ -1,14 +1,11 @@
 from itertools import groupby
-from xml.etree.ElementTree import Element, SubElement, tostring
-from xml.dom.minidom import parseString
-from telegram import InputMediaPhoto
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent, InputMediaPhoto
 from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
 import asyncio
 from telegram import Update
 from motor.motor_asyncio import AsyncIOMotorClient 
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters
-from telegram.ext import InlineQueryHandler,CallbackQueryHandler, ChosenInlineResultHandler
+from telegram.ext import CallbackQueryHandler
 from pymongo import MongoClient, ReturnDocument
 import urllib.request
 from shivu import application 
