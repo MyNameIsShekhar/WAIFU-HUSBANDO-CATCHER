@@ -1,5 +1,5 @@
-
-
+from telegram import Update
+from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters
 from shivu import application 
 from shivu import db, collection, user_totals_collection, user_collection, top_global_groups_collection, top_global_groups_collection, group_user_totals_collection, photo_urls
 
@@ -36,3 +36,6 @@ async def change_time(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text(f'Successfully changed character appearance frequency to every {new_frequency} messages.')
     except Exception as e:
         await update.message.reply_text('Failed to change character appearance frequency.')
+
+
+application.add_handler(CommandHandler("changetime", changetime))
