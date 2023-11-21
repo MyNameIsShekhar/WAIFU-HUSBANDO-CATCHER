@@ -64,14 +64,14 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
     lock = locks[chat_id]
 
     async with lock:
-        # Get message frequency for this chat from the database
+        
         chat_frequency = await user_totals_collection.find_one({'chat_id': chat_id})
         if chat_frequency:
             message_frequency = chat_frequency.get('message_frequency', 10)
         else:
             message_frequency = 10
 
-        # Check if the last 6 messages were sent by the same user
+        
         if chat_id in last_user and last_user[chat_id]['user_id'] == user_id:
             last_user[chat_id]['count'] += 1
             if last_user[chat_id]['count'] >= 10:
@@ -79,7 +79,7 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
                 if user_id in warned_users and time.time() - warned_users[user_id] < 600:
                     return
                 else:
-                    # Warn the user and record the time of the warning
+                    
                     await update.message.reply_text(f"⚠️ Don't Spam {update.effective_user.first_name}...\nyour messages will be ignored for 10 minutes...")
                     warned_users[user_id] = time.time()
                     return
@@ -181,7 +181,7 @@ async def guess(update: Update, context: CallbackContext) -> None:
                 'characters': [last_characters[chat_id]],
             })
 
-        # Update the group leaderboard
+        
         group_user_total = await group_user_totals_collection.find_one({'user_id': user_id, 'group_id': chat_id})
         if group_user_total:
             update_fields = {}
@@ -204,7 +204,7 @@ async def guess(update: Update, context: CallbackContext) -> None:
             })
 
 
-        # Update the top global groups leaderboard
+    
         group_info = await top_global_groups_collection.find_one({'group_id': chat_id})
         if group_info:
             update_fields = {}
@@ -229,41 +229,6 @@ async def guess(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text('Incorrect guess. Try again.')
 
 
-
-
-async def change_time(update: Update, context: CallbackContext) -> None:
-    
-    user = update.effective_user
-    chat = update.effective_chat
-    member = await chat.get_member(user.id)
-
-    if member.status not in ('administrator', 'creator'):
-        await update.message.reply_text('You do not have permission to use this command.')
-        return
-    try:
-        
-        args = context.args
-        if len(args) != 1:
-            await update.message.reply_text('Incorrect format. Please use: /changetime NUMBER')
-            return
-
-        
-        new_frequency = int(args[0])
-        if new_frequency < 100:
-            await update.message.reply_text('The message frequency must be greater than or equal to 100.')
-            return
-
-        
-        chat_frequency = await user_totals_collection.find_one_and_update(
-            {'chat_id': str(chat.id)},
-            {'$set': {'message_frequency': new_frequency}},
-            upsert=True,
-            return_document=ReturnDocument.AFTER
-        )
-
-        await update.message.reply_text(f'Successfully changed character appearance frequency to every {new_frequency} messages.')
-    except Exception as e:
-        await update.message.reply_text('Failed to change character appearance frequency.')
 
 
 
