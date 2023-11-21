@@ -9,33 +9,11 @@ from telegram.ext import CallbackQueryHandler
 from pymongo import MongoClient, ReturnDocument
 import urllib.request
 from shivu import application 
-from shivu import db
+from shivu import db, collection, user_totals_collection, user_collection, top_global_groups_collection, top_global_groups_collection
 import random
 import json
 import html
-
 import re
-
-def escape_markdown(text):
-    escape_chars = r'\*_`\\~>#+-=|{}.!'
-    return re.sub(r'([%s])' % re.escape(escape_chars), r'\\\1', text)
-
-photo_urls = ["https://graph.org/file/38767e79402baa8b04125.jpg", 
-                  "https://telegra.ph/file/c940700435ff6d27bf49d.jpg",
-                  "https://graph.org//file/11eb3e6eb3b59b844ffa8.jpg" ]
-
-
-
-collection = db['anime_characters_lol']
-user_totals_collection = db['user_totals_lmaoooo']
-user_collection = db["user_collection_lmaoooo"]
-group_user_totals_collection = db['group_user_totalsssssss']
-top_global_groups_collection = db['top_global_groups']
-
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
-from telegram.ext import CallbackContext
-import random
-
 
     
 async def global_leaderboard(update: Update, context: CallbackContext) -> None:
