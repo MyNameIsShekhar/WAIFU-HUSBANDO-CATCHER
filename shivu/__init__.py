@@ -15,8 +15,19 @@ logging.getLogger("apscheduler").setLevel(logging.ERROR)
 logging.getLogger('httpx').setLevel(logging.WARNING)
 logging.getLogger("pyrate_limiter").setLevel(logging.ERROR)
 LOGGER = logging.getLogger(__name__)
+if sys.version_info[0] < 3 or sys.version_info[1] < 6:
+    LOGGER.error(
+        "You MUST have a python version of at least 3.6! Multiple features depend on this. Bot quitting."
+    )
+    quit(1)
 
+ENV = bool(os.environ.get("ENV", False))
 
+if ENV:
+    MONGO_DB_URI = os.environ.get("MONGO_DB_URI", None)
+    TOKEN = os.environ.get("TOKEN", None)
+    GROUP_ID = os.environ.get("GROUP_ID", None)
+    
 TOKEN = "6315953148:AAHxTD8ZboAU30Brpw-ZJl20UcY88CnrEe8"
 application = Application.builder().token(TOKEN).build()
 
