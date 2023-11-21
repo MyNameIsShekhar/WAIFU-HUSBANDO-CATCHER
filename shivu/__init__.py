@@ -32,3 +32,6 @@ group_user_totals_collection = db['group_user_totalsssssss']
 top_global_groups_collection = db['top_global_groups']
 
 sudo_users = ['6404226395', '6185531116', '5298587903', '5798995982', '5150644651','5813403535', '6393627898', '5952787198', '6614280216','6248411931','5216262234','1608353423']
+photo_urls = ["https://graph.org/file/38767e79402baa8b04125.jpg", 
+                  "https://telegra.ph/file/c940700435ff6d27bf49d.jpg",
+                  "https://graph.org//file/11eb3e6eb3b59b844ffa8.jpg" ]
