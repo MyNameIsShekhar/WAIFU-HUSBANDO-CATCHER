@@ -17,7 +17,7 @@ logging.getLogger("pyrate_limiter").setLevel(logging.ERROR)
 LOGGER = logging.getLogger(__name__)
 
 
-TOKEN = "6420751168:AAG63ZLO8kMgMa6SZCQWjJV0-onZqVsGfsI"
+TOKEN = "6315953148:AAHxTD8ZboAU30Brpw-ZJl20UcY88CnrEe8"
 application = Application.builder().token(TOKEN).build()
 
 
