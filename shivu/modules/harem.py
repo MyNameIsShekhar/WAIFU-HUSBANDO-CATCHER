@@ -6,7 +6,7 @@ import math
 import html
 from collections import Counter
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters
-from shivu import db, collection, user_totals_collection, user_collection, top_global_groups_collection, top_global_groups_collection, group_user_totals_collection, photo_urls
+from shivu import db, collection, user_totals_collection, user_collection, top_global_groups_collection, top_global_groups_collection, group_user_totals_collection, application, photo_urls
 
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
