@@ -5,7 +5,7 @@ from telegram.ext import CallbackContext, CallbackQueryHandler
 from telegram.ext import MessageHandler, filters
 from telegram.ext import CommandHandler
 from shivu import application 
-from shivu import db
+from shivu import db, photo_urls
 import random
 collection = db['total_pm_usersss']
 
@@ -32,7 +32,7 @@ async def start(update: Update, context: CallbackContext) -> None:
 
     if update.effective_chat.type== "private":
         
-        # Reply with start message
+        
         caption = f"""
         ***Hey there! {update.effective_user.first_name} 🌻***
               
@@ -45,12 +45,12 @@ async def start(update: Update, context: CallbackContext) -> None:
             [InlineKeyboardButton("Updates", url=f'https://t.me/CollectEmAllUpdates')],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        photo_url = random.choice(photo_url_list)
+        photo_url = random.choice(photo_urls)
 
         await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_url, caption=caption, reply_markup=reply_markup, parse_mode='markdown')
 
     else:
-        photo_url = random.choice(photo_url_list)
+        photo_url = random.choice(photo_urls)
         keyboard = [
             
             [InlineKeyboardButton("Help", callback_data='help'),
