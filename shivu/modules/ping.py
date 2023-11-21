@@ -7,6 +7,9 @@ import time
 from shivu import application 
 
 async def ping(update: Update, context: CallbackContext) -> None:
+    if str(update.effective_user.id) not in sudo_users:
+        update.message.reply_text("Nouu.. its Sudo user's Command..")
+        return
     start_time = time.time()
     message = await update.message.reply_text('Pong!')
     end_time = time.time()
