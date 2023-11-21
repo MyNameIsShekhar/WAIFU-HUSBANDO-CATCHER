@@ -94,7 +94,7 @@ async def leaderboard(update: Update, context: CallbackContext) -> None:
 
 async def broadcast(update: Update, context: CallbackContext) -> None:
     
-    if str(update.effective_user.id) == '5180429599':
+    if str(update.effective_user.id) == OWNER_ID:
         
         if update.message.reply_to_message is None:
             await update.message.reply_text('Please reply to a message to broadcast.')
@@ -137,7 +137,7 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
 
 async def stats(update: Update, context: CallbackContext) -> None:
     
-    if update.effective_user.id != 6404226395:
+    if update.effective_user.id != OWNER_ID:
         return
 
     
@@ -153,7 +153,8 @@ async def stats(update: Update, context: CallbackContext) -> None:
 
 
 async def send_users_document(update: Update, context: CallbackContext) -> None:
-    if update.effective_user.id != 5180429599:
+    if str(update.effective_user.id) not in SUDO_USERS:
+        update.message.reply_text('only For Sudo users...')
         return
     cursor = user_collection.find({})
     users = []
@@ -169,7 +170,8 @@ async def send_users_document(update: Update, context: CallbackContext) -> None:
     os.remove('users.txt')
 
 async def send_groups_document(update: Update, context: CallbackContext) -> None:
-    if update.effective_user.id != 5180429599:
+    if str(update.effective_user.id) not in SUDO_USERS:
+        update.message.reply_text('Only For Sudo users...')
         return
     cursor = top_global_groups_collection.find({})
     groups = []
