@@ -1,5 +1,6 @@
 from telegram import Update
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters
+from pymongo import MongoClient, ReturnDocument
 from shivu import application 
 from shivu import db, collection, user_totals_collection, user_collection, top_global_groups_collection, top_global_groups_collection, group_user_totals_collection, photo_urls
 
