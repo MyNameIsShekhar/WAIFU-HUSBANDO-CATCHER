@@ -4,6 +4,7 @@ import urllib.request
 import re
 import math
 import html
+import random
 from collections import Counter
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters
 from shivu import db, collection, user_totals_collection, user_collection, top_global_groups_collection, top_global_groups_collection, group_user_totals_collection, application, photo_urls
