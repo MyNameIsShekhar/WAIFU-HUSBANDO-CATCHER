@@ -1,4 +1,10 @@
 from telegram import Update
+from itertools import groupby
+import urllib.request
+import re
+import math
+import html
+from collections import Counter
 from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters
 from shivu import db, collection, user_totals_collection, user_collection, top_global_groups_collection, top_global_groups_collection, group_user_totals_collection, photo_urls
 
