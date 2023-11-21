@@ -5,7 +5,10 @@ class Config(object):
     MONGO_DB_URI = "" #if u don't know how to get.. then search on YouTube
     OWNER_ID = 6765826972
     SUPPORT_CHAT = "" # add ur Support Group username Without @
-    photo_url = 
+    photo_url = []
+    sudo_users = []
+
+
 class Production(Config):
     LOGGER = True
 
