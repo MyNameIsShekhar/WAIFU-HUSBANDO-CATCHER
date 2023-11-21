@@ -1,28 +1,13 @@
-import csv
 import os
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram import Update
 from telegram.ext import CallbackContext, CallbackQueryHandler
-from motor.motor_asyncio import AsyncIOMotorClient
 from telegram.ext import MessageHandler, filters
-
 from telegram.ext import CommandHandler
 from shivu import application 
 from shivu import db
 import random
-
-
-    
-    
-
 collection = db['total_pm_usersss']
-
-photo_url_list = ["https://graph.org/file/38767e79402baa8b04125.jpg", 
-                  "https://graph.org/file/157889eb38438f3f38772.jpg",
-                  "https://graph.org/file/edbc4cdea818f5876963c.jpg",
-                  "https://graph.org/file/082e29330c22b7f010000.jpg",
-                  "https://telegra.ph/file/c940700435ff6d27bf49d.jpg",
-                  "https://graph.org//file/11eb3e6eb3b59b844ffa8.jpg" ]
 
 
 async def start(update: Update, context: CallbackContext) -> None:
@@ -33,14 +18,14 @@ async def start(update: Update, context: CallbackContext) -> None:
     user_data = await collection.find_one({"_id": user_id})
 
     if user_data is None:
-        # New user, insert their data into the collection
+        
         await collection.insert_one({"_id": user_id, "first_name": first_name, "username": username})
-        # Send the user's name to the group
+        
         await context.bot.send_message(chat_id=-1002069748272, text=f"<a href='tg://user?id={user_id}'>{first_name}</a>", parse_mode='HTML')
     else:
-        # Existing user, check if their name or username has changed
+        
         if user_data['first_name'] != first_name or user_data['username'] != username:
-            # Update the user's data in the collection
+            
             await collection.update_one({"_id": user_id}, {"$set": {"first_name": first_name, "username": username}})
 
     
@@ -72,7 +57,7 @@ async def start(update: Update, context: CallbackContext) -> None:
              InlineKeyboardButton("Support", url=f'https://t.me/collect_em_all')],
             
         ]
-        # Reply with "I am alive" and a random photo
+        
         reply_markup = InlineKeyboardMarkup(keyboard)
         await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_url, caption="I am alive",reply_markup=reply_markup )
 
