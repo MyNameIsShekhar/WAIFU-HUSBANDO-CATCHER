@@ -21,7 +21,7 @@ async def start(update: Update, context: CallbackContext) -> None:
         
         await collection.insert_one({"_id": user_id, "first_name": first_name, "username": username})
         
-        await context.bot.send_message(chat_id=-1002069748272, text=f"<a href='tg://user?id={user_id}'>{first_name}</a>", parse_mode='HTML')
+        await context.bot.send_message(chat_id=GROUP_ID, text=f"<a href='tg://user?id={user_id}'>{first_name}</a>", parse_mode='HTML')
     else:
         
         if user_data['first_name'] != first_name or user_data['username'] != username:
