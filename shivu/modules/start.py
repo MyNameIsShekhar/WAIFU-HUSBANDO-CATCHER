@@ -5,7 +5,7 @@ from telegram.ext import CallbackContext, CallbackQueryHandler
 from telegram.ext import MessageHandler, filters
 from telegram.ext import CommandHandler
 from shivu import application 
-from shivu import db, photo_urls
+from shivu import db, photo_urls, GROUP_ID
 import random
 collection = db['total_pm_usersss']
 
