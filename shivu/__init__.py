@@ -1,3 +1,6 @@
+import logging
+import os
+import sys
 import telegram.ext as tg
 import logging 
 from motor.motor_asyncio import AsyncIOMotorClient 
@@ -30,15 +33,25 @@ if ENV:
     SUDO_USERS = os.environ.get("SUDO_USERS", None)
     PHOTO_URL = os.environ.get("PHOTO_URL", None)
     OWNER_ID = os.environ.get("OWNER_ID", None)
+    try:
+        OWNER_ID = int(os.environ.get("OWNER_ID", None))
+    except ValueError:
+        raise Exception("Your OWNER_ID env variable is not a valid integer.")
+
+else:
+    from shivu.config import Development as Config
+   
+    TOKEN = Config.TOKEN
+    SUPPORT_CHAT = Config.SUPPORT_CHAT
+    MONGO_DB_URI = Config.MONGO_DB_URI
+    GROUP_ID = Config.GROUP_ID
+    SUDO_USERS = Config.SUDO_USERS
+    OWNER_ID == Config.OWNER_ID
 
 
-TOKEN = "6315953148:AAHxTD8ZboAU30Brpw-ZJl20UcY88CnrEe8"
 application = Application.builder().token(TOKEN).build()
 
-
-
-
-client = AsyncIOMotorClient('mongodb+srv://shuyaashivu:9fcc60263a946ef550d11406667404fa@cluster0.ikub9lo.mongodb.net/?retryWrites=true&w=majority')
+client = AsyncIOMotorClient(MONGO_DB_URI)
 db = client['Character_catcher']
 collection = db['anime_characters_lol']
 user_totals_collection = db['user_totals_lmaoooo']
