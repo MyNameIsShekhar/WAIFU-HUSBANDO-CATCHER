@@ -11,7 +11,7 @@
          "catcher",
          "waifu/husbando Catcher"
       ],   
-   "repository": "https://github.com/SleepyShuyaaa/character_catcher",
+   "repository": "https://github.com/SleepyShuyaaa/character_catcher-",
    "stack": "heroku-22",
    "addons": [
       {
