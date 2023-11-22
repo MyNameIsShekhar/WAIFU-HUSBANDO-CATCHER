@@ -71,3 +71,7 @@ async def upload(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text(f'DONE.. CHEACK IN @{CHARA_CHANNEL_ID}')
     except Exception as e:
         await update.message.reply_text(f'Unsuccessfully uploaded. Error: {str(e)}')
+
+                
+UPLOAD_HANDLER = CommandHandler('upload', upload)
+application.add_handler(UPLOAD_HANDLER)
