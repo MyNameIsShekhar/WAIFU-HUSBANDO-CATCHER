@@ -1,7 +1,7 @@
 {
-      "name": "Character_Catcher",
-      "description": "Character Husbando/waifus Catcher Group Bot.",
-      "logo": "https://telegra.ph/file/14d693b36bd6f1307704a.jpg",
+      "name": "Character Catcher",
+      "description": "Character Husbando waifus Catcher Group Bot.",
+      "logo":"https://graph.org/file/ea71fea282ea889a52c8f.jpg",
       "keywords": [
          "telegram",
          "modular",
@@ -10,7 +10,6 @@
          "Character catcher",
          "waifu bot",
          "husbando"
-         "harem bot"
       ],   
    "repository": "https://github.com/SleepyShuyaaa/character_catcher-",
    "stack": "heroku-22",
