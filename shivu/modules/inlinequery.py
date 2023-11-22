@@ -1,5 +1,8 @@
 from telegram.ext import InlineQueryHandler,CallbackQueryHandler, ChosenInlineResultHandler
 from shivu import application 
+from shivu import user_collection
+
+
 
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     from collections import Counter
@@ -11,10 +14,10 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
         user = await user_collection.find_one({'id': int(query)})
 
         if user:
-            # Get a list of all character IDs for the user
+            
             character_ids = [character['id'] for character in user['characters']]
 
-            # Count the occurrences of each character ID
+            
             character_counts = Counter(character_ids)
 
             characters = list({v['id']:v for v in user['characters']}.values())[offset:offset+50]
