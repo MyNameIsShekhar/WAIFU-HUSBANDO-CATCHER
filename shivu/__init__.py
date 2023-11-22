@@ -21,6 +21,7 @@ TOKEN = os.getenv("TOKEN")
 mongo_url = os.getenv("MONGO_URL")
 PHOTO_URL = os.getenv("PHOTO_URL").split(',')
 SUPPORT_CHAT = os.getenv("SUPPORT_CHAT")
+CHARA_CHANNEL_ID = os.getenv("CHARA_CHANNEL_ID")
 
 
 application = Application.builder().token(TOKEN).build()
