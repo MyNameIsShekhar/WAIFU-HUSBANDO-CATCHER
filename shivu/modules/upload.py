@@ -24,13 +24,13 @@ async def get_next_sequence_number(sequence_name):
 
 async def upload(update: Update, context: CallbackContext) -> None:
     if str(update.effective_user.id) not in sudo_users:
-        await update.message.reply_text('You do not have permission to use this command.')
+        await update.message.reply_text('Ask My Owner...')
         return
 
     try:
         args = context.args
         if len(args) != 4:
-            await update.message.reply_text('Incorrect format. Please use: /upload img_url Character-Name Anime-Name Rarity')
+            await update.message.reply_text('Incorrect format... Please use: /upload img_url Character-Name Anime-Name Rarity')
             return
 
         character_name = args[1].replace('-', ' ').title()
@@ -39,7 +39,7 @@ async def upload(update: Update, context: CallbackContext) -> None:
         try:
             urllib.request.urlopen(args[0])
         except:
-            await update.message.reply_text('Invalid image URL.')
+            await update.message.reply_text('Invalid URL.')
             return
 
         rarity_map = {1: "⚪ Common", 2: "🟣 Rare", 3: "🟡 Legendary", 4: "🟢 Medium"}
@@ -70,32 +70,32 @@ async def upload(update: Update, context: CallbackContext) -> None:
         await collection.insert_one(character)
 
 
-        await update.message.reply_text('CHARACTER ADDED SUCCESSFULLY....')
+        await update.message.reply_text('CHARACTER ADDED....')
     except Exception as e:
         await update.message.reply_text(f'Unsuccessfully uploaded. Error: {str(e)}')
 
 async def delete(update: Update, context: CallbackContext) -> None:
     if str(update.effective_user.id) not in sudo_users:
-        await update.message.reply_text('You do not have permission to use this command.')
+        await update.message.reply_text('Ask my Owner to use this Command...')
         return
 
     try:
         args = context.args
         if len(args) != 1:
-            await update.message.reply_text('Incorrect format. Please use: /delete ID')
+            await update.message.reply_text('Incorrect format... Please use: /delete ID')
             return
 
-        # Delete character with given ID
+        
         character = await collection.find_one_and_delete({'id': args[0]})
 
         if character:
-            # Delete message from channel
+            
             await context.bot.delete_message(chat_id=CHARA_CHANNEL_ID, message_id=character['message_id'])
-            await update.message.reply_text('Successfully deleted.')
+            await update.message.reply_text('DONE')
         else:
             await update.message.reply_text('No character found with given ID.')
     except Exception as e:
-        await update.message.reply_text('Failed to delete character.')
+        await update.message.reply_text(f'{str(e)}')
                 
 UPLOAD_HANDLER = CommandHandler('upload', upload)
 application.add_handler(UPLOAD_HANDLER)
