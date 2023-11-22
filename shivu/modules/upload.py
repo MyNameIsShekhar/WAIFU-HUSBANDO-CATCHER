@@ -74,6 +74,28 @@ async def upload(update: Update, context: CallbackContext) -> None:
     except Exception as e:
         await update.message.reply_text(f'Unsuccessfully uploaded. Error: {str(e)}')
 
+async def delete(update: Update, context: CallbackContext) -> None:
+    if str(update.effective_user.id) not in sudo_users:
+        await update.message.reply_text('You do not have permission to use this command.')
+        return
+
+    try:
+        args = context.args
+        if len(args) != 1:
+            await update.message.reply_text('Incorrect format. Please use: /delete ID')
+            return
+
+        # Delete character with given ID
+        character = await collection.find_one_and_delete({'id': args[0]})
+
+        if character:
+            # Delete message from channel
+            await context.bot.delete_message(chat_id=chat_id, message_id=character['message_id'])
+            await update.message.reply_text('Successfully deleted.')
+        else:
+            await update.message.reply_text('No character found with given ID.')
+    except Exception as e:
+        await update.message.reply_text('Failed to delete character.')
                 
 UPLOAD_HANDLER = CommandHandler('upload', upload)
 application.add_handler(UPLOAD_HANDLER)
