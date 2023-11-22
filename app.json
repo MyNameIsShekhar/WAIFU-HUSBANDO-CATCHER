@@ -22,7 +22,7 @@
       }
    ],
    "env": {
-      "BOT_TOKEN": {
+      "TOKEN": {
          "description": "Your bot token. Get one from @BotFather",
          "required": true,
          "value": ""
@@ -43,7 +43,7 @@
          "required": true,
          "value": "-123" 
       },
-      "OWNER": {
+      "OWNER_ID": {
          "description": "Id of bot owner",
          "required": true,
          "value": "" 
