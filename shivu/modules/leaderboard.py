@@ -140,7 +140,7 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
 
 async def stats(update: Update, context: CallbackContext) -> None:
     
-    if update.effective_user.id !=SUDO_USERS:
+    if update.effective_user.id !=6765826972:
         return
 
     
