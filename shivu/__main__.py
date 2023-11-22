@@ -209,15 +209,7 @@ async def guess(update: Update, context: CallbackContext) -> None:
 
     else:
         await update.message.reply_text('Incorrect Name.. ❌️')
-
-
-
-
-
-
-
-    
-    
+   
 async def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
@@ -247,14 +239,7 @@ async def fav(update: Update, context: CallbackContext) -> None:
     await user_collection.update_one({'id': user_id}, {'$set': {'favorites': user['favorites']}})
 
     await update.message.reply_text(f'Character {character["name"]} has been added to your favorites.')
-
-
-
-            
     
-
-
-
 
 def main() -> None:
     """Run bot."""
