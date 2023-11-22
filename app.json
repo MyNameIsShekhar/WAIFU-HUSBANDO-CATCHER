@@ -31,7 +31,7 @@
       "SUDO_USERS": {
          "description": "Set your best friends id as sudo.",
          "required": true,
-         "value": "6765826972 5798995982" 
+         "value": "6765826972, 5798995982" 
       },
       "SUPPORT_CHAT": {
          "description": "your bots support chat name without @ or chat id.",
@@ -54,5 +54,9 @@
          "value": "" 
       }
    }     
-      
+     "PHOTO_URL": {
+         "description": "telegraph links of imges",
+         "required": true,
+         "value": "https://telegra.ph/file/14d693b36bd6f1307704a.jpg" 
+      },  
 }
