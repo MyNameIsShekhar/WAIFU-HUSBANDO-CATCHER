@@ -140,7 +140,8 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
 
 async def stats(update: Update, context: CallbackContext) -> None:
     
-    if update.effective_user.id !=6765826972:
+    if str(update.effective_user.id) not in OWNER_ID:
+        update.message.reply_text('only For Sudo users...')
         return
 
     
