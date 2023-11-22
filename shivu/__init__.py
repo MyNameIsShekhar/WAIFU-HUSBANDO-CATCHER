@@ -3,6 +3,8 @@ import os
 import sys
 import telegram.ext as tg
 import logging 
+from shivu.config import Development as Config
+
 from motor.motor_asyncio import AsyncIOMotorClient 
 from telegram.ext import Application
 
@@ -39,8 +41,7 @@ if ENV:
         raise Exception("Your OWNER_ID env variable is not a valid integer.")
 
 else:
-    from shivu.config import Development as Config
-   
+    
     TOKEN = Config.TOKEN
     SUPPORT_CHAT = Config.SUPPORT_CHAT
     MONGO_DB_URI = Config.MONGO_DB_URI
