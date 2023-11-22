@@ -47,7 +47,7 @@ else:
     MONGO_DB_URI = Config.MONGO_DB_URI
     GROUP_ID = Config.GROUP_ID
     SUDO_USERS = Config.SUDO_USERS
-    OWNER_ID == Config.OWNER_ID
+    
 
 
 application = Application.builder().token(TOKEN).build()
