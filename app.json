@@ -48,7 +48,7 @@
          "required": true,
          "value": "" 
       },
-     "MONGO_DB_URI": {
+     "MONGO_URI": {
          "description": "Add a Mongodb url to store data",
          "required": true,
          "value": "" 
