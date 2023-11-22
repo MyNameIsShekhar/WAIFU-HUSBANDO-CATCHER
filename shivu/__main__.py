@@ -217,7 +217,7 @@ async def guess(update: Update, context: CallbackContext) -> None:
             })
 
 
-        await update.message.reply_text(f'<b>Congratulations 🪼! <a href="tg://user?id={user_id}">{update.effective_user.first_name}</a> \nYou Got New Character 💮</b> \n\n<b>👒 Character name: {last_characters[chat_id]["name"]}</b> \n<b>♋ Anime: {last_characters[chat_id]["anime"]}</b> \n<b>🫧 Rairty: {last_characters[chat_id]["rarity"]}</b>\n\n<b>This character has been added to your harem now do /collection to check your new character</b>', parse_mode='HTML')
+        await update.message.reply_text(f'<b><a href="tg://user?id={user_id}">{update.effective_user.first_name}</a></b> \nYou Got New Character \n\nCharacter name: {last_characters[chat_id]["name"]} \nAnime: {last_characters[chat_id]["anime"]} \nRairty: {last_characters[chat_id]["rarity"]}\n\nThis character has been added to your harem now do /collection to check your new character', parse_mode='HTML')
 
     else:
         await update.message.reply_text('Incorrect guess. Try again.')
