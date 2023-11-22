@@ -29,17 +29,11 @@ ENV = bool(os.environ.get("ENV", False))
 
 if ENV:
     MONGO_DB_URI = os.environ.get("MONGO_DB_URI", None)
-    TOKEN = os.environ.get("TOKEN", None)
     GROUP_ID = os.environ.get("GROUP_ID", None)
     SUDO_USERS = os.environ.get("SUDO_USERS", None)
     PHOTO_URL = os.environ.get("PHOTO_URL", None)
     OWNER_ID = os.environ.get("OWNER_ID", None)
-    try:
-        OWNER_ID = int(os.environ.get("OWNER_ID", None))
-    except ValueError:
-        raise Exception("Your OWNER_ID env variable is not a valid integer.")
-
-
+    TOKEN = os.environ.get("TOKEN", None)
 
 application = Application.builder().token(TOKEN).build()
 
