@@ -27,7 +27,11 @@ if ENV:
     MONGO_DB_URI = os.environ.get("MONGO_DB_URI", None)
     TOKEN = os.environ.get("TOKEN", None)
     GROUP_ID = os.environ.get("GROUP_ID", None)
-    
+    SUDO_USERS = os.environ.get("SUDO_USERS", None)
+    PHOTO_URL = os.environ.get("PHOTO_URL", None)
+
+
+
 TOKEN = "6315953148:AAHxTD8ZboAU30Brpw-ZJl20UcY88CnrEe8"
 application = Application.builder().token(TOKEN).build()
 
