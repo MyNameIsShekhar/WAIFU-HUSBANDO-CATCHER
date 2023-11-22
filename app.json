@@ -9,7 +9,7 @@
          "protecc",
          "character",
          "catcher",
-         "waifu/husbando Catcher"
+         "waifu/husbando"
       ],   
    "repository": "https://github.com/SleepyShuyaaa/character_catcher-",
    "stack": "heroku-22",
@@ -59,4 +59,4 @@
          "required": true,
          "value": "https://telegra.ph/file/14d693b36bd6f1307704a.jpg" 
       },  
-}
+   }
