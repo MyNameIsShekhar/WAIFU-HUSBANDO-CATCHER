@@ -68,7 +68,9 @@ async def upload(update: Update, context: CallbackContext) -> None:
         character['message_id'] = message.message_id
         await collection.insert_one(character)
 
-        await update.message.reply_text(f'DONE.. CHEACK IN @{CHARA_CHANNEL_ID}')
+        # Create a button that links to the message in the channel
+        button = InlineKeyboardMarkup([[InlineKeyboardButton("View Character", url=f"https://t.me/c/1915956222/{message.message_id}")]])
+        await update.message.reply_text('CHARACTER ADDED SUCCESSFULLY', reply_markup=button)
     except Exception as e:
         await update.message.reply_text(f'Unsuccessfully uploaded. Error: {str(e)}')
 
