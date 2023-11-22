@@ -40,7 +40,7 @@ if ENV:
         raise Exception("Your OWNER_ID env variable is not a valid integer.")
 
 else:
-    from FallenRobot.config import Development as Config
+    from shivu.config import Development as Config
 
     TOKEN = Config.TOKEN
     SUPPORT_CHAT = Config.SUPPORT_CHAT
