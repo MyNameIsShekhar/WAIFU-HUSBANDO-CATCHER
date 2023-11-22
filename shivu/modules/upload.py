@@ -6,7 +6,7 @@ from telegram.ext import InlineQueryHandler,CallbackQueryHandler, ChosenInlineRe
 import motor.motor_asyncio
 import urllib.request
 import random
-from shivu import application, sudo_users, collection 
+from shivu import application, sudo_users, collection, db
 
 
 async def get_next_sequence_number(sequence_name):
