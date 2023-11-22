@@ -135,7 +135,7 @@ async def update(update: Update, context: CallbackContext) -> None:
 
         await collection.find_one_and_update({'id': args[0]}, {'$set': {args[1]: new_value}})
 
-        # If the image URL is updated, delete the old message and send a new one
+        
         if args[1] == 'img_url':
             await context.bot.delete_message(chat_id=CHARA_CHANNEL_ID, message_id=character['message_id'])
             message = await context.bot.send_photo(
@@ -147,7 +147,7 @@ async def update(update: Update, context: CallbackContext) -> None:
             character['message_id'] = message.message_id
             await collection.find_one_and_update({'id': args[0]}, {'$set': {'message_id': message.message_id}})
         else:
-            # Update message in channel
+            
             await context.bot.edit_message_caption(
                 chat_id=CHARA_CHANNEL_ID,
                 message_id=character['message_id'],
@@ -155,13 +155,13 @@ async def update(update: Update, context: CallbackContext) -> None:
                 parse_mode='HTML'
             )
 
-        await update.message.reply_text('Updated Done..')
+        await update.message.reply_text('Updated Done in Database.... But sometimes.. It Takes Time to edit Caption in Your Channel..So wait..')
     except Exception as e:
         await update.message.reply_text(f'Error: {str(e)}')
 
-UPLOAD_HANDLER = CommandHandler('upload', upload)
+UPLOAD_HANDLER = CommandHandler('upload', upload, block=False)
 application.add_handler(UPLOAD_HANDLER)
-DELETE_HANDLER = CommandHandler('delete', delete)
+DELETE_HANDLER = CommandHandler('delete', delete, block=False)
 application.add_handler(DELETE_HANDLER)
-UPDATE_HANDLER = CommandHandler('update', update)
+UPDATE_HANDLER = CommandHandler('update', update, block=False)
 application.add_handler(UPDATE_HANDLER)
