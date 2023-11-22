@@ -42,7 +42,7 @@ if ENV:
 else:
     from shivu.config import Development as Config
 
-    TOKEN = Config.TOKEN
+    
     SUPPORT_CHAT = Config.SUPPORT_CHAT
     MONGO_DB_URI = Config.MONGO_DB_URI
     GROUP_ID = Config.GROUP_ID
