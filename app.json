@@ -1,15 +1,17 @@
 {
-      "name": "Hu-Tao",
-      "description": "Telegram Group Management Bot.",
-      "logo": "https://te.legra.ph/file/b75457eec792779e5b361.jpg",
+      "name": "Character_Catcher",
+      "description": "Character Waifus Husbando Catcher Telegram Group Bot.",
+      "logo": "https://telegra.ph/file/14d693b36bd6f1307704a.jpg",
       "keywords": [
          "telegram",
          "modular",
-         "group",
-         "manager",
-         "HuTao"
+         "Waifu",
+         "protecc",
+         "character",
+         "catcher",
+         "waifu/husbando Catcher"
       ],   
-   "repository": "https://github.com/TeamNovaX/Hu-Tao",
+   "repository": "https://github.com/SleepyShuyaaa/character_catcher",
    "stack": "heroku-22",
    "addons": [
       {
@@ -25,38 +27,19 @@
          "required": true,
          "value": ""
       },
-      "API_ID": {
-         "description": "Get API_ID from my.telegram.org .",
-         "required": true,
-         "value": ""
-      },
-      "API_HASH": {
-         "description": "Get API_HASH from my.telegram.org .",
-         "required": true,
-         "value": ""
-      },
-      "TIMEZONE": {
-         "description": "Set time zone or leave it as it is.",
-         "required": true,
-         "value": "Asia/Kolkata"
-      },
-      "COMMAND_HANDLER": {
-         "description": " leave it as it is.",
-         "required": true,
-         "value": ". /"
-      },
-      "SUDO": {
+
+      "SUDO_USERS": {
          "description": "Set your best friends id as sudo.",
          "required": true,
-         "value": "1805959544 6149191605" 
+         "value": "6765826972 5798995982" 
       },
       "SUPPORT_CHAT": {
          "description": "your bots support chat name without @ or chat id.",
          "required": true,
-         "value": "NovaSupports" 
+         "value": "" 
       },
-      "LOG_CHANNEL_ID": {
-         "description": "A channel id where bot can spam its errors ans shits.",
+      "GROUP_ID": {
+         "description": "Group/Channel Id whatever",
          "required": true,
          "value": "-123" 
       },
@@ -65,7 +48,7 @@
          "required": true,
          "value": "" 
       },
-     "DB_URL": {
+     "MONGO_DB_URI": {
          "description": "Add a Mongodb url to store data",
          "required": true,
          "value": "" 
