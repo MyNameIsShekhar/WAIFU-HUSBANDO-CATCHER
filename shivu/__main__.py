@@ -126,13 +126,10 @@ async def send_image(update: Update, context: CallbackContext) -> None:
     await context.bot.send_photo(
         chat_id=chat_id,
         photo=character['img_url'],
-        caption="""***A New Character Has Just Appeared Use /guess [name]! 👒
-And Add This Character In Your Collection***""",
+        caption="""A New Character Has Just Appeared Use /guess [name]
+And Add This Character In Your Collection""",
         parse_mode='Markdown')
     
-
-
-
 async def guess(update: Update, context: CallbackContext) -> None:
     chat_id = update.effective_chat.id
     user_id = update.effective_user.id
@@ -150,12 +147,10 @@ async def guess(update: Update, context: CallbackContext) -> None:
         await update.message.reply_text("You can't use '&' in your guess.")
         return
         
-    # Split the character's name into parts by space
+    
     name_parts = last_characters[chat_id]['name'].lower().split()
 
-    # Check if the guess is the full name of the character in any order, or any part of the name exactly
     if sorted(name_parts) == sorted(guess.split()) or any(part == guess for part in name_parts):
-        # Rest of the function...
 
     
         first_correct_guesses[chat_id] = user_id
