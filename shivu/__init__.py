@@ -21,7 +21,7 @@ GROUP_ID = os.getnv("GROUP_ID")
 TOKEN = os.getenv("TOKEN")
 mongo_url = os.getenv("MONGO_URL")
 PHOTO_URL = os.getenv("PHOTO_URL").split(',')
-SUPPORT_CHAT = os.getnv("SUPPORT_CHAT")
+SUPPORT_CHAT = os.getenv("SUPPORT_CHAT")
 
 
 application = Application.builder().token(TOKEN).build()
