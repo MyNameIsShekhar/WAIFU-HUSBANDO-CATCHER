@@ -15,7 +15,7 @@ logging.getLogger('httpx').setLevel(logging.WARNING)
 logging.getLogger("pyrate_limiter").setLevel(logging.ERROR)
 LOGGER = logging.getLogger(__name__)
 
-OWNER_ID = os.getnv("OWNER_ID")
+OWNER_ID = os.getenv("OWNER_ID")
 sudo_users = os.getenv("SUDO_USERS").split(',')
 GROUP_ID = os.getnv("GROUP_ID")
 TOKEN = os.getenv("TOKEN")
