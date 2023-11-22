@@ -22,26 +22,14 @@ from shivu.modules import ALL_MODULES
 from shivu import application 
 from shivu import db, collection, top_global_groups_collection, group_user_totals_collection, user_collection, user_totals_collection
 
-
-
-
-
-
-
-
-
 locks = {}
 message_counters = {}
 spam_counters = {}
-
 last_characters = {}
-
 sent_characters = {}
-
-
 first_correct_guesses = {}
-
 message_counts = {}
+
 
 for module_name in ALL_MODULES:
     imported_module = importlib.import_module("shivu.modules." + module_name)
@@ -227,56 +215,7 @@ async def guess(update: Update, context: CallbackContext) -> None:
 
 
 
-async def inlinequery(update: Update, context: CallbackContext) -> None:
-    from collections import Counter
 
-    query = update.inline_query.query
-    offset = int(update.inline_query.offset) if update.inline_query.offset else 0
-
-    if query.isdigit():
-        user = await user_collection.find_one({'id': int(query)})
-
-        if user:
-            # Get a list of all character IDs for the user
-            character_ids = [character['id'] for character in user['characters']]
-
-            # Count the occurrences of each character ID
-            character_counts = Counter(character_ids)
-
-            characters = list({v['id']:v for v in user['characters']}.values())[offset:offset+50]
-            if len(characters) > 50:
-                characters = characters[:50]
-                next_offset = str(offset + 50)
-            else:
-                next_offset = str(offset + len(characters))
-
-            results = []
-            for character in characters:
-                anime_characters_guessed = sum(c['anime'] == character['anime'] for c in user['characters'])
-                total_anime_characters = await collection.count_documents({'anime': character['anime']})
-
-                rarity = character.get('rarity', "Don't have rarity.. ")
-
-                count = character_counts[character['id']]
-
-                results.append(
-                    InlineQueryResultPhoto(
-                        thumbnail_url=character['img_url'],
-                        id=f"{character['id']}_{time.time()}",
-                        photo_url=character['img_url'],
-                        caption=f"<b><a href='tg://user?id={user['id']}'>{user.get('first_name', user['id'])}</a>'s Character</b>\n\n🌸: <b>{character['name']} (x{count})</b>\n🏖️: <b>{character['anime']} ({anime_characters_guessed}/{total_anime_characters})</b>\n<b>{rarity}</b>\n\n🆔: <b>{character['id']}</b> ",
-                        parse_mode='HTML'
-                    )
-                )
-
-            await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
-        else:
-            await update.inline_query.answer([InlineQueryResultArticle(
-                id='notfound', 
-                title="User not found", 
-                input_message_content=InputTextMessageContent("User not found")
-            )], cache_time=5)
-    
     
     
 async def fav(update: Update, context: CallbackContext) -> None:
@@ -322,18 +261,8 @@ def main() -> None:
     
     
     application.add_handler(CommandHandler(["guess", "protecc", "collect", "grab", "hunt"], guess, block=False))
-    application.add_handler(InlineQueryHandler(inlinequery, block=False))
     application.add_handler(CommandHandler("fav", fav, block=False))
-    
-    
-
-    
-    
-    
     application.add_handler(MessageHandler(filters.ALL, message_counter, block=False))
-    
-    
-
     application.run_polling(drop_pending_updates=True)
     
 if __name__ == "__main__":
