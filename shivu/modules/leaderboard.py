@@ -9,7 +9,7 @@ from telegram.ext import CallbackQueryHandler
 from pymongo import MongoClient, ReturnDocument
 import urllib.request
 from shivu import application 
-from shivu import db, collection, user_totals_collection, user_collection, top_global_groups_collection, top_global_groups_collection, group_user_totals_collection, photo_urls
+from shivu import db, collection, user_totals_collection, user_collection, top_global_groups_collection, top_global_groups_collection, group_user_totals_collection, photo_url
 import random
 import json
 import html
