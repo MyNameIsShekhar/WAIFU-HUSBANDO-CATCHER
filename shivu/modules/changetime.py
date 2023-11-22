@@ -3,7 +3,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandle
 from pymongo import MongoClient, ReturnDocument
 from motor.motor_asyncio import AsyncIOMotorClient 
 from shivu import application 
-from shivu import db, collection, user_totals_collection, user_collection, top_global_groups_collection, top_global_groups_collection, group_user_totals_collection, photo_urls
+from shivu import db, collection, user_totals_collection, user_collection, top_global_groups_collection, top_global_groups_collection, group_user_totals_collection
 
 async def change_time(update: Update, context: CallbackContext) -> None:
     
