@@ -3,7 +3,7 @@ from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineQu
 import asyncio
 from telegram import Update
 from shivu import application 
-from shivu import user_collection
+from shivu import user_collection, collection
 
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     from collections import Counter
