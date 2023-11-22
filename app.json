@@ -1,0 +1,75 @@
+{
+      "name": "Hu-Tao",
+      "description": "Telegram Group Management Bot.",
+      "logo": "https://te.legra.ph/file/b75457eec792779e5b361.jpg",
+      "keywords": [
+         "telegram",
+         "modular",
+         "group",
+         "manager",
+         "HuTao"
+      ],   
+   "repository": "https://github.com/TeamNovaX/Hu-Tao",
+   "stack": "heroku-22",
+   "addons": [
+      {
+         "options": {
+            "version": "12"
+         },
+         "plan": "heroku-postgresql"
+      }
+   ],
+   "env": {
+      "BOT_TOKEN": {
+         "description": "Your bot token. Get one from @BotFather",
+         "required": true,
+         "value": ""
+      },
+      "API_ID": {
+         "description": "Get API_ID from my.telegram.org .",
+         "required": true,
+         "value": ""
+      },
+      "API_HASH": {
+         "description": "Get API_HASH from my.telegram.org .",
+         "required": true,
+         "value": ""
+      },
+      "TIMEZONE": {
+         "description": "Set time zone or leave it as it is.",
+         "required": true,
+         "value": "Asia/Kolkata"
+      },
+      "COMMAND_HANDLER": {
+         "description": " leave it as it is.",
+         "required": true,
+         "value": ". /"
+      },
+      "SUDO": {
+         "description": "Set your best friends id as sudo.",
+         "required": true,
+         "value": "1805959544 6149191605" 
+      },
+      "SUPPORT_CHAT": {
+         "description": "your bots support chat name without @ or chat id.",
+         "required": true,
+         "value": "NovaSupports" 
+      },
+      "LOG_CHANNEL_ID": {
+         "description": "A channel id where bot can spam its errors ans shits.",
+         "required": true,
+         "value": "-123" 
+      },
+      "OWNER": {
+         "description": "Id of bot owner",
+         "required": true,
+         "value": "" 
+      },
+     "DB_URL": {
+         "description": "Add a Mongodb url to store data",
+         "required": true,
+         "value": "" 
+      }
+   }     
+      
+}
