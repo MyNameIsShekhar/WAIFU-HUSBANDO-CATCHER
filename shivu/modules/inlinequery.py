@@ -1,7 +1,7 @@
 from telegram.ext import InlineQueryHandler,CallbackQueryHandler, ChosenInlineResultHandler
 from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineQueryResultPhoto
 import asyncio
-from telegram import Update
+from telegram import Update, CallbackContext
 from shivu import application 
 from shivu import user_collection
 
