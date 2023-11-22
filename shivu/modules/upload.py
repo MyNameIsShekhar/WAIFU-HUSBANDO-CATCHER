@@ -99,3 +99,5 @@ async def delete(update: Update, context: CallbackContext) -> None:
                 
 UPLOAD_HANDLER = CommandHandler('upload', upload)
 application.add_handler(UPLOAD_HANDLER)
+DELETE_HANDLER = CommandHandler('delete', delete)
+application.add_handler(DELETE_HANDLER)
