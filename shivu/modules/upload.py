@@ -90,7 +90,7 @@ async def delete(update: Update, context: CallbackContext) -> None:
 
         if character:
             # Delete message from channel
-            await context.bot.delete_message(chat_id=chat_id, message_id=character['message_id'])
+            await context.bot.delete_message(chat_id=CHARA_CHANNEL_ID, message_id=character['message_id'])
             await update.message.reply_text('Successfully deleted.')
         else:
             await update.message.reply_text('No character found with given ID.')
