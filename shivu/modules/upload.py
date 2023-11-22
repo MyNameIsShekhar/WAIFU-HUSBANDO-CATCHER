@@ -59,7 +59,7 @@ async def upload(update: Update, context: CallbackContext) -> None:
         }
 
         message = await context.bot.send_photo(
-            chat_id='-1001915956222',
+            chat_id=CHARA_CHANNEL_ID,
             photo=args[0],
             caption=f'<b>Character Name:</b> {character_name}\n<b>Anime Name:</b> {anime}\n<b>Rarity:</b> {rarity}\n<b>ID:</b> {id}\nAdded by <a href="tg://user?id={update.effective_user.id}">{update.effective_user.first_name}</a>',
             parse_mode='HTML'
@@ -68,6 +68,6 @@ async def upload(update: Update, context: CallbackContext) -> None:
         character['message_id'] = message.message_id
         await collection.insert_one(character)
 
-        await update.message.reply_text('DONE.. CHEACK IN @characters_database')
+        await update.message.reply_text(f'DONE.. CHEACK IN @{CHARA_CHANNEL_ID}')
     except Exception as e:
         await update.message.reply_text(f'Unsuccessfully uploaded. Error: {str(e)}')
