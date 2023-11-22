@@ -53,7 +53,7 @@
          "required": true,
          "value": "" 
       }
-   }     
+        
      "PHOTO_URL": {
          "description": "telegraph links of imges",
          "required": true,
