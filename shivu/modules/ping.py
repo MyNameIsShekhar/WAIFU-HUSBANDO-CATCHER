@@ -4,7 +4,7 @@ from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandle
 
 from datetime import datetime, timedelta
 import time
-from shivu import application 
+from shivu import application, sudo_users
 
 async def ping(update: Update, context: CallbackContext) -> None:
     if str(update.effective_user.id) not in sudo_users:
