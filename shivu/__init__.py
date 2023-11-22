@@ -3,7 +3,6 @@ import os
 import sys
 import telegram.ext as tg
 import logging 
-from shivu.config import Development as Config
 from motor.motor_asyncio import AsyncIOMotorClient 
 from telegram.ext import Application
 
