@@ -1,15 +1,18 @@
 {
-      "name": "Hu-Tao",
-      "description": "Telegram Group Management Bot.",
-      "logo": "https://te.legra.ph/file/b75457eec792779e5b361.jpg",
+      "name": "Character_Catcher",
+      "description": "Character Husbando/waifus Catcher Group Bot.",
+      "logo": "https://telegra.ph/file/14d693b36bd6f1307704a.jpg",
       "keywords": [
          "telegram",
          "modular",
          "group",
          "manager",
-         "HuTao"
+         "Character catcher",
+         "waifu bot",
+         "husbando"
+         "harem bot"
       ],   
-   "repository": "https://github.com/TeamNovaX/Hu-Tao",
+   "repository": "https://github.com/SleepyShuyaaa/character_catcher-",
    "stack": "heroku-22",
    "addons": [
       {
@@ -20,52 +23,34 @@
       }
    ],
    "env": {
-      "BOT_TOKEN": {
+      "TOKEN": {
          "description": "Your bot token. Get one from @BotFather",
          "required": true,
          "value": ""
       },
-      "API_ID": {
-         "description": "Get API_ID from my.telegram.org .",
-         "required": true,
-         "value": ""
-      },
-      "API_HASH": {
-         "description": "Get API_HASH from my.telegram.org .",
-         "required": true,
-         "value": ""
-      },
-      "TIMEZONE": {
-         "description": "Set time zone or leave it as it is.",
-         "required": true,
-         "value": "Asia/Kolkata"
-      },
-      "COMMAND_HANDLER": {
+      
+      "GROUP_ID": {
          "description": " leave it as it is.",
          "required": true,
          "value": ". /"
       },
-      "SUDO": {
+      "SUDO_USER": {
          "description": "Set your best friends id as sudo.",
          "required": true,
-         "value": "1805959544 6149191605" 
+         "value": "6149191605, 6765826972" 
       },
       "SUPPORT_CHAT": {
          "description": "your bots support chat name without @ or chat id.",
          "required": true,
-         "value": "NovaSupports" 
+         "value": "lmao" 
       },
-      "LOG_CHANNEL_ID": {
-         "description": "A channel id where bot can spam its errors ans shits.",
-         "required": true,
-         "value": "-123" 
-      },
-      "OWNER": {
+      
+      "OWNER_ID": {
          "description": "Id of bot owner",
          "required": true,
          "value": "" 
       },
-     "DB_URL": {
+     "MONGO_URL": {
          "description": "Add a Mongodb url to store data",
          "required": true,
          "value": "" 
