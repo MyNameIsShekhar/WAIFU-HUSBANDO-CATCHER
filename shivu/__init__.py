@@ -39,15 +39,6 @@ if ENV:
     except ValueError:
         raise Exception("Your OWNER_ID env variable is not a valid integer.")
 
-else:
-    from shivu.config import Development as Config
-
-    
-    SUPPORT_CHAT = Config.SUPPORT_CHAT
-    MONGO_DB_URI = Config.MONGO_DB_URI
-    GROUP_ID = Config.GROUP_ID
-    SUDO_USERS = Config.SUDO_USERS
-    OWNER_ID= Config.OWNER_ID 
 
 
 application = Application.builder().token(TOKEN).build()
