@@ -1,8 +1,8 @@
 from telegram.ext import InlineQueryHandler,CallbackQueryHandler, ChosenInlineResultHandler
+from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineQueryResultPhoto
+import asyncio
 from shivu import application 
 from shivu import user_collection
-
-
 
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     from collections import Counter
