@@ -2,7 +2,7 @@ import os
 import telegram.ext as tg
 import logging  
 from telegram.ext import Application
-
+from motor.motor_asyncio import AsyncIOMotorClient
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
     handlers=[logging.FileHandler("log.txt"), logging.StreamHandler()],
@@ -24,4 +24,14 @@ SUPPORT_CHAT = os.getenv("SUPPORT_CHAT")
 
 
 application = Application.builder().token(TOKEN).build()
+
+client = AsyncIOMotorClient(mongo_url)
+db = client['Character_catcher']
+collection = db['anime_characters_lol']
+user_totals_collection = db['user_totals_lmaoooo']
+user_collection = db["user_collection_lmaoooo"]
+group_user_totals_collection = db['group_user_totalsssssss']
+top_global_groups_collection = db['top_global_groups']
+
+
 
