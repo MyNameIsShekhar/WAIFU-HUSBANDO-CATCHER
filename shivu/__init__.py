@@ -1,5 +1,6 @@
 import os
 import telegram.ext as tg
+from pyrogram import Client
 import logging  
 from telegram.ext import Application
 from motor.motor_asyncio import AsyncIOMotorClient
