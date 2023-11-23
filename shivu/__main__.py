@@ -20,7 +20,7 @@ import html
 from collections import Counter
 from shivu.modules import ALL_MODULES
 from shivu import application 
-from shivu import db, collection, top_global_groups_collection, group_user_totals_collection, user_collection, user_totals_collection
+from shivu import db, collection, top_global_groups_collection, group_user_totals_collection, user_collection, user_totals_collection, shivuu
 
 locks = {}
 message_counters = {}
@@ -251,5 +251,6 @@ def main() -> None:
     application.run_polling(drop_pending_updates=True)
     
 if __name__ == "__main__":
+    shivuu.run()
     main()
     
