@@ -29,11 +29,11 @@
       },
       
       "GROUP_ID": {
-         "description": " Support Group's ID",
+         "description": " Support Group's ID And Please Add ur Bot in That group.. with administrator rights",
          "required": true,
          "value": "-100"
       },
-      "SUDO_USER": {
+      "SUDO_USERS": {
          "description": "Set your best friends id as sudo.",
          "required": true,
          "value": "6149191605 6765826972" 
@@ -64,11 +64,7 @@
          "required": true,
          "value": "" 
      },
-      "API_ID": {
-         "description": "Your Api id... Don't know what is this.. then searchon Google",
-         "required": true,
-         "value": "" 
-     },
+      
       "API_ID": {
          "description": "Your Api id... Don't know what is this.. then searchon Google",
          "required": true,
