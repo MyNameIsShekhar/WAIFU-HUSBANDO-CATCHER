@@ -93,3 +93,4 @@ async def on_callback_query(update: Update, context: CallbackContext) -> None:
 
 GIFT_HANDLER = CommandHandler('gift', gift)
 application.add_handler(GIFT_HANDLER)
+application.add_handler(CallbackQueryHandler(on_callback_query, pattern='^confirm_gift$'))
