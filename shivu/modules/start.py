@@ -8,7 +8,7 @@ from shivu import application
 from shivu import db, GROUP_ID, OWNER_ID 
 from shivu import PHOTO_URL, SUPPORT_CHAT, UPDATE_CHAT 
 import random
-collection = db['total_pm_usersss']
+collection = db['total_pm_users']
 
 
 async def start(update: Update, context: CallbackContext) -> None:
