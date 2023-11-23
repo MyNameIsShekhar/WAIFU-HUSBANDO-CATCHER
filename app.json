@@ -53,31 +53,31 @@
          "description": "Add a Mongodb url to store data",
          "required": true,
          "value": ""
-      }
+      },
       "PHOTO_URL": {
          "description": "image Urls.. For start.. Harem.. and top.. etc commands",
          "required": true,
          "value": ""
-      }
+      },
       "UPDATE_CHAT": {
          "description": "Update Channel Username Without @",
          "required": true,
          "value": "" 
-     }
+     },
       "API_ID": {
          "description": "Your Api id... Don't know what is this.. then searchon Google",
          "required": true,
          "value": "" 
-     }
+     },
       "API_ID": {
          "description": "Your Api id... Don't know what is this.. then searchon Google",
          "required": true,
          "value": "" 
-      }
+      },
       "API_HASH": {
          "description": "Your Api HASH... Don't know what is this.. then searchon Google",
          "required": true,
          "value": "" 
-      }
-   }    
+       }
+    }    
 }
