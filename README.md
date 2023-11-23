@@ -5,7 +5,6 @@
 
 
 ## USER COMMANDS
-
 - `/guess`
 - `/fav`
 - `/trade`
@@ -15,13 +14,13 @@
 - `/top`
 - `/ctop`
 - `/changetime`
-
+  
 ## SUDO USER COMMANDS..
 - `/upload`
 - `/delete`
 - `/update`
 
-## OWMER COMMANDS
+## OWNER COMMANDS
 - `/ping`
 - `/broadcast `
 - `/stats`
