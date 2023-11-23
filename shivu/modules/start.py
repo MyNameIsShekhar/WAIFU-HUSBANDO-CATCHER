@@ -102,6 +102,6 @@ async def button(update: Update, context: CallbackContext) -> None:
         
         await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=caption, reply_markup=reply_markup, parse_mode='markdown')
 
-application.add_handler(CallbackQueryHandler(button, pattern='^help$|^back$'))
-start_handler = CommandHandler('start', start)
+application.add_handler(CallbackQueryHandler(button, pattern='^help$|^back$', block=False))
+start_handler = CommandHandler('start', start, block=False)
 application.add_handler(start_handler)
