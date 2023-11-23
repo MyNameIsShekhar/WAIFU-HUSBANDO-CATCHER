@@ -6,6 +6,7 @@ from pyrogram.types import InlineQueryResultPhoto, InputTextMessageContent
 from collections import Counter
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pyrogram import enums 
+from shivu import db, collection, top_global_groups_collection, group_user_totals_collection, user_collection, user_totals_collection
 from shivu import shivuu
 
 # This dictionary will hold the trade offers until they are confirmed or cancelled
