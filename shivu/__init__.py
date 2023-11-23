@@ -25,6 +25,7 @@ SUPPORT_CHAT = os.getenv("SUPPORT_CHAT")
 CHARA_CHANNEL_ID = os.getenv("CHARA_CHANNEL_ID")
 API_HASH = os.getenv("API_HASH")
 API_ID = os.getenv("API_ID")
+UPDATE_CHAT = os.getenv("UPDATE_CHAT")
 
 application = Application.builder().token(TOKEN).build()
 shivuu = Client(
