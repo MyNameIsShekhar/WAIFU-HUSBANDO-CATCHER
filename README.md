@@ -13,10 +13,17 @@
 
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif">
 
-# WORKING COMMANDS
-<h4> /upload [img_url] [character-name] [anime-name] [rarity]
-/delete [character_id]
-/update [character_id] [variable that u want to update] [new_value]
+## Total Commands
+
+- `/guess`: To guess character (only works in group)
+- `/fav`: Add your favorite character
+- `/trade`: To trade characters
+- `/gift`: Give any character from your collection to another user (only works in groups)
+- `/collection`: To see your collection
+- `/topgroups`: See top groups where people guess the most
+- `/top`: See top users
+- `/ctop`: See your chat top
+- `/changetime`: Change character appearance time (only works in groups)
 
 
 <p align="center">
