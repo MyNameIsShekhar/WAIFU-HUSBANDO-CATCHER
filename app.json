@@ -74,7 +74,7 @@
          "required": true,
          "value": "" 
       }
-       "API_HASH": {
+      "API_HASH": {
          "description": "Your Api HASH... Don't know what is this.. then searchon Google",
          "required": true,
          "value": "" 
