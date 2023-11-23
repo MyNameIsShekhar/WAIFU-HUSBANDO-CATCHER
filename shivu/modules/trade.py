@@ -6,23 +6,12 @@ from pyrogram.types import InlineQueryResultPhoto, InputTextMessageContent
 from collections import Counter
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pyrogram import enums
+from shivu import db, collection, top_global_groups_collection, group_user_totals_collection, user_collection, user_totals_collection
 from shivu import shivuu
 
 
 
-client = AsyncIOMotorClient('mongodb+srv://shuyaashivu:9fcc60263a946ef550d11406667404fa@cluster0.ikub9lo.mongodb.net/?retryWrites=true&w=majority')
-db = client['Character_catcher']
-collection = db['anime_characters_lol']
 
-
-user_totals_collection = db['user_totals_lmaoooo']
-user_collection = db["user_collection_lmaoooo"]
-
-group_user_totals_collection = db['group_user_totalsssssss']
-top_global_groups_collection = db['top_global_groups']
-total_pm_users = db['total_pm_userss']
-
-# This dictionary will hold the trade offers until they are confirmed or cancelled
 pending_trades = {}
 
 
