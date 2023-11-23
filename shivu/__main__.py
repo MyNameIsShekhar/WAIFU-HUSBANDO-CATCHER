@@ -248,6 +248,66 @@ async def fav(update: Update, context: CallbackContext) -> None:
 
     await update.message.reply_text(f'Character {character["name"]} has been added to your favorites.')
     
+pending_trades = {}
+
+
+@shivuu.on_message(filters.command("trade"))
+async def trade(client, message):
+    sender_id = message.from_user.id
+
+    if not message.reply_to_message:
+        await message.reply_text("You need to reply to a user's message to trade a character!")
+        return
+
+    receiver_id = message.reply_to_message.from_user.id
+
+    if sender_id == receiver_id:
+        await message.reply_text("You can't trade a character with yourself!")
+        return
+
+    if len(message.command) != 3:
+        await message.reply_text("You need to provide two character IDs!")
+        return
+
+    sender_character_id, receiver_character_id = message.command[1], message.command[2]
+
+    sender = await user_collection.find_one({'id': sender_id})
+    receiver = await user_collection.find_one({'id': receiver_id})
+
+    sender_character = next((character for character in sender['characters'] if character['id'] == sender_character_id), None)
+    receiver_character = next((character for character in receiver['characters'] if character['id'] == receiver_character_id), None)
+
+    if not sender_character:
+        await message.reply_text("You don't have the character you're trying to trade!")
+        return
+
+    if not receiver_character:
+        await message.reply_text("The other user doesn't have the character they're trying to trade!")
+        return
+
+    # Rest of your code...
+
+
+
+
+    if len(message.command) != 3:
+        await message.reply_text("/trade [Your Character ID] [Other User Character ID]!")
+        return
+
+    sender_character_id, receiver_character_id = message.command[1], message.command[2]
+
+    # Add the trade offer to the pending trades
+    pending_trades[(sender_id, receiver_id)] = (sender_character_id, receiver_character_id)
+
+    # Create a confirmation button
+    keyboard = InlineKeyboardMarkup(
+        [
+            [InlineKeyboardButton("Confirm Trade", callback_data="confirm_trade")],
+            [InlineKeyboardButton("Cancel Trade", callback_data="cancel_trade")]
+        ]
+    )
+
+    await message.reply_text(f"{message.reply_to_message.from_user.mention}, do you accept this trade?", reply_markup=keyboard)
 
 def main() -> None:
     """Run bot."""
