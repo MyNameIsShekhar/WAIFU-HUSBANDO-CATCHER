@@ -2,7 +2,6 @@ import os
 import telegram.ext as tg
 import logging  
 from telegram.ext import Application
-from pyrogram import Client
 from motor.motor_asyncio import AsyncIOMotorClient
 logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
@@ -26,12 +25,6 @@ CHARA_CHANNEL_ID = os.getenv("CHARA_CHANNEL_ID")
 
 
 application = Application.builder().token(TOKEN).build()
-shivuu = Client(
-    "lmao",
-    api_id="24427150",
-    api_hash="9fcc60263a946ef550d11406667404fa",
-    bot_token=TOKEN,
-    )
 
 client = AsyncIOMotorClient(mongo_url)
 db = client['Character_catcher']
