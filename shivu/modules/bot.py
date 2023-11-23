@@ -5,9 +5,10 @@ from pyrogram import Client, filters
 from pyrogram.types import InlineQueryResultPhoto, InputTextMessageContent
 from collections import Counter
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
-from pyrogram import enums 
+from pyrogram import enums
+from shivu import TOKEN
 
-TOKEN = "6420751168:AAG63ZLO8kMgMa6SZCQWjJV0-onZqVsGfsI"
+
 shivuu = Client(
     "lmao",
     api_id="24427150",
