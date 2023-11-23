@@ -6,7 +6,7 @@ from pyrogram.types import InlineQueryResultPhoto, InputTextMessageContent
 from collections import Counter
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pyrogram import enums
-
+from shivu import shivuu
 
 
 
