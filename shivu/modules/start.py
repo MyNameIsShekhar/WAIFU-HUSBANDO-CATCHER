@@ -6,7 +6,7 @@ from telegram.ext import MessageHandler, filters
 from telegram.ext import CommandHandler
 from shivu import application 
 from shivu import db, GROUP_ID, OWNER_ID 
-from shivu import PHOTO_URL
+from shivu import PHOTO_URL, SUPPORT_CHAT 
 import random
 collection = db['total_pm_usersss']
 
@@ -95,7 +95,7 @@ async def button(update: Update, context: CallbackContext) -> None:
         keyboard = [
             [InlineKeyboardButton("Add Me", url=f'http://t.me/Collect_emAll_Bot?startgroup=new')],
             [InlineKeyboardButton("Help", callback_data='help'),
-             InlineKeyboardButton("Support", url=f'https://t.me/collect_em_all')],
+             InlineKeyboardButton("Support", url=f'https://t.me/{SUPPORT_CHAT}')],
             [InlineKeyboardButton("Updates", url=f'https://t.me/CollectEmAllUpdates')],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
