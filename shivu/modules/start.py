@@ -6,7 +6,7 @@ from telegram.ext import MessageHandler, filters
 from telegram.ext import CommandHandler
 from shivu import application 
 from shivu import db, GROUP_ID, OWNER_ID 
-from shivu import PHOTO_URL, SUPPORT_CHAT 
+from shivu import PHOTO_URL, SUPPORT_CHAT, UPDATE_CHAT 
 import random
 collection = db['total_pm_usersss']
 
@@ -42,8 +42,8 @@ async def start(update: Update, context: CallbackContext) -> None:
         keyboard = [
             [InlineKeyboardButton("Add Me", url=f'http://t.me/Collect_emAll_Bot?startgroup=new')],
             [InlineKeyboardButton("Help", callback_data='help'),
-             InlineKeyboardButton("Support", url=f'https://t.me/collect_em_all')],
-            [InlineKeyboardButton("Updates", url=f'https://t.me/CollectEmAllUpdates')],
+             InlineKeyboardButton("Support", url=f'https://t.me/{SUPPORT_CHAT}')],
+            [InlineKeyboardButton("Updates", url=f'https://t.me/{UPDATE_CHAT}')],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         photo_url = random.choice(PHOTO_URL)
@@ -55,7 +55,7 @@ async def start(update: Update, context: CallbackContext) -> None:
         keyboard = [
             
             [InlineKeyboardButton("Help", callback_data='help'),
-             InlineKeyboardButton("Support", url=f'https://t.me/collect_em_all')],
+             InlineKeyboardButton("Support", url=f'https://t.me/{SUPPORT_CHAT}')],
             
         ]
         
@@ -96,7 +96,7 @@ async def button(update: Update, context: CallbackContext) -> None:
             [InlineKeyboardButton("Add Me", url=f'http://t.me/Collect_emAll_Bot?startgroup=new')],
             [InlineKeyboardButton("Help", callback_data='help'),
              InlineKeyboardButton("Support", url=f'https://t.me/{SUPPORT_CHAT}')],
-            [InlineKeyboardButton("Updates", url=f'https://t.me/CollectEmAllUpdates')],
+            [InlineKeyboardButton("Updates", url=f'https://t.me/{UPDATE_CHAT}')],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         
