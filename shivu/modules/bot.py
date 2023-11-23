@@ -6,17 +6,10 @@ from pyrogram.types import InlineQueryResultPhoto, InputTextMessageContent
 from collections import Counter
 from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
 from pyrogram import enums
-from shivu import TOKEN
 
 
-shivuu = Client(
-    "lmao",
-    api_id="24427150",
-    api_hash="9fcc60263a946ef550d11406667404fa",
-    bot_token=TOKEN,
-    
-    
-)
+
+
 client = AsyncIOMotorClient('mongodb+srv://shuyaashivu:9fcc60263a946ef550d11406667404fa@cluster0.ikub9lo.mongodb.net/?retryWrites=true&w=majority')
 db = client['Character_catcher']
 collection = db['anime_characters_lol']
@@ -230,4 +223,4 @@ async def on_callback_query(client, callback_query):
 
         await callback_query.message.edit_text(f"You have successfully gifted your character to [{gift['receiver_first_name']}](tg://user?id={receiver_id})!")
 
-shivuu.run()
+
