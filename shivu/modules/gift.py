@@ -74,7 +74,7 @@ async def on_callback_query(update: Update, context: CallbackContext) -> None:
 
         
         sender['characters'].remove(gift['character'])
-        await user_collection.update_one({'id': sender_id}, {'$set': {'characters': 
+        await user_collection.update_one({'id': sender_id}, {'$set': {'characters':sender['characters']}})
         if receiver:
             await user_collection.update_one({'id': receiver_id}, {'$push': {'characters': gift['character']}})
         else:
