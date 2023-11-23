@@ -49,7 +49,7 @@ async def trade(client, message):
         await message.reply_text("The other user doesn't have the character they're trying to trade!")
         return
 
-    # Rest of your code...
+
 
 
 
@@ -78,7 +78,7 @@ async def trade(client, message):
 async def on_callback_query(client, callback_query):
     receiver_id = callback_query.from_user.id
 
-    # Find the trade offer
+    
     for (sender_id, _receiver_id), (sender_character_id, receiver_character_id) in pending_trades.items():
         if _receiver_id == receiver_id:
             break
@@ -87,43 +87,44 @@ async def on_callback_query(client, callback_query):
         return
 
     if callback_query.data == "confirm_trade":
-        # Perform the trade
+        
         sender = await user_collection.find_one({'id': sender_id})
         receiver = await user_collection.find_one({'id': receiver_id})
 
         sender_character = next((character for character in sender['characters'] if character['id'] == sender_character_id), None)
         receiver_character = next((character for character in receiver['characters'] if character['id'] == receiver_character_id), None)
 
-        # Remove the characters from the users' collections
+        
+        
         sender['characters'].remove(sender_character)
         receiver['characters'].remove(receiver_character)
 
-        # Update the users' collections in the database
+        
         await user_collection.update_one({'id': sender_id}, {'$set': {'characters': sender['characters']}})
         await user_collection.update_one({'id': receiver_id}, {'$set': {'characters': receiver['characters']}})
 
-        # Add the characters to the other users' collections
+        
         sender['characters'].append(receiver_character)
         receiver['characters'].append(sender_character)
 
-        # Update the users' collections in the database again
+        
         await user_collection.update_one({'id': sender_id}, {'$set': {'characters': sender['characters']}})
         await user_collection.update_one({'id': receiver_id}, {'$set': {'characters': receiver['characters']}})
 
-        # Remove the trade offer from the pending trades
+        
         del pending_trades[(sender_id, receiver_id)]
 
         await callback_query.message.edit_text(f"You have successfully traded your character with {callback_query.message.reply_to_message.from_user.mention}!")
 
     elif callback_query.data == "cancel_trade":
-        # Remove the trade offer from the pending trades
+        
         del pending_trades[(sender_id, receiver_id)]
 
         await callback_query.message.edit_text("❌️ Sad Cancelled....")
 
 
 
-# This dictionary will hold the gift offers until they are confirmed or cancelled
+
 pending_gifts = {}
 
 
@@ -157,14 +158,14 @@ async def gift(client, message):
         await message.reply_text("You don't have this character in your collection!")
         return
 
-    # Add the gift offer to the pending gifts
+    
     pending_gifts[(sender_id, receiver_id)] = {
         'character': character,
         'receiver_username': receiver_username,
         'receiver_first_name': receiver_first_name
     }
 
-    # Create a confirmation button
+    
     keyboard = InlineKeyboardMarkup(
         [
             [InlineKeyboardButton("Confirm Gift", callback_data="confirm_gift")],
@@ -178,7 +179,7 @@ async def gift(client, message):
 async def on_callback_query(client, callback_query):
     sender_id = callback_query.from_user.id
 
-    # Find the gift offer
+    
     for (_sender_id, receiver_id), gift in pending_gifts.items():
         if _sender_id == sender_id:
             break
@@ -187,19 +188,19 @@ async def on_callback_query(client, callback_query):
         return
 
     if callback_query.data == "confirm_gift":
-        # Perform the gift
+        
         sender = await user_collection.find_one({'id': sender_id})
         receiver = await user_collection.find_one({'id': receiver_id})
 
-        # Remove the character from the sender's collection
+        
         sender['characters'].remove(gift['character'])
         await user_collection.update_one({'id': sender_id}, {'$set': {'characters': sender['characters']}})
 
-        # Add the character to the receiver's collection
+        
         if receiver:
             await user_collection.update_one({'id': receiver_id}, {'$push': {'characters': gift['character']}})
         else:
-            # Create new user document
+            
             await user_collection.insert_one({
                 'id': receiver_id,
                 'username': gift['receiver_username'],
@@ -207,7 +208,7 @@ async def on_callback_query(client, callback_query):
                 'characters': [gift['character']],
             })
 
-        # Remove the gift offer from the pending gifts
+        
         del pending_gifts[(sender_id, receiver_id)]
 
         await callback_query.message.edit_text(f"You have successfully gifted your character to [{gift['receiver_first_name']}](tg://user?id={receiver_id})!")
