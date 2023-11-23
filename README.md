@@ -6,7 +6,7 @@
 <!--Project Title Image-->
 
 <!--Project Title-->
-<h1 align="center"><b> CHARACTER CATCHER</b>
+<h1 align="center"><b>ᴄʜᴀʀᴀᴄᴛᴇʀs ᴄᴀᴛᴄʜᴇʀ</b>
 <!--Project Title-->
 
 
