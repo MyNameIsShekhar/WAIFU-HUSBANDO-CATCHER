@@ -29,14 +29,14 @@
       },
       
       "GROUP_ID": {
-         "description": " leave it as it is.",
+         "description": " Support Group's ID",
          "required": true,
-         "value": ". /"
+         "value": "-100"
       },
       "SUDO_USER": {
          "description": "Set your best friends id as sudo.",
          "required": true,
-         "value": "6149191605, 6765826972" 
+         "value": "6149191605 6765826972" 
       },
       "SUPPORT_CHAT": {
          "description": "your bots support chat name without @ or chat id.",
@@ -52,8 +52,32 @@
      "MONGO_URL": {
          "description": "Add a Mongodb url to store data",
          "required": true,
+         "value": ""
+      }
+      "PHOTO_URL": {
+         "description": "image Urls.. For start.. Harem.. and top.. etc commands",
+         "required": true,
+         "value": ""
+      }
+      "UPDATE_CHAT": {
+         "description": "Update Channel Username Without @",
+         "required": true,
+         "value": "" 
+     }
+      "API_ID": {
+         "description": "Your Api id... Don't know what is this.. then searchon Google",
+         "required": true,
+         "value": "" 
+     }
+      "API_ID": {
+         "description": "Your Api id... Don't know what is this.. then searchon Google",
+         "required": true,
          "value": "" 
       }
-   }     
-      
+       "API_HASH": {
+         "description": "Your Api HASH... Don't know what is this.. then searchon Google",
+         "required": true,
+         "value": "" 
+      }
+   }    
 }
