@@ -3,24 +3,18 @@
   <img src="https://graph.org/file/427df9b44c37f6d6a5eaa.jpg"/>
 </p>
 
-<!--Project Title Image-->
 
-<!--Project Title-->
-<h1 align="center"><b>ᴄʜᴀʀᴀᴄᴛᴇʀs ᴄᴀᴛᴄʜᴇʀ</b>
-<!--Project Title-->
+## USER Commands
 
-
-## Total Commands
-
-- `/guess`: To guess character (only works in group)
-- `/fav`: Add your favorite character
-- `/trade`: To trade characters
-- `/gift`: Give any character from your collection to another user (only works in groups)
-- `/collection`: To see your collection
-- `/topgroups`: See top groups where people guess the most
-- `/top`: See top users
-- `/ctop`: See your chat top
-- `/changetime`: Change character appearance time (only works in groups)
+- `/guess`
+- `/fav`
+- `/trade`
+- `/gift`
+- `/collection`
+- `/topgroups`
+- `/top`
+- `/ctop`
+- `/changetime`
 
 
 <p align="center">
