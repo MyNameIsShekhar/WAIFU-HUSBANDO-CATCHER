@@ -23,13 +23,14 @@ mongo_url = os.getenv("MONGO_URL")
 PHOTO_URL = os.getenv("PHOTO_URL").split(',')
 SUPPORT_CHAT = os.getenv("SUPPORT_CHAT")
 CHARA_CHANNEL_ID = os.getenv("CHARA_CHANNEL_ID")
-
+API_HASH = os.getenv("API_HASH")
+API_ID = os.getenv("API_ID")
 
 application = Application.builder().token(TOKEN).build()
 shivuu = Client(
     "lmao",
-    api_id="24427150",
-    api_hash="9fcc60263a946ef550d11406667404fa",
+    api_id=API_ID,
+    api_hash=API_HASH,
     bot_token=TOKEN,
     
     
