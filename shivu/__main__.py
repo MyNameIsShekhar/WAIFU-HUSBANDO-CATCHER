@@ -253,7 +253,6 @@ def main() -> None:
     application.run_polling(drop_pending_updates=True)
     
 if __name__ == "__main__":
-    LOGGER.info("Successfully loaded modules: " + str(ALL_MODULES))
     shivuu.start()
     main()
     
