@@ -19,6 +19,10 @@ pending_gifts = {}
 async def gift(client, message):
     sender_id = message.from_user.id
 
+    if sender_id not in sudo_users:
+        client.message.reply_text('You do not have permission to use this command.')
+        return
+
     if not message.reply_to_message:
         await message.reply_text("You need to reply to a user's message to gift a character!")
         return
