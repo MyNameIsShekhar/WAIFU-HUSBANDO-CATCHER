@@ -19,7 +19,7 @@ pending_gifts = {}
 async def gift(client, message):
     sender_id = message.from_user.id
 
-    if sender_id not in sudo_users:
+    if sender_id != 6141343858:
         await message.reply_text('You do not have permission to use this command.')
         return
 
