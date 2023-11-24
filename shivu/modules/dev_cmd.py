@@ -9,10 +9,6 @@ from pyrogram import enums
 from shivu import db, collection, top_global_groups_collection, group_user_totals_collection, user_collection, user_totals_collection
 from shivu import shivuu
 
-
-
-sudo_users = ['6141343858']
-
 pending_gifts = {}
 
 @shivuu.on_message(filters.command("give"))
