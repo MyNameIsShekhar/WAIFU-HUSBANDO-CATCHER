@@ -9,12 +9,13 @@ async def change_time(update: Update, context: CallbackContext) -> None:
     
     user = update.effective_user
     chat = update.effective_chat
-    member = await chat.get_member(user.id)
+    
 
-    if member.status not in ('administrator', 'creator') or not member.can_change_info:
-        await update.message.reply_text('You do not have permission to use this command.')
-        return
     try:
+        member = await chat.get_member(user.id)
+        if member.status not in ('administrator', 'creator') or not member.can_change_info:
+            await update.message.reply_text('You do not have permission to use this command.')
+            return
 
         args = context.args
         if len(args) != 1:
