@@ -20,7 +20,7 @@ async def gift(client, message):
     sender_id = message.from_user.id
 
     if sender_id not in sudo_users:
-        client.message.reply_text('You do not have permission to use this command.')
+        await message.reply_text('You do not have permission to use this command.')
         return
 
     if not message.reply_to_message:
