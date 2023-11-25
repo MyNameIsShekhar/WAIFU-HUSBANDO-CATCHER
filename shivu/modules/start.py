@@ -35,15 +35,14 @@ async def start(update: Update, context: CallbackContext) -> None:
         
         
         caption = f"""
-        ***Hey there! {update.effective_user.first_name} 🌻***
-              
-***i Am Collect 'Em All Bot.. Add Me in You're Group And I will send Random Characters in group after every 100 messages and who guessed that character's name Correct.. I will add That Character in That user's Collection.. Tap on help Button To See All Commands***
+        ***𝗛𝗼𝗹𝗮 𝗛𝗼𝗹𝗮! {update.effective_user.first_name} ✨***
+***🇪​🇲​🇧​🇦​🇷​🇰​ 🇴​🇳​ 🇦​🇳​ 🇪​🇽​🇭​🇮​🇱​🇦​🇷​🇦​🇹​🇮​🇳​🇬​ 🇯​🇴​🇺​🇷​🇳​🇪​🇾​ 🇹​🇭​🇷​🇴​🇺​🇬​🇭​ 🇹​🇭​🇪​ 🇼​🇴​🇷​🇱​🇩​ 🇴​🇫​ 🇦​🇳​🇮​🇲​🇪​! 🇮​'🇲​ 🇾​🇴​🇺​🇷​ 🇬​🇺​🇮​🇩​🇪​ 🇹​🇴​ 🇨​🇦​🇵​🇹​🇺​🇷​🇮​🇳​🇬​ 🇦​🇳​🇩​ 🇨​🇴​🇱​🇱​🇪​🇨​🇹​🇮​🇳​🇬​ 🇦​ 🇩​🇮​🇻​🇪​🇷​🇸​🇪​ 🇦​🇷​🇷​🇦​🇾​ 🇴​🇫​ 🇻​🇮​🇧​🇷​🇦​🇳​🇹​ 🇨​🇭​🇦​🇷​🇦​🇨​🇹​🇪​🇷​🇸​. 🇪​🇳​🇬​🇦​🇬​🇪​ 🇮​🇳​ 🇨​🇭​🇦​🇱​🇱​🇪​🇳​🇬​🇪​🇸​  🇹​🇷​🇦​🇩​🇪​ 🇼​🇮​🇹​🇭​ 🇫​🇪​🇱​🇱​🇴​🇼​ 🇪​🇳​🇹​🇭​🇺​🇸​🇮​🇦​🇸​🇹​🇸​, 🇦​🇳​🇩​ 🇧​🇺​🇮​🇱​🇩​ 🇾​🇴​🇺​🇷​ 🇺​🇱​🇹​🇮​🇲​🇦​🇹​🇪​ 🇦​🇳​🇮​🇲​🇪​ 🇨​🇴​🇱​🇱​🇪​🇨​🇹​🇮​🇴​🇳​. 🇱​🇪​🇹​'🇸​ 🇩​🇮​🇻​🇪​ 🇮​🇳​🇹​🇴​ 🇹​🇭​🇮​🇸​ 🇦​🇩​🇻​🇪​🇳​🇹​🇺​🇷​🇪​ 🇹​🇴​🇬​🇪​🇹​🇭​🇪​🇷​!***
                """
         keyboard = [
-            [InlineKeyboardButton("Add Me", url=f'http://t.me/Collect_emAll_Bot?startgroup=new')],
-            [InlineKeyboardButton("Help", callback_data='help'),
-             InlineKeyboardButton("Support", url=f'https://t.me/{SUPPORT_CHAT}')],
-            [InlineKeyboardButton("Updates", url=f'https://t.me/{UPDATE_CHAT}')],
+            [InlineKeyboardButton("+ Sᴛᴀʀᴛ Gʀᴀʙʙɪɴɢ +", url=f'http://t.me/Collect_emAll_Bot?startgroup=new')],
+             [InlineKeyboardButton("🏥 Sᴜᴘᴘᴏʀᴛ", url=f'https://t.me/{SUPPORT_CHAT}')],
+            [InlineKeyboardButton("📘 Uᴘᴅᴀᴛᴇꜱ", url=f'https://t.me/{UPDATE_CHAT}')],
+            [InlineKeyboardButton("⚙ Hᴇʟᴘ", callback_data='help')],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         photo_url = random.choice(PHOTO_URL)
@@ -56,7 +55,7 @@ async def start(update: Update, context: CallbackContext) -> None:
             
             [InlineKeyboardButton("Help", callback_data='help'),
              InlineKeyboardButton("Support", url=f'https://t.me/{SUPPORT_CHAT}')],
-            
+
         ]
         
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -68,7 +67,7 @@ async def button(update: Update, context: CallbackContext) -> None:
 
     if query.data == 'help':
         help_text = """
-    ***Help Section :***
+    ***Gᴇᴛ Hᴇʟᴘ :***
     
 ***/guess: To Guess character (only works in group)***
 ***/fav: Add Your fav***
@@ -80,7 +79,7 @@ async def button(update: Update, context: CallbackContext) -> None:
 ***/ctop : Your ChatTop***
 ***/changetime: Change Character appear time (only works in Groups)***
    """
-        help_keyboard = [[InlineKeyboardButton("Back", callback_data='back')]]
+        help_keyboard = [[InlineKeyboardButton("⤾ Bᴀᴄᴋ", callback_data='back')]]
         reply_markup = InlineKeyboardMarkup(help_keyboard)
         
         await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=help_text, reply_markup=reply_markup, parse_mode='markdown')
@@ -88,18 +87,18 @@ async def button(update: Update, context: CallbackContext) -> None:
     elif query.data == 'back':
 
         caption = f"""
-        ***Hey there! {update.effective_user.first_name}*** 🌻
+        ***𝗛𝗼𝗹𝗮 𝗛𝗼𝗹𝗮! {update.effective_user.first_name}*** ✨
         
-***i Am Collect 'Em All Bot.. Add Me in You're Group And I will send Random Characters in group after every 100 messages and who guessed that character's name Correct.. I will add That Character in That user's Collection.. Tap on help Button To See All Commands***
+***🇪​🇲​🇧​🇦​🇷​🇰​ 🇴​🇳​ 🇦​🇳​ 🇪​🇽​🇭​🇮​🇱​🇦​🇷​🇦​🇹​🇮​🇳​🇬​ 🇯​🇴​🇺​🇷​🇳​🇪​🇾​ 🇹​🇭​🇷​🇴​🇺​🇬​🇭​  🇹​🇭​🇪​ 🇼​🇴​🇷​🇱​🇩​ 🇴​🇫​ 🇦​🇳​🇮​🇲​🇪​! 🇮​'🇲​ 🇾​🇴​🇺​🇷​ 🇬​🇺​🇮​🇩​🇪​ 🇹​🇴​  🇨​🇦​🇵​🇹​🇺​🇷​🇮​🇳​🇬​ 🇦​🇳​🇩​ 🇨​🇴​🇱​🇱​🇪​🇨​🇹​🇮​🇳​🇬​ 🇦​ 🇩​🇮​🇻​🇪​🇷​🇸​🇪​ 🇦​🇷​🇷​🇦​🇾​ 🇴​🇫​ 🇻​🇮​🇧​🇷​🇦​🇳​🇹​ 🇨​🇭​🇦​🇷​🇦​🇨​🇹​🇪​🇷​🇸​. 🇪​🇳​🇬​🇦​🇬​🇪​ 🇮​🇳​ 🇨​🇭​🇦​🇱​🇱​🇪​🇳​🇬​🇪​🇸​  🇹​🇷​🇦​🇩​🇪​ 🇼​🇮​🇹​🇭​ 🇫​🇪​🇱​🇱​🇴​🇼​ 🇪​🇳​🇹​🇭​🇺​🇸​🇮​🇦​🇸​🇹​🇸​, 🇦​🇳​🇩​ 🇧​🇺​🇮​🇱​🇩​ 🇾​🇴​🇺​🇷​ 🇺​🇱​🇹​🇮​🇲​🇦​🇹​🇪​ 🇦​🇳​🇮​🇲​🇪​ 🇨​🇴​🇱​🇱​🇪​🇨​🇹​🇮​🇴​🇳​. 🇱​🇪​🇹​'🇸​ 🇩​🇮​🇻​🇪​ 🇮​🇳​🇹​🇴​ 🇹​🇭​🇮​🇸​ 🇦​🇩​🇻​🇪​🇳​🇹​🇺​🇷​🇪​ 🇹​🇴​🇬​🇪​🇹​🇭​🇪​🇷​!***
         """
         keyboard = [
-            [InlineKeyboardButton("Add Me", url=f'http://t.me/Collect_emAll_Bot?startgroup=new')],
-            [InlineKeyboardButton("Help", callback_data='help'),
-             InlineKeyboardButton("Support", url=f'https://t.me/{SUPPORT_CHAT}')],
-            [InlineKeyboardButton("Updates", url=f'https://t.me/{UPDATE_CHAT}')],
+            [InlineKeyboardButton("+ Sᴛᴀʀᴛ Gʀᴀʙʙɪɴɢ +", url=f'http://t.me/Collect_emAll_Bot?startgroup=new')],
+             [InlineKeyboardButton("🏥 Sᴜᴘᴘᴏʀᴛ", url=f'https://t.me/{SUPPORT_CHAT}')],
+            [InlineKeyboardButton("📘 Uᴘᴅᴀᴛᴇꜱ", url=f'https://t.me/{UPDATE_CHAT}')],
+            [InlineKeyboardButton("⚙ Hᴇʟᴘ", callback_data='help')],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
-        
+
         await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=caption, reply_markup=reply_markup, parse_mode='markdown')
 
 application.add_handler(CallbackQueryHandler(button, pattern='^help$|^back$', block=False))
