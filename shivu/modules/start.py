@@ -95,8 +95,8 @@ async def button(update: Update, context: CallbackContext) -> None:
         """
         keyboard = [
             [InlineKeyboardButton("+ Sᴛᴀʀᴛ Gʀᴀʙʙɪɴɢ +", url=f'http://t.me/CatchEmWaifuBot?startgroup=new')],
-             [InlineKeyboardButton("🏥 Sᴜᴘᴘᴏʀᴛ", url=f'https://t.me/{SUPPORT_CHAT}')],
-            [InlineKeyboardButton("📘 Uᴘᴅᴀᴛᴇꜱ", url=f'https://t.me/{UPDATE_CHAT}')],
+            [InlineKeyboardButton("🏥 Sᴜᴘᴘᴏʀᴛ", url=f'https://t.me/{SUPPORT_CHAT}'),
+            InlineKeyboardButton("📘 Uᴘᴅᴀᴛᴇꜱ", url=f'https://t.me/{UPDATE_CHAT}')],
             [InlineKeyboardButton("⚙ Hᴇʟᴘ", callback_data='help')],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
