@@ -36,12 +36,13 @@ async def start(update: Update, context: CallbackContext) -> None:
         
         caption = f"""
         ***𝗛𝗼𝗹𝗮 𝗛𝗼𝗹𝗮! {update.effective_user.first_name} ✨***
-***🇪​🇲​🇧​🇦​🇷​🇰​ 🇴​🇳​ 🇦​🇳​ 🇪​🇽​🇭​🇮​🇱​🇦​🇷​🇦​🇹​🇮​🇳​🇬​ 🇯​🇴​🇺​🇷​🇳​🇪​🇾​ 🇹​🇭​🇷​🇴​🇺​🇬​🇭​ 🇹​🇭​🇪​ 🇼​🇴​🇷​🇱​🇩​ 🇴​🇫​ 🇦​🇳​🇮​🇲​🇪​! 🇮​'🇲​ 🇾​🇴​🇺​🇷​ 🇬​🇺​🇮​🇩​🇪​ 🇹​🇴​ 🇨​🇦​🇵​🇹​🇺​🇷​🇮​🇳​🇬​ 🇦​🇳​🇩​ 🇨​🇴​🇱​🇱​🇪​🇨​🇹​🇮​🇳​🇬​ 🇦​ 🇩​🇮​🇻​🇪​🇷​🇸​🇪​ 🇦​🇷​🇷​🇦​🇾​ 🇴​🇫​ 🇻​🇮​🇧​🇷​🇦​🇳​🇹​ 🇨​🇭​🇦​🇷​🇦​🇨​🇹​🇪​🇷​🇸​. 🇪​🇳​🇬​🇦​🇬​🇪​ 🇮​🇳​ 🇨​🇭​🇦​🇱​🇱​🇪​🇳​🇬​🇪​🇸​  🇹​🇷​🇦​🇩​🇪​ 🇼​🇮​🇹​🇭​ 🇫​🇪​🇱​🇱​🇴​🇼​ 🇪​🇳​🇹​🇭​🇺​🇸​🇮​🇦​🇸​🇹​🇸​, 🇦​🇳​🇩​ 🇧​🇺​🇮​🇱​🇩​ 🇾​🇴​🇺​🇷​ 🇺​🇱​🇹​🇮​🇲​🇦​🇹​🇪​ 🇦​🇳​🇮​🇲​🇪​ 🇨​🇴​🇱​🇱​🇪​🇨​🇹​🇮​🇴​🇳​. 🇱​🇪​🇹​'🇸​ 🇩​🇮​🇻​🇪​ 🇮​🇳​🇹​🇴​ 🇹​🇭​🇮​🇸​ 🇦​🇩​🇻​🇪​🇳​🇹​🇺​🇷​🇪​ 🇹​🇴​🇬​🇪​🇹​🇭​🇪​🇷​!***
+
+***ᴇᴍʙᴀʀᴋ ᴏɴ ᴀɴ ᴇxʜɪʟᴀʀᴀᴛɪɴɢ ᴊᴏᴜʀɴᴇʏ ᴛʜʀᴏᴜɢʜ ᴛʜᴇ ᴡᴏʀʟᴅ ᴏꜰ ᴀɴɪᴍᴇ! ɪ'ᴍ ʏᴏᴜʀ ɢᴜɪᴅᴇ ᴛᴏ ᴄᴀᴘᴛᴜʀɪɴɢ ᴀɴᴅ ᴄᴏʟʟᴇᴄᴛɪɴɢ ᴀ ᴅɪᴠᴇʀꜱᴇ ᴀʀʀᴀʏ ᴏꜰ ᴠɪʙʀᴀɴᴛ ᴄʜᴀʀᴀᴄᴛᴇʀꜱ. ᴇɴɢᴀɢᴇ ɪɴ ᴄʜᴀʟʟᴇɴɢᴇꜱ, ᴛʀᴀᴅᴇ ᴡɪᴛʜ ꜰᴇʟʟᴏᴡ ᴇɴᴛʜᴜꜱɪᴀꜱᴛꜱ, ᴀɴᴅ ʙᴜɪʟᴅ ʏᴏᴜʀ ᴜʟᴛɪᴍᴀᴛᴇ ᴀɴɪᴍᴇ ᴄᴏʟʟᴇᴄᴛɪᴏɴ. ʟᴇᴛ'ꜱ ᴅɪᴠᴇ ɪɴᴛᴏ ᴛʜɪꜱ ᴀᴅᴠᴇɴᴛᴜʀᴇ ᴛᴏɢᴇᴛʜᴇʀ***
                """
         keyboard = [
-            [InlineKeyboardButton("+ Sᴛᴀʀᴛ Gʀᴀʙʙɪɴɢ +", url=f'http://t.me/Collect_emAll_Bot?startgroup=new')],
-             [InlineKeyboardButton("🏥 Sᴜᴘᴘᴏʀᴛ", url=f'https://t.me/{SUPPORT_CHAT}')],
-            [InlineKeyboardButton("📘 Uᴘᴅᴀᴛᴇꜱ", url=f'https://t.me/{UPDATE_CHAT}')],
+            [InlineKeyboardButton("+ Sᴛᴀʀᴛ Gʀᴀʙʙɪɴɢ +", url=f'http://t.me/CatchEmWaifuBot?startgroup=new')],
+             [InlineKeyboardButton("🏥 Sᴜᴘᴘᴏʀᴛ", url=f'https://t.me/{SUPPORT_CHAT}'),
+            InlineKeyboardButton("📘 Uᴘᴅᴀᴛᴇꜱ", url=f'https://t.me/{UPDATE_CHAT}')],
             [InlineKeyboardButton("⚙ Hᴇʟᴘ", callback_data='help')],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
@@ -53,13 +54,14 @@ async def start(update: Update, context: CallbackContext) -> None:
         photo_url = random.choice(PHOTO_URL)
         keyboard = [
             
-            [InlineKeyboardButton("Help", callback_data='help'),
-             InlineKeyboardButton("Support", url=f'https://t.me/{SUPPORT_CHAT}')],
+            [InlineKeyboardButton("🏥 Sᴜᴘᴘᴏʀᴛ", url=f'https://t.me/{SUPPORT_CHAT}'),
+            InlineKeyboardButton("📘 Uᴘᴅᴀᴛᴇꜱ", url=f'https://t.me/{UPDATE_CHAT}')],
+            [InlineKeyboardButton("+ ᴀᴅᴅ ᴍᴇ ᴛᴏ ɢʀᴏᴜᴘ +", url=f'http://t.me/CatchEmWaifuBot?startgroup=new')],
 
         ]
         
         reply_markup = InlineKeyboardMarkup(keyboard)
-        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_url, caption="I am alive",reply_markup=reply_markup )
+        await context.bot.send_photo(chat_id=update.effective_chat.id, photo=photo_url, caption="ɪ ᴀᴍ ᴀʟɪᴠᴇ ʙᴀʙʏ",reply_markup=reply_markup )
 
 async def button(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
@@ -88,11 +90,11 @@ async def button(update: Update, context: CallbackContext) -> None:
 
         caption = f"""
         ***𝗛𝗼𝗹𝗮 𝗛𝗼𝗹𝗮! {update.effective_user.first_name}*** ✨
-        
-***🇪​🇲​🇧​🇦​🇷​🇰​ 🇴​🇳​ 🇦​🇳​ 🇪​🇽​🇭​🇮​🇱​🇦​🇷​🇦​🇹​🇮​🇳​🇬​ 🇯​🇴​🇺​🇷​🇳​🇪​🇾​ 🇹​🇭​🇷​🇴​🇺​🇬​🇭​  🇹​🇭​🇪​ 🇼​🇴​🇷​🇱​🇩​ 🇴​🇫​ 🇦​🇳​🇮​🇲​🇪​! 🇮​'🇲​ 🇾​🇴​🇺​🇷​ 🇬​🇺​🇮​🇩​🇪​ 🇹​🇴​  🇨​🇦​🇵​🇹​🇺​🇷​🇮​🇳​🇬​ 🇦​🇳​🇩​ 🇨​🇴​🇱​🇱​🇪​🇨​🇹​🇮​🇳​🇬​ 🇦​ 🇩​🇮​🇻​🇪​🇷​🇸​🇪​ 🇦​🇷​🇷​🇦​🇾​ 🇴​🇫​ 🇻​🇮​🇧​🇷​🇦​🇳​🇹​ 🇨​🇭​🇦​🇷​🇦​🇨​🇹​🇪​🇷​🇸​. 🇪​🇳​🇬​🇦​🇬​🇪​ 🇮​🇳​ 🇨​🇭​🇦​🇱​🇱​🇪​🇳​🇬​🇪​🇸​  🇹​🇷​🇦​🇩​🇪​ 🇼​🇮​🇹​🇭​ 🇫​🇪​🇱​🇱​🇴​🇼​ 🇪​🇳​🇹​🇭​🇺​🇸​🇮​🇦​🇸​🇹​🇸​, 🇦​🇳​🇩​ 🇧​🇺​🇮​🇱​🇩​ 🇾​🇴​🇺​🇷​ 🇺​🇱​🇹​🇮​🇲​🇦​🇹​🇪​ 🇦​🇳​🇮​🇲​🇪​ 🇨​🇴​🇱​🇱​🇪​🇨​🇹​🇮​🇴​🇳​. 🇱​🇪​🇹​'🇸​ 🇩​🇮​🇻​🇪​ 🇮​🇳​🇹​🇴​ 🇹​🇭​🇮​🇸​ 🇦​🇩​🇻​🇪​🇳​🇹​🇺​🇷​🇪​ 🇹​🇴​🇬​🇪​🇹​🇭​🇪​🇷​!***
+
+***​ᴇᴍʙᴀʀᴋ ᴏɴ ᴀɴ ᴇxʜɪʟᴀʀᴀᴛɪɴɢ ᴊᴏᴜʀɴᴇʏ ᴛʜʀᴏᴜɢʜ ᴛʜᴇ ᴡᴏʀʟᴅ ᴏꜰ ᴀɴɪᴍᴇ! ɪ'ᴍ ʏᴏᴜʀ ɢᴜɪᴅᴇ ᴛᴏ ᴄᴀᴘᴛᴜʀɪɴɢ ᴀɴᴅ ᴄᴏʟʟᴇᴄᴛɪɴɢ ᴀ ᴅɪᴠᴇʀꜱᴇ ᴀʀʀᴀʏ ᴏꜰ ᴠɪʙʀᴀɴᴛ ᴄʜᴀʀᴀᴄᴛᴇʀꜱ. ᴇɴɢᴀɢᴇ ɪɴ ᴄʜᴀʟʟᴇɴɢᴇꜱ, ᴛʀᴀᴅᴇ ᴡɪᴛʜ ꜰᴇʟʟᴏᴡ ᴇɴᴛʜᴜꜱɪᴀꜱᴛꜱ, ᴀɴᴅ ʙᴜɪʟᴅ ʏᴏᴜʀ ᴜʟᴛɪᴍᴀᴛᴇ ᴀɴɪᴍᴇ ᴄᴏʟʟᴇᴄᴛɪᴏɴ. ʟᴇᴛ'ꜱ ᴅɪᴠᴇ ɪɴᴛᴏ ᴛʜɪꜱ ᴀᴅᴠᴇɴᴛᴜʀᴇ ᴛᴏɢᴇᴛʜᴇʀ !***
         """
         keyboard = [
-            [InlineKeyboardButton("+ Sᴛᴀʀᴛ Gʀᴀʙʙɪɴɢ +", url=f'http://t.me/Collect_emAll_Bot?startgroup=new')],
+            [InlineKeyboardButton("+ Sᴛᴀʀᴛ Gʀᴀʙʙɪɴɢ +", url=f'http://t.me/CatchEmWaifuBot?startgroup=new')],
              [InlineKeyboardButton("🏥 Sᴜᴘᴘᴏʀᴛ", url=f'https://t.me/{SUPPORT_CHAT}')],
             [InlineKeyboardButton("📘 Uᴘᴅᴀᴛᴇꜱ", url=f'https://t.me/{UPDATE_CHAT}')],
             [InlineKeyboardButton("⚙ Hᴇʟᴘ", callback_data='help')],
