@@ -69,7 +69,7 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
                     return
                 else:
                     
-                    await update.message.reply_text(f"⚠️ ᴅᴏɴ'ᴛ  sᴘᴀᴍ {update.effective_user.first_name}...\nʏᴏᴜʀ ᴍᴇssᴀɢᴇꜱ ᴡɪʟʟ ʙᴇ ɪɢɴᴏʀᴇᴅ ꜰᴏʀ 10 ᴍɪɴᴜᴛᴇꜱ...")
+                    await update.message.reply_text(f"⚠️ ᴅᴏɴ'ᴛ  sᴘᴀᴍ {update.effective_user.first_name}...\nʏᴏᴜʀ ᴍᴇssᴀɢᴇs ᴡɪʟʟ ʙᴇ ɪɢɴᴏʀᴇᴅ ꜰᴏʀ 10 ᴍɪɴᴜᴛᴇꜱ...")
                     warned_users[user_id] = time.time()
                     return
         else:
@@ -116,7 +116,7 @@ async def send_image(update: Update, context: CallbackContext) -> None:
     await context.bot.send_photo(
         chat_id=chat_id,
         photo=character['img_url'],
-        caption="""ʜᴜɪ ʜᴜɪ, ᴀ ɴᴇᴡ ᴄʜᴀʀᴀᴄᴛᴇʀ ʜᴀꜱ ᴊᴜꜱᴛ ᴀᴘᴘᴇᴀʀᴇᴅ ᴜꜱᴇ /guess [name]
+        caption="""ʜᴜɪ ʜᴜɪ, ᴀ ɴᴇᴡ ᴄʜᴀʀᴀᴄᴛᴇʀ ʜᴀꜱ ᴊᴜsᴛ ᴀᴘᴘᴇᴀʀᴇᴅ ᴜꜱᴇ /guess [name]
 
 ᴀɴᴅ ᴀᴅᴅ ᴛʜɪꜱ ᴄʜᴀʀᴀᴄᴛᴇʀ ɪɴ ʏᴏᴜʀ ᴄᴏʟʟᴇᴄᴛɪᴏɴ""",
         parse_mode='Markdown')
@@ -129,7 +129,7 @@ async def guess(update: Update, context: CallbackContext) -> None:
         return
 
     if chat_id in first_correct_guesses:
-        await update.message.reply_text(f'❌️ ᴀʟʀᴇᴀᴅʏ ɢᴜᴇꜱꜱᴇᴅ ʙʏ sᴏᴍᴇᴏɴᴇ..ꜱᴏ ʙᴇᴛᴛᴇʀ ʟᴜᴄᴋ ɴᴇxᴛ ᴛɪᴍᴇ')
+        await update.message.reply_text(f'❌️ ᴀʟʀᴇᴀᴅʏ ɢᴜᴇssᴇᴅ ʙʏ sᴏᴍᴇᴏɴᴇ..ꜱᴏ ʙᴇᴛᴛᴇʀ ʟᴜᴄᴋ ɴᴇxᴛ ᴛɪᴍᴇ')
         return
 
     guess = ' '.join(context.args).lower() if context.args else ''
@@ -210,10 +210,10 @@ async def guess(update: Update, context: CallbackContext) -> None:
 
         total_count = len(user['characters'])
     
-        keyboard = [[InlineKeyboardButton(f"See Collection ({total_count})", switch_inline_query_current_chat=f"collection.{user_id}")]]
+        keyboard = [[InlineKeyboardButton(f"sᴇᴇ ᴄᴏʟʟᴇᴄᴛɪᴏɴ ({total_count})", switch_inline_query_current_chat=f"collection.{user_id}")]]
 
 
-        await update.message.reply_text(f'<b><a href="tg://user?id={user_id}">{update.effective_user.first_name}</a></b> You Got New Character ✅️ \n\𝗡𝗔𝗠𝗘: <b>{last_characters[chat_id]["name"]}</b> \𝗔𝗡𝗜𝗠𝗘: <b>{last_characters[chat_id]["anime"]}</b> \𝗥𝗔𝗜𝗥𝗧𝗬: <b>{last_characters[chat_id]["rarity"]}</b>\n\nThis character has been added to your harem now do /collection to check your new character', parse_mode='HTML', reply_markup=InlineKeyboardMarkup(keyboard))
+        await update.message.reply_text(f'<b><a href="tg://user?id={user_id}">{update.effective_user.first_name}</a></b> ʏᴏᴜ ɢᴏᴛ ɴᴇᴡ ᴄʜᴀʀᴀᴄᴛᴇʀ ✅️ \n𝗡𝗔𝗠𝗘: <b>{last_characters[chat_id]["name"]}</b> \n𝗔𝗡𝗜𝗠𝗘: <b>{last_characters[chat_id]["anime"]}</b> \n𝗥𝗔𝗜𝗥𝗧𝗬: <b>{last_characters[chat_id]["rarity"]}</b>\n\nᴛʜɪs ᴄʜᴀʀᴀᴄᴛᴇʀ ʜᴀꜱ ʙᴇᴇɴ ᴀᴅᴅᴇᴅ ᴛᴏ ʏᴏᴜʀ ʜᴀʀᴇᴍ.', parse_mode='HTML', reply_markup=InlineKeyboardMarkup(keyboard))
 
     else:
         await update.message.reply_text('ᴏᴏᴘs ɪɴᴄᴏʀʀᴇᴄᴛ ɴᴀᴍᴇ... ❌️')
@@ -246,7 +246,7 @@ async def fav(update: Update, context: CallbackContext) -> None:
     
     await user_collection.update_one({'id': user_id}, {'$set': {'favorites': user['favorites']}})
 
-    await update.message.reply_text(f'Character {character["name"]} has been added to your favorites.')
+    await update.message.reply_text(f'Character {character["name"]} ʜᴀs ʙᴇᴇɴ ᴀᴅᴅᴇᴅ ᴛᴏ ʏᴏᴜʀ Fᴀᴠᴏʀɪᴛᴇs.')
     
 
 def main() -> None:
