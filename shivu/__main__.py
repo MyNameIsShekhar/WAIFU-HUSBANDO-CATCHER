@@ -69,7 +69,7 @@ async def message_counter(update: Update, context: CallbackContext) -> None:
                     return
                 else:
                     
-                    await update.message.reply_text(f"⚠️ Don't Spam {update.effective_user.first_name}...\nyour messages will be ignored for 10 minutes...")
+                    await update.message.reply_text(f"⚠️ ᴅᴏɴ'ᴛ  sᴘᴀᴍ {update.effective_user.first_name}...\nʏᴏᴜʀ ᴍᴇssᴀɢᴇꜱ ᴡɪʟʟ ʙᴇ ɪɢɴᴏʀᴇᴅ ꜰᴏʀ 10 ᴍɪɴᴜᴛᴇꜱ...")
                     warned_users[user_id] = time.time()
                     return
         else:
@@ -112,12 +112,13 @@ async def send_image(update: Update, context: CallbackContext) -> None:
     if chat_id in first_correct_guesses:
         del first_correct_guesses[chat_id]
 
-    
+
     await context.bot.send_photo(
         chat_id=chat_id,
         photo=character['img_url'],
-        caption="""A New Character Has Just Appeared Use /guess [name]
-And Add This Character In Your Collection""",
+        caption="""ʜᴜɪ ʜᴜɪ, ᴀ ɴᴇᴡ ᴄʜᴀʀᴀᴄᴛᴇʀ ʜᴀꜱ ᴊᴜꜱᴛ ᴀᴘᴘᴇᴀʀᴇᴅ ᴜꜱᴇ /guess [name]
+
+ᴀɴᴅ ᴀᴅᴅ ᴛʜɪꜱ ᴄʜᴀʀᴀᴄᴛᴇʀ ɪɴ ʏᴏᴜʀ ᴄᴏʟʟᴇᴄᴛɪᴏɴ""",
         parse_mode='Markdown')
     
 async def guess(update: Update, context: CallbackContext) -> None:
@@ -128,16 +129,16 @@ async def guess(update: Update, context: CallbackContext) -> None:
         return
 
     if chat_id in first_correct_guesses:
-        await update.message.reply_text(f'❌️ Already guessed by Someone..So Try Next Time Bruhh')
+        await update.message.reply_text(f'❌️ ᴀʟʀᴇᴀᴅʏ ɢᴜᴇꜱꜱᴇᴅ ʙʏ sᴏᴍᴇᴏɴᴇ..ꜱᴏ ʙᴇᴛᴛᴇʀ ʟᴜᴄᴋ ɴᴇxᴛ ᴛɪᴍᴇ')
         return
 
     guess = ' '.join(context.args).lower() if context.args else ''
     
     if "()" in guess or "&" in guess.lower():
-        await update.message.reply_text("You can't use '&' in your guess.")
+        await update.message.reply_text("ᴅᴏɴ'ᴛ ʙᴇ ᴏᴠᴇʀ sᴍᴀʀᴛ ᴅᴜᴅᴇ")
         return
-        
-    
+
+
     name_parts = last_characters[chat_id]['name'].lower().split()
 
     if sorted(name_parts) == sorted(guess.split()) or any(part == guess for part in name_parts):
@@ -207,17 +208,22 @@ async def guess(update: Update, context: CallbackContext) -> None:
             })
 
 
-        await update.message.reply_text(f'<b><a href="tg://user?id={user_id}">{update.effective_user.first_name}</a></b> You Got New Character ✅️ \n\nCharacter name: <b>{last_characters[chat_id]["name"]}</b> \nAnime: <b>{last_characters[chat_id]["anime"]}</b> \nRairty: <b>{last_characters[chat_id]["rarity"]}</b>\n\nThis character has been added to your harem now do /collection to check your new character', parse_mode='HTML')
+        total_count = len(user['characters'])
+    
+        keyboard = [[InlineKeyboardButton(f"See Collection ({total_count})", switch_inline_query_current_chat=f"collection.{user_id}")]]
+
+
+        await update.message.reply_text(f'<b><a href="tg://user?id={user_id}">{update.effective_user.first_name}</a></b> You Got New Character ✅️ \n\𝗡𝗔𝗠𝗘: <b>{last_characters[chat_id]["name"]}</b> \𝗔𝗡𝗜𝗠𝗘: <b>{last_characters[chat_id]["anime"]}</b> \𝗥𝗔𝗜𝗥𝗧𝗬: <b>{last_characters[chat_id]["rarity"]}</b>\n\nThis character has been added to your harem now do /collection to check your new character', parse_mode='HTML', reply_markup=InlineKeyboardMarkup(keyboard))
 
     else:
-        await update.message.reply_text('Incorrect Name.. ❌️')
+        await update.message.reply_text('ᴏᴏᴘs ɪɴᴄᴏʀʀᴇᴄᴛ ɴᴀᴍᴇ... ❌️')
    
 async def fav(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
 
     
     if not context.args:
-        await update.message.reply_text('Please provide a character ID.')
+        await update.message.reply_text('ᴘʟᴇᴀsᴇ ᴘʀᴏᴠɪᴅᴇ ᴄʜᴀʀᴀᴄᴛᴇʀ ɪᴅ.')
         return
 
     character_id = context.args[0]
@@ -225,13 +231,13 @@ async def fav(update: Update, context: CallbackContext) -> None:
     
     user = await user_collection.find_one({'id': user_id})
     if not user:
-        await update.message.reply_text('You have not guessed any characters yet.')
+        await update.message.reply_text('ʏᴏᴜ ʜᴀᴠᴇ ɴᴏᴛ ɢᴜᴇssᴇᴅ ᴀɴʏ ᴄʜᴀʀᴀᴄᴛᴇʀs ʏᴇᴛ.')
         return
 
-    
+
     character = next((c for c in user['characters'] if c['id'] == character_id), None)
     if not character:
-        await update.message.reply_text('This character is not in your collection.')
+        await update.message.reply_text('ᴛʜɪs ᴄʜᴀʀᴀᴄᴛᴇʀ ɪs ɴᴏᴛ ɪɴ ʏᴏᴜʀ ᴄᴏʟʟᴇᴄᴛɪᴏɴ.')
         return
 
     
@@ -245,8 +251,8 @@ async def fav(update: Update, context: CallbackContext) -> None:
 
 def main() -> None:
     """Run bot."""
-    
-    
+
+
     application.add_handler(CommandHandler(["guess", "protecc", "collect", "grab", "hunt"], guess, block=False))
     application.add_handler(CommandHandler("fav", fav, block=False))
     application.add_handler(MessageHandler(filters.ALL, message_counter, block=False))
@@ -255,5 +261,4 @@ def main() -> None:
 if __name__ == "__main__":
     shivuu.start()
     main()
-    
-    
+

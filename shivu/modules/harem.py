@@ -60,7 +60,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     
     keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=f"collection.{user_id}")]]
 
-    
+
     if total_pages > 1:
         
         nav_buttons = []
