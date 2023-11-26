@@ -113,7 +113,7 @@ async def broadcast(update: Update, context: CallbackContext) -> None:
         total_sent = 0
         total_failed = 0
 
-        
+
         for user_id in unique_user_ids:
             try:
                 await context.bot.forward_message(chat_id=user_id, from_chat_id=update.effective_chat.id, message_id=update.message.reply_to_message.message_id)
