@@ -52,13 +52,13 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
         for character in characters:
             
-            count = character_counts[character['id']]  # Get the count from the character_counts dictionary
+            count = character_counts[character['id']]  
             harem_message += f'{character["id"]} {character["name"]} ×{count}\n'
 
          
     total_count = len(user['characters'])
     
-    keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=str(user_id))]]
+    keyboard = [[InlineKeyboardButton(f"See All Characters ({total_count})", switch_inline_query_current_chat=f"collection.{user_id}")]]
 
     
     if total_pages > 1:
