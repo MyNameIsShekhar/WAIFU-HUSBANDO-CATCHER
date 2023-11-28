@@ -19,7 +19,7 @@ sudo_users = ["5715764478", "6765826972"]
 GROUP_ID = -1001931513350
 TOKEN = "6970532785:AAHY_WKHYpRyYB7Aq8vaLm0lNZOWPeI5smo"
 mongo_url = "mongodb+srv://HaremDBBot:ThisIsPasswordForHaremDB@haremdb.swzjngj.mongodb.net/?retryWrites=true&w=majority"
-PHOTO_URL = "https://graph.org/file/427df9b44c37f6d6a5eaa.jpg"
+PHOTO_URL = "https://telegra.ph/file/5b48b29b86d711b5b1475.jpg", "https://telegra.ph/file/b22ecc7a43e77e62ce7dd.jpg"
 SUPPORT_CHAT = "botsupportx"
 CHARA_CHANNEL_ID = "-1002064277119"
 API_HASH = "750432c8e1b221f91fd2c93a92710093"
