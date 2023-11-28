@@ -18,7 +18,7 @@ LOGGER = logging.getLogger(__name__)
 OWNER_ID = ["5715764478", "6765826972"]
 sudo_users = ["5715764478", "6765826972"]
 GROUP_ID = -1001931513350
-TOKEN = "6785717206:AAEzOZVgWP0D9H-TNo4b8HXfoe97ShUJ1B8"
+TOKEN = "6970532785:AAHY_WKHYpRyYB7Aq8vaLm0lNZOWPeI5smo"
 mongo_url = "mongodb+srv://HaremDBBot:ThisIsPasswordForHaremDB@haremdb.swzjngj.mongodb.net/?retryWrites=true&w=majority"
 PHOTO_URL = "https://graph.org/file/427df9b44c37f6d6a5eaa.jpg"
 SUPPORT_CHAT = "botsupportx"
