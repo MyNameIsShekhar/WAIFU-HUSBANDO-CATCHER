@@ -20,7 +20,7 @@ import math
 import html
 from collections import Counter 
 from shivu import db, collection, top_global_groups_collection, group_user_totals_collection, user_collection, user_totals_collection
-from shivu import application, shivuu, LOGGER 
+from shivu import application, LOGGER 
 from shivu.modules import ALL_MODULES
 
 
@@ -259,6 +259,5 @@ def main() -> None:
     application.run_polling(drop_pending_updates=True)
     
 if __name__ == "__main__":
-    shivuu.start()
     main()
 
