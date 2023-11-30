@@ -14,12 +14,12 @@ logging.getLogger('httpx').setLevel(logging.WARNING)
 logging.getLogger("pyrate_limiter").setLevel(logging.ERROR)
 LOGGER = logging.getLogger(__name__)
 
-OWNER_ID = ["5715764478", "6765826972"]
-sudo_users = ["5715764478", "6765826972"]
-GROUP_ID = -1001931513350
-TOKEN = "6840530499:AAFEKebd8wQnVwLoTGPP6YDNZGLC7W16Lkc"
-mongo_url = "mongodb+srv://shuyaashivu:9fcc60263a946ef550d11406667404fa@cluster0.ikub9lo.mongodb.net/?retryWrites=true&w=majority"
-PHOTO_URL = "https://telegra.ph/file/f700d0bfe17a7c3ebe096.jpg", "https://telegra.ph/file/143eb04f0527c711dd839.jpg"
+OWNER_ID = []
+sudo_users = []
+GROUP_ID = -100
+TOKEN = ""
+mongo_url = ""
+PHOTO_URL = "", ""
 SUPPORT_CHAT = "Collect_em_support"
 UPDATE_CHAT = "Collect_em_support"
 BOT_USERNAME = "Collect_Em_AllBot"
