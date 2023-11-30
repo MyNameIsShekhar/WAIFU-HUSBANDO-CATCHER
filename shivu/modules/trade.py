@@ -60,10 +60,10 @@ async def trade(client, message):
 
     sender_character_id, receiver_character_id = message.command[1], message.command[2]
 
-    # Add the trade offer to the pending trades
+    
     pending_trades[(sender_id, receiver_id)] = (sender_character_id, receiver_character_id)
 
-    # Create a confirmation button
+    
     keyboard = InlineKeyboardMarkup(
         [
             [InlineKeyboardButton("Confirm Trade", callback_data="confirm_trade")],
