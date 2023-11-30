@@ -10,7 +10,6 @@ from shivu import PHOTO_URL, SUPPORT_CHAT, UPDATE_CHAT
 import random
 collection = db['total_pm_users']
 
-
 async def start(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
     first_name = update.effective_user.first_name
@@ -35,15 +34,15 @@ async def start(update: Update, context: CallbackContext) -> None:
         
         
         caption = f"""
-        ***𝗛𝗼𝗹𝗮 𝗛𝗼𝗹𝗮! {update.effective_user.first_name} ✨***
+        ***Hoyyyy...*** ✨
 
-***ᴇᴍʙᴀʀᴋ ᴏɴ ᴀɴ ᴇxʜɪʟᴀʀᴀᴛɪɴɢ ᴊᴏᴜʀɴᴇʏ ᴛʜʀᴏᴜɢʜ ᴛʜᴇ ᴡᴏʀʟᴅ ᴏꜰ ᴀɴɪᴍᴇ! ɪ'ᴍ ʏᴏᴜʀ ɢᴜɪᴅᴇ ᴛᴏ ᴄᴀᴘᴛᴜʀɪɴɢ ᴀɴᴅ ᴄᴏʟʟᴇᴄᴛɪɴɢ ᴀ ᴅɪᴠᴇʀꜱᴇ ᴀʀʀᴀʏ ᴏꜰ ᴠɪʙʀᴀɴᴛ ᴄʜᴀʀᴀᴄᴛᴇʀꜱ. ᴇɴɢᴀɢᴇ ɪɴ ᴄʜᴀʟʟᴇɴɢᴇꜱ, ᴛʀᴀᴅᴇ ᴡɪᴛʜ ꜰᴇʟʟᴏᴡ ᴇɴᴛʜᴜꜱɪᴀꜱᴛꜱ, ᴀɴᴅ ʙᴜɪʟᴅ ʏᴏᴜʀ ᴜʟᴛɪᴍᴀᴛᴇ ᴀɴɪᴍᴇ ᴄᴏʟʟᴇᴄᴛɪᴏɴ. ʟᴇᴛ'ꜱ ᴅɪᴠᴇ ɪɴᴛᴏ ᴛʜɪꜱ ᴀᴅᴠᴇɴᴛᴜʀᴇ ᴛᴏɢᴇᴛʜᴇʀ***
-               """
+***​Add Me in Your group.. And I will send Random Characters After.. every 100 messages in Group... Use /guess to.. Collect that Characters in Your Collection.. and see Collection by using /Harem... So add in Your groups and Collect Your harem***
+        """
         keyboard = [
-            [InlineKeyboardButton("+ Sᴛᴀʀᴛ Gʀᴀʙʙɪɴɢ +", url=f'http://t.me/CatchEmWaifuBot?startgroup=new')],
-             [InlineKeyboardButton("🏥 Sᴜᴘᴘᴏʀᴛ", url=f'https://t.me/{SUPPORT_CHAT}'),
-            InlineKeyboardButton("📘 Uᴘᴅᴀᴛᴇꜱ", url=f'https://t.me/{UPDATE_CHAT}')],
-            [InlineKeyboardButton("⚙ Hᴇʟᴘ", callback_data='help')],
+            [InlineKeyboardButton("ADD ME", url=f'http://t.me/{BOT_USERNAME}?startgroup=new')],
+             [InlineKeyboardButton("SUPPORT", url=f'https://t.me/{SUPPORT_CHAT}'),
+            InlineKeyboardButton("UPDATES", url=f'https://t.me/{UPDATE_CHAT}')],
+            [InlineKeyboardButton("HELP", callback_data='help')],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
         photo_url = random.choice(PHOTO_URL)
@@ -54,9 +53,9 @@ async def start(update: Update, context: CallbackContext) -> None:
         photo_url = random.choice(PHOTO_URL)
         keyboard = [
             
-            [InlineKeyboardButton("🏥 Sᴜᴘᴘᴏʀᴛ", url=f'https://t.me/{SUPPORT_CHAT}'),
-            InlineKeyboardButton("📘 Uᴘᴅᴀᴛᴇꜱ", url=f'https://t.me/{UPDATE_CHAT}')],
-            [InlineKeyboardButton("+ ᴀᴅᴅ ᴍᴇ ᴛᴏ ɢʀᴏᴜᴘ +", url=f'http://t.me/CatchEmWaifuBot?startgroup=new')],
+            [InlineKeyboardButton("SUPPORT", url=f'https://t.me/{SUPPORT_CHAT}'),
+            InlineKeyboardButton("UPDATES", url=f'https://t.me/{UPDATE_CHAT}')],
+            [InlineKeyboardButton("ADD ME", url=f'http://t.me/{BOT_USERNAME}?startgroup=new')],
 
         ]
         
@@ -69,7 +68,7 @@ async def button(update: Update, context: CallbackContext) -> None:
 
     if query.data == 'help':
         help_text = """
-    ***Gᴇᴛ Hᴇʟᴘ :***
+    ***Help Section:***
     
 ***/guess: To Guess character (only works in group)***
 ***/fav: Add Your fav***
@@ -89,19 +88,22 @@ async def button(update: Update, context: CallbackContext) -> None:
     elif query.data == 'back':
 
         caption = f"""
-        ***𝗛𝗼𝗹𝗮 𝗛𝗼𝗹𝗮! {update.effective_user.first_name}*** ✨
+        ***Hoyyyy...*** ✨
 
-***​ᴇᴍʙᴀʀᴋ ᴏɴ ᴀɴ ᴇxʜɪʟᴀʀᴀᴛɪɴɢ ᴊᴏᴜʀɴᴇʏ ᴛʜʀᴏᴜɢʜ ᴛʜᴇ ᴡᴏʀʟᴅ ᴏꜰ ᴀɴɪᴍᴇ! ɪ'ᴍ ʏᴏᴜʀ ɢᴜɪᴅᴇ ᴛᴏ ᴄᴀᴘᴛᴜʀɪɴɢ ᴀɴᴅ ᴄᴏʟʟᴇᴄᴛɪɴɢ ᴀ ᴅɪᴠᴇʀꜱᴇ ᴀʀʀᴀʏ ᴏꜰ ᴠɪʙʀᴀɴᴛ ᴄʜᴀʀᴀᴄᴛᴇʀꜱ. ᴇɴɢᴀɢᴇ ɪɴ ᴄʜᴀʟʟᴇɴɢᴇꜱ, ᴛʀᴀᴅᴇ ᴡɪᴛʜ ꜰᴇʟʟᴏᴡ ᴇɴᴛʜᴜꜱɪᴀꜱᴛꜱ, ᴀɴᴅ ʙᴜɪʟᴅ ʏᴏᴜʀ ᴜʟᴛɪᴍᴀᴛᴇ ᴀɴɪᴍᴇ ᴄᴏʟʟᴇᴄᴛɪᴏɴ. ʟᴇᴛ'ꜱ ᴅɪᴠᴇ ɪɴᴛᴏ ᴛʜɪꜱ ᴀᴅᴠᴇɴᴛᴜʀᴇ ᴛᴏɢᴇᴛʜᴇʀ !***
+***​Add Me in Your group.. And I will send Random Characters After.. every 100 messages in Group... Use /guess to.. Collect that Characters in Your Collection.. and see Collection by using /Harem... So add in Your groups and Collect Your harem***
         """
+
+        
         keyboard = [
-            [InlineKeyboardButton("+ Sᴛᴀʀᴛ Gʀᴀʙʙɪɴɢ +", url=f'http://t.me/CatchEmWaifuBot?startgroup=new')],
-            [InlineKeyboardButton("🏥 Sᴜᴘᴘᴏʀᴛ", url=f'https://t.me/{SUPPORT_CHAT}'),
-            InlineKeyboardButton("📘 Uᴘᴅᴀᴛᴇꜱ", url=f'https://t.me/{UPDATE_CHAT}')],
-            [InlineKeyboardButton("⚙ Hᴇʟᴘ", callback_data='help')],
+            [InlineKeyboardButton("ADD ME", url=f'http://t.me/CatchEmWaifuBot?startgroup=new')],
+            [InlineKeyboardButton("SUPPORT", url=f'https://t.me/{SUPPORT_CHAT}'),
+            InlineKeyboardButton("UPDATES", url=f'https://t.me/{UPDATE_CHAT}')],
+            [InlineKeyboardButton("HELP", callback_data='help')],
         ]
         reply_markup = InlineKeyboardMarkup(keyboard)
 
         await context.bot.edit_message_caption(chat_id=update.effective_chat.id, message_id=query.message.message_id, caption=caption, reply_markup=reply_markup, parse_mode='markdown')
+
 
 application.add_handler(CallbackQueryHandler(button, pattern='^help$|^back$', block=False))
 start_handler = CommandHandler('start', start, block=False)
