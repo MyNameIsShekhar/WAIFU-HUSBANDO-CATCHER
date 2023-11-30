@@ -1,6 +1,7 @@
 import os
 import telegram.ext as tg
 import logging  
+from pyrogram import Client 
 from telegram.ext import Application
 from motor.motor_asyncio import AsyncIOMotorClient
 logging.basicConfig(
@@ -25,7 +26,7 @@ UPDATE_CHAT = "Collect_em_support"
 BOT_USERNAME = "Collect_Em_AllBot"
 
 application = Application.builder().token(TOKEN).build()
-
+shivuu = Client("patanii", api_id, api_hash, bot_token=TOKEN)
 client = AsyncIOMotorClient(mongo_url)
 db = client['Character_catcher']
 collection = db['anime_characters_lol']
