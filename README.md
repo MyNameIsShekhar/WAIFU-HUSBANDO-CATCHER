@@ -60,7 +60,7 @@ sudo apt-get update && sudo apt-get upgrade -y
 sudo apt-get install python3-pip -y          
 sudo pip3 install -U pip
 
-git clone Your_Forked_Repo_Link && cd Your_Forked_Repo_name           # Clone Your Forked Repo
+git clone Your_Forked_Repo_Link && cd Your_Forked_Repo_name  # Clone Your Forked Repo
 
 pip3 install -U -r requirements.txt          
 
