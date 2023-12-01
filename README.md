@@ -50,10 +50,10 @@ rarity_map = 1 (⚪️ Common), 2 (🟣 Rare) , 3 (🟡 Legendary), 4 (🟢 Medi
 **DEPLOYMENT METHODS**
 - Star The repo 🌟
 - Fork The Repo
-- GO IN __init__.py.. Fill the All variables and Go in heroku.. and deploy Your forked Repo
+- GO IN [Init].. Fill the All variables and Go in heroku.. and deploy Your forked Repo
 
 **Same For Vps**
-- Star The Repo Then Fork.. Fill variables in ____init____.py then.. Go to Your vps..
+- Star The Repo Then Fork.. Fill variables in [init] then.. Go to Your vps..
 
 ```bash
 sudo apt-get update && sudo apt-get upgrade -y           
