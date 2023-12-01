@@ -52,7 +52,8 @@ rarity_map = 1 (⚪️ Common), 2 (🟣 Rare) , 3 (🟡 Legendary), 4 (🟢 Medi
 
 **FOR VPS**
 - Go in **__init__.py** And Fill the All variables and Then Go on your vps
-- ```bash
+  
+  ```bash
   sudo apt-get update && sudo apt-get upgrade -y           # 1. Upgrade and Update System
 
 sudo apt-get install python3-pip -y          # 2. Install Required Packages
