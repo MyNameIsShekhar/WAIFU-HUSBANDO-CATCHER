@@ -24,6 +24,7 @@ PHOTO_URL = "", ""
 SUPPORT_CHAT = "Collect_em_support"
 UPDATE_CHAT = "Collect_em_support"
 BOT_USERNAME = "Collect_Em_AllBot"
+CHARA_CHANNEL_ID = -100
 
 application = Application.builder().token(TOKEN).build()
 shivuu = Client("patanii", api_id, api_hash, bot_token=TOKEN)
