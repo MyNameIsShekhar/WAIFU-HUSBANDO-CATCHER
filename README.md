@@ -53,5 +53,19 @@ rarity_map = 1 (⚪️ Common), 2 (🟣 Rare) , 3 (🟡 Legendary), 4 (🟢 Medi
 - GO IN __init__.py.. Fill the All variables and Go in heroku.. and deploy Your forked Repo
 
 **Same For Vps**
-- Star The Repo Then Fork.. Fill variables in __init__.py then.. Go to Your vps.. and Clone Your Forked repo.. then install requirements.txt.. And Start the Bot using 
+- Star The Repo Then Fork.. Fill variables in __init__.py then.. Go to Your vps..
 
+```bash
+sudo apt-get update && sudo apt-get upgrade -y           
+
+sudo apt-get install python3-pip -y          
+sudo pip3 install -U pip
+
+git clone Your_Forked_Repo_Link && cd Your_Forked_Repo_name           # Clone Your Forked Repo
+
+pip3 install -U -r requirements.txt          
+
+sudo apt install tmux && tmux          
+
+python3 -m shivu       
+```
