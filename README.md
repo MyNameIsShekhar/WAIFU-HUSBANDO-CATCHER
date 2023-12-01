@@ -9,8 +9,8 @@ _**ask help On [Support Chat](https://t.me/Collect_em_support)**_
 
 ## About Repo
 ● This Is open Source repo Of Character Catcher Bot
-● Like Eg. Grab Hunt Protecc Collect etc.. Types of Bot You must have seen it on your telegram groups..
-● This bot sends characters in group after every 100 Messages Of Groups Then any user can Guess that character's Name Using /guess Command... 
+- ● Like Eg. Grab Hunt Protecc Collect etc.. Types of Bot You must have seen it on your telegram groups..
+- ● This bot sends characters in group after every 100 Messages Of Groups Then any user can Guess that character's Name Using /guess Command... 
 
 ● Now u can also deploy this type of bot.. using our source.... used Python-Telegram-Bot V20.6 and Also lil bit Pyrogram enjoy.. 
 
