@@ -46,4 +46,25 @@ rarity_map = 1 (⚪️ Common), 2 (🟣 Rare) , 3 (🟡 Legendary), 4 (🟢 Medi
 - `/stats`
 - `/list`
 - `/groups`
+<p align="center">
+<b>𝗗𝗘𝗣𝗟𝗢𝗬𝗠𝗘𝗡𝗧 𝗠𝗘𝗧𝗛𝗢𝗗𝗦</b>
+</p>
 
+**FOR VPS**
+- Go in **__init__.py** And Fill the All variables and Then Go on your vps
+- ```bash
+  sudo apt-get update && sudo apt-get upgrade -y           # 1. Upgrade and Update System
+
+sudo apt-get install python3-pip -y          # 2. Install Required Packages
+
+sudo pip3 install -U pip          # 3. Upgrade Pip
+
+git clone https://github.com/YOURREPO && cd YOURREPO_NAME           # 4. Clone the Repository
+
+pip3 install -U -r requirements.txt          # 5. Install Required Packages
+
+sudo apt install tmux && tmux           # 7. Install Tmux (Optional)
+
+python3 -m shivu        # 8. Run the Bot
+# Press `Ctrl+b` and then `d` to exit Tmux Session
+```
