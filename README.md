@@ -1,4 +1,4 @@
-## A CHARACTER CATCHER TELEGRAM BOT
+## WAIFU/HUSBANDO CATCHER 
 <p align="center">
   <img src="https://graph.org/file/9901c2070cea11d1aa194.jpg"/>
 </p>
