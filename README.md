@@ -1,6 +1,6 @@
 ## A CHARACTER CATCHER TELEGRAM BOT
 <p align="center">
-  <img src="https://telegra.ph/file/14d693b36bd6f1307704a.jpg"/>
+  <img src="https://graph.org/file/9901c2070cea11d1aa194.jpg"/>
 </p>
 
 _**Available On Telegram As 
