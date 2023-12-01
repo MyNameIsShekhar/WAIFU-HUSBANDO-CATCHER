@@ -72,3 +72,5 @@ python3 -m shivu
 ## Suggestions 
 - Don't Use heroku..Deploy on Heroku just for test.. Otherwise Bot's Inline will Work Too much Slow on Heroku
 - Use high Quality Vps.. 
+
+ ![Image Description](https://graph.org/file/9901c2070cea11d1aa194.jpg)
