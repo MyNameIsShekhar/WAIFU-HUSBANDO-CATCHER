@@ -15,8 +15,8 @@ logging.getLogger('httpx').setLevel(logging.WARNING)
 logging.getLogger("pyrate_limiter").setLevel(logging.ERROR)
 LOGGER = logging.getLogger(__name__)
 
-OWNER_ID = []
-sudo_users = []
+OWNER_ID = 6765826972
+sudo_users = ["6765826972", "6046482147"]
 GROUP_ID = -100
 TOKEN = ""
 mongo_url = ""
