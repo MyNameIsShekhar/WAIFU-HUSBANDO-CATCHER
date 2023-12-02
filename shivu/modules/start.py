@@ -8,6 +8,7 @@ from shivu import application
 from shivu import db, GROUP_ID, OWNER_ID 
 from shivu import PHOTO_URL, SUPPORT_CHAT, UPDATE_CHAT, BOT_USERNAME 
 import random
+from html import escape 
 collection = db['total_pm_users']
 
 async def start(update: Update, context: CallbackContext) -> None:
@@ -21,7 +22,7 @@ async def start(update: Update, context: CallbackContext) -> None:
         
         await collection.insert_one({"_id": user_id, "first_name": first_name, "username": username})
         
-        await context.bot.send_message(chat_id=GROUP_ID, text=f"<a href='tg://user?id={user_id}'>{first_name}</a> STARTED THE BOT", parse_mode='HTML')
+        await context.bot.send_message(chat_id=GROUP_ID, text=f"<a href='tg://user?id={user_id}'>{escape(first_name})</a> STARTED THE BOT", parse_mode='HTML')
     else:
         
         if user_data['first_name'] != first_name or user_data['username'] != username:
