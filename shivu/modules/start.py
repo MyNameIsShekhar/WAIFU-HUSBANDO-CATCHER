@@ -6,7 +6,7 @@ from telegram.ext import MessageHandler, filters
 from telegram.ext import CommandHandler
 from shivu import application 
 from shivu import db, GROUP_ID, OWNER_ID 
-from shivu import PHOTO_URL, SUPPORT_CHAT, UPDATE_CHAT 
+from shivu import PHOTO_URL, SUPPORT_CHAT, UPDATE_CHAT, BOT_USERNAME 
 import random
 collection = db['total_pm_users']
 
