@@ -1,25 +1,16 @@
 import importlib
-import logging 
-from telegram import InputMediaPhoto
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent, InputMediaPhoto
-from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
-import asyncio
-from itertools import groupby
-from telegram import Update
-from motor.motor_asyncio import AsyncIOMotorClient 
-from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters
-from telegram.ext import InlineQueryHandler,CallbackQueryHandler, ChosenInlineResultHandler
-from pymongo import MongoClient, ReturnDocument
-import urllib.request
-import random
-from datetime import datetime, timedelta
-from threading import Lock
 import time
+import random
 import re
-import math
+import asyncio
 from html import escape 
-from collections import Counter 
-from shivu import db, collection, top_global_groups_collection, group_user_totals_collection, user_collection, user_totals_collection, shivuu
+
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import InlineKeyboardMarkup, InlineKeyboardButton
+from telegram import Update
+from telegram.ext import CommandHandler, CallbackContext, MessageHandler, filters
+
+from shivu import collection, top_global_groups_collection, group_user_totals_collection, user_collection, user_totals_collection, shivuu
 from shivu import application, LOGGER 
 from shivu.modules import ALL_MODULES
 
@@ -250,7 +241,6 @@ async def fav(update: Update, context: CallbackContext) -> None:
 def main() -> None:
     """Run bot."""
 
-
     application.add_handler(CommandHandler(["guess", "protecc", "collect", "grab", "hunt"], guess, block=False))
     application.add_handler(CommandHandler("fav", fav, block=False))
     application.add_handler(MessageHandler(filters.ALL, message_counter, block=False))
@@ -258,5 +248,6 @@ def main() -> None:
     
 if __name__ == "__main__":
     shivuu.start()
+    LOGGER.info("Bot started")
     main()
 

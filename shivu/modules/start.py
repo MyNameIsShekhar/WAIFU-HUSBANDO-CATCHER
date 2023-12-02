@@ -1,14 +1,11 @@
-import os
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
-from telegram import Update
-from telegram.ext import CallbackContext, CallbackQueryHandler
-from telegram.ext import MessageHandler, filters
-from telegram.ext import CommandHandler
-from shivu import application 
-from shivu import db, GROUP_ID, OWNER_ID 
-from shivu import PHOTO_URL, SUPPORT_CHAT, UPDATE_CHAT, BOT_USERNAME 
 import random
 from html import escape 
+
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
+from telegram.ext import CallbackContext, CallbackQueryHandler, CommandHandler
+
+from shivu import application, PHOTO_URL, SUPPORT_CHAT, UPDATE_CHAT, BOT_USERNAME, db, GROUP_ID
+
 collection = db['total_pm_users']
 
 async def start(update: Update, context: CallbackContext) -> None:
@@ -22,7 +19,9 @@ async def start(update: Update, context: CallbackContext) -> None:
         
         await collection.insert_one({"_id": user_id, "first_name": first_name, "username": username})
         
-        await context.bot.send_message(chat_id=GROUP_ID, text=f"<a href='tg://user?id={user_id}'>{escape(first_name})</a> STARTED THE BOT", parse_mode='HTML')
+        await context.bot.send_message(chat_id=GROUP_ID, 
+                                       text=f"<a href='tg://user?id={user_id}>{escape(first_name)})</a> STARTED THE BOT", 
+                                       parse_mode='HTML')
     else:
         
         if user_data['first_name'] != first_name or user_data['username'] != username:

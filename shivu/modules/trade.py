@@ -1,16 +1,7 @@
-from pyrogram import Client, filters
+from pyrogram import filters
 from pyrogram.types import InlineKeyboardMarkup, InlineKeyboardButton
-from motor.motor_asyncio import AsyncIOMotorClient 
-from pyrogram import Client, filters
-from pyrogram.types import InlineQueryResultPhoto, InputTextMessageContent
-from collections import Counter
-from pyrogram.types import InlineKeyboardButton, InlineKeyboardMarkup, CallbackQuery
-from pyrogram import enums
-from shivu import db, collection, top_global_groups_collection, group_user_totals_collection, user_collection, user_totals_collection
-from shivu import shivuu
 
-
-
+from shivu import user_collection, shivuu
 
 pending_trades = {}
 

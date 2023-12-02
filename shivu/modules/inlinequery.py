@@ -1,14 +1,11 @@
-from telegram.ext import InlineQueryHandler,CallbackQueryHandler, ChosenInlineResultHandler, CallbackContext, Updater
-from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineQueryResultPhoto
-import asyncio
-import time
-from telegram import Update
-from shivu import application 
-from shivu import user_collection, collection
 import re
-from collections import Counter
-from telegram import InlineQueryResultPhoto, InputTextMessageContent
+import time
+from html import escape
 
+from telegram import Update, InlineQueryResultPhoto
+from telegram.ext import InlineQueryHandler, CallbackContext
+
+from shivu import user_collection, collection, application
 
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
