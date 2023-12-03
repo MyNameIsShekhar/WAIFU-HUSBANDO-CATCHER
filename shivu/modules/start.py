@@ -20,7 +20,7 @@ async def start(update: Update, context: CallbackContext) -> None:
         await collection.insert_one({"_id": user_id, "first_name": first_name, "username": username})
         
         await context.bot.send_message(chat_id=GROUP_ID, 
-                                       text=f"<a href='tg://user?id={user_id}>{escape(first_name)})</a> STARTED THE BOT", 
+                                       text=f"New user Started The Bot..\n User: <a href='tg://user?id={user_id}>{escape(first_name)})</a>", 
                                        parse_mode='HTML')
     else:
         
@@ -34,7 +34,7 @@ async def start(update: Update, context: CallbackContext) -> None:
         
         
         caption = f"""
-        ***Hoyyyy...*** ✨
+        ***Heyyyy...***
 
 ***I am An Open Source Character Catcher Bot...​Add Me in Your group.. And I will send Random Characters After.. every 100 messages in Group... Use /guess to.. Collect that Characters in Your Collection.. and see Collection by using /Harem... So add in Your groups and Collect Your harem***
         """
