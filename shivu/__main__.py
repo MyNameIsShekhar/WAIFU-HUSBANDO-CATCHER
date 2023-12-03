@@ -125,7 +125,7 @@ async def guess(update: Update, context: CallbackContext) -> None:
     guess = ' '.join(context.args).lower() if context.args else ''
     
     if "()" in guess or "&" in guess.lower():
-        await update.message.reply_text("ᴅᴏɴ'ᴛ ʙᴇ ᴏᴠᴇʀ sᴍᴀʀᴛ ᴅᴜᴅᴇ")
+        await update.message.reply_text("Nahh You Can't use This Types of words in your guess..❌️")
         return
 
 
