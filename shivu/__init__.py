@@ -36,7 +36,7 @@ client = AsyncIOMotorClient(mongo_url)
 db = client['Character_catcher']
 collection = db['anime_characters']
 user_totals_collection = db['user_totals']
-user_collection = db["user_collection_lmaoooo"]
+user_collection = db["user_collection"]
 group_user_totals_collection = db['group_user_total']
 top_global_groups_collection = db['top_global_groups']
 
