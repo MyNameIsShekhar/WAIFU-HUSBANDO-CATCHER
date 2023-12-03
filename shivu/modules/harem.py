@@ -17,9 +17,9 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user = await user_collection.find_one({'id': user_id})
     if not user:
         if update.message:
-            await update.message.reply_text('ʏᴏᴜ ʜᴀᴠᴇ ɴᴏᴛ ɢᴜᴇssᴇᴅ ᴀɴʏ ᴄʜᴀʀᴀᴄᴛᴇʀs ʏᴇᴛ.')
+            await update.message.reply_text('You Have Not Guessed any Characters Yet..')
         else:
-            await update.callback_query.edit_message_text('ʏᴏᴜ ʜᴀᴠᴇ ɴᴏᴛ ɢᴜᴇssᴇᴅ ᴀɴʏ ᴄʜᴀʀᴀᴄᴛᴇʀs ʏᴇᴛ.')
+            await update.callback_query.edit_message_text('You Have Not Guessed any Characters Yet..')
         return
 
     characters = sorted(user['characters'], key=lambda x: (x['anime'], x['id']))
@@ -54,7 +54,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
 
     total_count = len(user['characters'])
     
-    keyboard = [[InlineKeyboardButton(f"sᴇᴇ ᴄᴏʟʟᴇᴄᴛɪᴏɴ ({total_count})", switch_inline_query_current_chat=f"collection.{user_id}")]]
+    keyboard = [[InlineKeyboardButton(f"See Collection ({total_count})", switch_inline_query_current_chat=f"collection.{user_id}")]]
 
 
     if total_pages > 1:
@@ -109,7 +109,7 @@ async def harem(update: Update, context: CallbackContext, page=0) -> None:
                         await update.callback_query.edit_message_text(harem_message, parse_mode='HTML', reply_markup=reply_markup)
         else:
             if update.message:
-                await update.message.reply_text("ʏᴏᴜʀ ʟɪsᴛ ɪs ᴇᴍᴘᴛʏ :)")
+                await update.message.reply_text("Your List is Empty :)")
 
 
 async def harem_callback(update: Update, context: CallbackContext) -> None:
@@ -125,7 +125,7 @@ async def harem_callback(update: Update, context: CallbackContext) -> None:
 
     
     if query.from_user.id != user_id:
-        await query.answer("ᴅᴏɴ'ᴛ sᴛᴀʟᴋ ᴏᴛʜᴇʀ ᴜsᴇʀ's ʜᴀʀᴇᴍ..  OK", show_alert=True)
+        await query.answer("its Not Your Harem", show_alert=True)
         return
 
     
@@ -134,7 +134,7 @@ async def harem_callback(update: Update, context: CallbackContext) -> None:
 
 
 
-application.add_handler(CommandHandler(["harem"], harem,block=False))
+application.add_handler(CommandHandler(["harem", "collection"], harem,block=False))
 harem_handler = CallbackQueryHandler(harem_callback, pattern='^harem', block=False)
 application.add_handler(harem_handler)
     
