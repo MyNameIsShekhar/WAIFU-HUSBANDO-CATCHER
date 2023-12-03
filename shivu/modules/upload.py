@@ -1,13 +1,9 @@
-import importlib
-from itertools import groupby 
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext
-from telegram.ext import InlineQueryHandler,CallbackQueryHandler, ChosenInlineResultHandler
-import motor.motor_asyncio
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 import urllib.request
-from pymongo import MongoClient, ReturnDocument
-import random
+from pymongo import ReturnDocument
+
+from telegram import Update
+from telegram.ext import CommandHandler, CallbackContext
+
 from shivu import application, sudo_users, collection, db, CHARA_CHANNEL_ID
 
 async def get_next_sequence_number(sequence_name):

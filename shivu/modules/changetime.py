@@ -1,15 +1,15 @@
+from pymongo import  ReturnDocument
+
 from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters
-from pymongo import MongoClient, ReturnDocument
-from motor.motor_asyncio import AsyncIOMotorClient 
+from telegram.ext import CommandHandler, CallbackContext
+
 from shivu import application 
-from shivu import db, collection, user_totals_collection, user_collection, top_global_groups_collection, top_global_groups_collection, group_user_totals_collection
+from shivu import user_totals_collection
 
 async def change_time(update: Update, context: CallbackContext) -> None:
     
     user = update.effective_user
     chat = update.effective_chat
-    
 
     try:
         member = await chat.get_member(user.id)

@@ -1,9 +1,8 @@
 import time
-from telegram import Update
-from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters
 
-from datetime import datetime, timedelta
-import time
+from telegram import Update
+from telegram.ext import CommandHandler, CallbackContext, MessageHandler, filters
+
 from shivu import application, sudo_users
 
 async def ping(update: Update, context: CallbackContext) -> None:

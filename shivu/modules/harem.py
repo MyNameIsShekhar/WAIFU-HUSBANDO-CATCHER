@@ -3,17 +3,13 @@ from itertools import groupby
 import urllib.request
 import re
 import math
-import html
-import random
-from collections import Counter
-from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters
-from shivu import db, collection, user_totals_collection, user_collection, top_global_groups_collection, top_global_groups_collection, group_user_totals_collection, application
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup, InlineQueryResultPhoto, InputTextMessageContent, InputMediaPhoto
-from telegram import InlineQueryResultArticle, InputTextMessageContent, InlineKeyboardMarkup, InlineKeyboardButton
-import asyncio
 from html import escape 
-from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters
-from telegram.ext import InlineQueryHandler,CallbackQueryHandler, ChosenInlineResultHandler
+import random
+
+from telegram.ext import CommandHandler, CallbackContext, CallbackQueryHandler
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+from shivu import collection, user_collection, application
 
 async def harem(update: Update, context: CallbackContext, page=0) -> None:
     user_id = update.effective_user.id
