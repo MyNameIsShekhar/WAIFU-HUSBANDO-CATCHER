@@ -3,7 +3,7 @@ from motor.motor_asyncio import AsyncIOMotorClient
 from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import CallbackContext
 
-import application from shivu, top_global_groups_collection, pm_users, OWNER_ID 
+from shivu import application, top_global_groups_collection, pm_users, OWNER_ID 
 
 async def broadcast(update: Update, context: CallbackContext) -> None:
     
