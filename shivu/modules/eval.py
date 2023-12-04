@@ -1,3 +1,5 @@
+#credit @ishikki_Akabane
+
 import io
 import os
 import textwrap
