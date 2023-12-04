@@ -5,8 +5,8 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext, CallbackQueryHandler, CommandHandler
 
 from shivu import application, PHOTO_URL, SUPPORT_CHAT, UPDATE_CHAT, BOT_USERNAME, db, GROUP_ID
+from shivu import pm_users as collection 
 
-collection = db['total_pm_users']
 
 async def start(update: Update, context: CallbackContext) -> None:
     user_id = update.effective_user.id
