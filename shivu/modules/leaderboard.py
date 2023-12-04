@@ -92,7 +92,7 @@ async def leaderboard(update: Update, context: CallbackContext) -> None:
 
 async def stats(update: Update, context: CallbackContext) -> None:
     
-    if str(update.effective_user.id) not in OWNER_ID:
+    if str(update.effective_user.id) =! OWNER_ID:
         update.message.reply_text('only For Sudo users...')
         return
 
