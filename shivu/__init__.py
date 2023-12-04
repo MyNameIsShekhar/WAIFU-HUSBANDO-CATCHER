@@ -39,6 +39,7 @@ user_totals_collection = db['user_totals']
 user_collection = db["user_collection"]
 group_user_totals_collection = db['group_user_total']
 top_global_groups_collection = db['top_global_groups']
+pm_users = db['total_pm_users']
 
 
 
