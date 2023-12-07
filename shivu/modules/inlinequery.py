@@ -70,3 +70,5 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
 
     await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
 
+application.add_handler(InlineQueryHandler(inlinequery, block=False))
+
