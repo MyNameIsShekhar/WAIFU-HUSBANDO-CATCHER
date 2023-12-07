@@ -1,36 +1,30 @@
-from pymongo import  ReturnDocument
-
 from telegram import Update
-from telegram.ext import CommandHandler, CallbackContext
-
+from telegram.ext import Updater, CommandHandler, CallbackContext, MessageHandler, filters
+from pymongo import MongoClient, ReturnDocument
+from motor.motor_asyncio import AsyncIOMotorClient 
 from shivu import application 
-from shivu import user_totals_collection
+from shivu import db, collection, user_totals_collection, user_collection, top_global_groups_collection, top_global_groups_collection, group_user_totals_collection
 
 async def change_time(update: Update, context: CallbackContext) -> None:
     
     user = update.effective_user
     chat = update.effective_chat
+    member = await chat.get_member(user.id)
 
+    if member.status not in ('administrator', 'creator'):
+        await update.message.reply_text('Your not Admin sed')
+        return
     try:
-        member = await chat.get_member(user.id)
-        if member.status not in ('administrator', 'creator'):
-            await update.message.reply_text('You do not have permission to use this command.')
-            return
-
+        
         args = context.args
         if len(args) != 1:
-            await update.message.reply_text('Incorrect format. Please use: /changetime NUMBER')
+            await update.message.reply_text('Nou Bruhh Please use: /changetime NUMBER')
             return
 
         
         new_frequency = int(args[0])
         if new_frequency < 100:
             await update.message.reply_text('The message frequency must be greater than or equal to 100.')
-            return
-        
-        new_frequency = int(args[0])
-        if new_frequency > 10000:
-            await update.message.reply_text('Thats too much  buddy.use below 10000')
             return
 
         
@@ -41,9 +35,9 @@ async def change_time(update: Update, context: CallbackContext) -> None:
             return_document=ReturnDocument.AFTER
         )
 
-        await update.message.reply_text(f'Successfully changed character appearance frequency to every {new_frequency} messages.')
+        await update.message.reply_text(f'Successfully changed {new_frequency}')
     except Exception as e:
-        await update.message.reply_text('Failed to change character appearance frequency.')
+        await update.message.reply_text('Failed to change')
 
 
 application.add_handler(CommandHandler("changetime", change_time, block=False))
