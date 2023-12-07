@@ -60,5 +60,5 @@ async def inlinequery(client: Client, query: types.InlineQuery):
 
     await client.answer_inline_query(query.id, results, next_offset=next_offset, cache_time=5, is_gallery=True)
 
-shivuu.add_handler(filters.inline_query, inlinequery)
+
 
