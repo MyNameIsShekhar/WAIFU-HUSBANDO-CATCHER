@@ -3,6 +3,7 @@ from html import escape
 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup, Update
 from telegram.ext import CallbackContext, CallbackQueryHandler, CommandHandler
+from telegram.constants import ParseMode
 
 from shivu import application, PHOTO_URL, SUPPORT_CHAT, UPDATE_CHAT, BOT_USERNAME, db, GROUP_ID
 from shivu import pm_users as collection 
@@ -18,25 +19,22 @@ async def start(update: Update, context: CallbackContext) -> None:
     if user_data is None:
         
         await collection.insert_one({"_id": user_id, "first_name": first_name, "username": username})
-        
-        await context.bot.send_message(chat_id=GROUP_ID, 
-                                       text=f"New user Started The Bot..\n User: <a href='tg://user?id={user_id}'>{escape(first_name)})</a>", 
-                                       parse_mode='HTML')
-    else:
-        
+        try:
+            await context.bot.send_message(chat_id=GROUP_ID, 
+                                       text=f"New user Started The Bot..\n User: <a href='tg://user?id={user_id}'>{escape(first_name)}</a>", 
+                                       parse_mode=ParseMode.HTML)
+        except: 
+            pass 
+    else: 
         if user_data['first_name'] != first_name or user_data['username'] != username:
             
             await collection.update_one({"_id": user_id}, {"$set": {"first_name": first_name, "username": username}})
-
-    
 
     if update.effective_chat.type== "private":
         
         
         caption = f"""
-        ***Heyyyy...***
-
-***I am An Open Source Character Catcher Bot...​Add Me in Your group.. And I will send Random Characters After.. every 100 messages in Group... Use /guess to.. Collect that Characters in Your Collection.. and see Collection by using /Harem... So add in Your groups and Collect Your harem***
+        ***Heyyyy...***\n***I am An Open Source Character Catcher Bot. ​Add Me in Your group, and I will send Random Characters after every 100 messages in the group. Use /guess to collect those Characters in Your Collection and see Collection by using /harem. So add in Your groups and Collect Your harem***
         """
         keyboard = [
             [InlineKeyboardButton("ADD ME", url=f'http://t.me/{BOT_USERNAME}?startgroup=new')],

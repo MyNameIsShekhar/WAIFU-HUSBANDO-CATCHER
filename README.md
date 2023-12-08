@@ -67,11 +67,11 @@ use Rarity Number accordingly rarity Map
 
 ### Heroku
 - Fork The Repository
-- Go to [`__init__.py`](./shivu/__init__.py)
+- Go to [`config.env`](./shivu/config.env)
 - Fill the All variables and Go to heroku. and deploy Your forked Repository
 
 ### Local Deploy/VPS
-- Fill variables in [`__init__.py`](./shivu/__init__.py) 
+- Fill variables in [`config.env`](./shivu/config.env) 
 - Open your VPS terminal (we're using Debian based) and run the following:
 ```bash
 sudo apt-get update && sudo apt-get upgrade -y           
