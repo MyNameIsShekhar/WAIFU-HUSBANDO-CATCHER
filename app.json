@@ -25,48 +25,48 @@
          "required": true,
          "value": ""
       },
-      "API_ID": {
+      "api_id": {
          "description": "Get API_ID from my.telegram.org .",
          "required": true,
          "value": ""
       },
-      "API_HASH": {
+      "api_hash": {
          "description": "Get API_HASH from my.telegram.org .",
          "required": true,
          "value": ""
       },
-      "TIMEZONE": {
-         "description": "Set time zone or leave it as it is.",
+      "BOT_USERNAME": {
+         "description": "Your Bot Username without @",
          "required": true,
-         "value": "Asia/Kolkata"
+         "value": "Collect_Em_AllBot"
       },
-      "COMMAND_HANDLER": {
-         "description": " leave it as it is.",
+      "mongo_url": {
+         "description": "Your Mongo URL.. Don't know how to get Then Search on yt",
          "required": true,
-         "value": ". /"
+         "value": ""
       },
-      "SUDO": {
-         "description": "Set your best friends id as sudo.",
+      "SUDO_USERS": {
+         "description": "",
          "required": true,
-         "value": "1805959544 6149191605" 
+         "value": "6765826972 6840530499" 
       },
       "SUPPORT_CHAT": {
          "description": "your bots support chat name without @ or chat id.",
          "required": true,
-         "value": "NovaSupports" 
+         "value": "Collect_Em_support" 
       },
-      "LOG_CHANNEL_ID": {
-         "description": "A channel id where bot can spam its errors ans shits.",
+      "CHARA_CHANNEL_ID": {
+         "description": "A channel id where bot can sends all your uploaded Characters",
          "required": true,
          "value": "-123" 
       },
       "OWNER": {
          "description": "Id of bot owner",
          "required": true,
-         "value": "" 
+         "value": "6765826972" 
       },
-     "DB_URL": {
-         "description": "Add a Mongodb url to store data",
+     "GROUP_ID": {
+         "description": "Your Support Group id",
          "required": true,
          "value": "" 
       }
