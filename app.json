@@ -1,15 +1,15 @@
 {
-      "name": "Hu-Tao",
-      "description": "Telegram Group Management Bot.",
-      "logo": "https://te.legra.ph/file/b75457eec792779e5b361.jpg",
+      "name": "WAIFU-HUSBANDO-CATCHER",
+      "description": "Telegram Husbando/Waifu Catcher Bot.",
+      "logo": "https://graph.org/file/1b2d3c1491fbaa85a6d29.jpg",
       "keywords": [
          "telegram",
          "modular",
-         "group",
-         "manager",
-         "HuTao"
+         "Husbando Catcher",
+         "Waifu Catcher",
+         "Catcher"
       ],   
-   "repository": "https://github.com/TeamNovaX/Hu-Tao",
+   "repository": "https://github.com/MyNameIsShekhar/WAIFU-HUSBANDO-CATCHER",
    "stack": "heroku-22",
    "addons": [
       {
