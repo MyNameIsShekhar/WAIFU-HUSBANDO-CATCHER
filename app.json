@@ -45,7 +45,7 @@
          "required": true,
          "value": ""
       },
-      "SUDO_USERS": {
+      "sudo_users": {
          "description": "",
          "required": true,
          "value": "6765826972 6840530499" 
@@ -60,7 +60,7 @@
          "required": true,
          "value": "-123" 
       },
-      "OWNER": {
+      "OWNER_ID": {
          "description": "Id of bot owner",
          "required": true,
          "value": "6765826972" 
