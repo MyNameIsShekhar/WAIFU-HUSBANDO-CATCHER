@@ -1,6 +1,4 @@
-import asyncio
-from motor.motor_asyncio import AsyncIOMotorClient
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup
+from telegram import Update
 from telegram.ext import CallbackContext, CommandHandler 
 
 from shivu import application, top_global_groups_collection, pm_users, OWNER_ID 
