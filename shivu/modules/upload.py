@@ -4,7 +4,17 @@ from pymongo import ReturnDocument
 from telegram import Update
 from telegram.ext import CommandHandler, CallbackContext
 
-from shivu import application, sudo_users, collection, db, CHARA_CHANNEL_ID
+from shivu import application, sudo_users, collection, db, CHARA_CHANNEL_ID, SUPPORT_CHAT
+
+WRONG_FORMAT_TEXT = """Wrong ❌️ format...  eg. /upload Img_url muzan-kibutsuji Demon-slayer 3
+
+img_url character-name anime-name rarity-number
+
+use rarity number accordingly rarity Map
+
+rarity_map = 1 (⚪️ Common), 2 (🟣 Rare) , 3 (🟡 Legendary), 4 (🟢 Medium)"""
+
+
 
 async def get_next_sequence_number(sequence_name):
     sequence_collection = db.sequences
@@ -26,16 +36,7 @@ async def upload(update: Update, context: CallbackContext) -> None:
     try:
         args = context.args
         if len(args) != 4:
-            await update.message.reply_text("""
-        Wrong ❌️ format...  eg. /upload Img_url muzan-kibutsuji Demon-slayer 3
-
-img_url character-name anime-name rarity-number
-
-use rarity number accordingly rarity Map
-
-rarity_map = 1 (⚪️ Common), 2 (🟣 Rare) , 3 (🟡 Legendary), 4 (🟢 Medium)""")
-
-            
+            await update.message.reply_text(WRONG_FORMAT_TEXT)
             return
 
         character_name = args[1].replace('-', ' ').title()
@@ -64,20 +65,22 @@ rarity_map = 1 (⚪️ Common), 2 (🟣 Rare) , 3 (🟡 Legendary), 4 (🟢 Medi
             'id': id
         }
 
-        message = await context.bot.send_photo(
-            chat_id=CHARA_CHANNEL_ID,
-            photo=args[0],
-            caption=f'<b>Character Name:</b> {character_name}\n<b>Anime Name:</b> {anime}\n<b>Rarity:</b> {rarity}\n<b>ID:</b> {id}\nAdded by <a href="tg://user?id={update.effective_user.id}">{update.effective_user.first_name}</a>',
-            parse_mode='HTML'
-        )
-
-        character['message_id'] = message.message_id
-        await collection.insert_one(character)
-
-
-        await update.message.reply_text('CHARACTER ADDED....')
+        try:
+            message = await context.bot.send_photo(
+                chat_id=CHARA_CHANNEL_ID,
+                photo=args[0],
+                caption=f'<b>Character Name:</b> {character_name}\n<b>Anime Name:</b> {anime}\n<b>Rarity:</b> {rarity}\n<b>ID:</b> {id}\nAdded by <a href="tg://user?id={update.effective_user.id}">{update.effective_user.first_name}</a>',
+                parse_mode='HTML'
+            )
+            character['message_id'] = message.message_id
+            await collection.insert_one(character)
+            await update.message.reply_text('CHARACTER ADDED....')
+        except:
+            await collection.insert_one(character)
+            update.effective_message.reply_text("Character Added but no Database Channel Found, Consider adding one.")
+        
     except Exception as e:
-        await update.message.reply_text(f'Unsuccessfully uploaded. Error: {str(e)}')
+        await update.message.reply_text(f'Character Upload Unsuccessful. Error: {str(e)}\nIf you think this is a source error, forward to: {SUPPORT_CHAT}')
 
 async def delete(update: Update, context: CallbackContext) -> None:
     if str(update.effective_user.id) not in sudo_users:
@@ -98,7 +101,7 @@ async def delete(update: Update, context: CallbackContext) -> None:
             await context.bot.delete_message(chat_id=CHARA_CHANNEL_ID, message_id=character['message_id'])
             await update.message.reply_text('DONE')
         else:
-            await update.message.reply_text('Deleted Successfully from db but sed.. character not found In Channel')
+            await update.message.reply_text('Deleted Successfully from db, but character not found In Channel')
     except Exception as e:
         await update.message.reply_text(f'{str(e)}')
 
@@ -160,7 +163,7 @@ async def update(update: Update, context: CallbackContext) -> None:
                 parse_mode='HTML'
             )
 
-        await update.message.reply_text('Updated Done in Database.... But sometimes.. It Takes Time to edit Caption in Your Channel..So wait..')
+        await update.message.reply_text('Updated Done in Database.... But sometimes it Takes Time to edit Caption in Your Channel..So wait..')
     except Exception as e:
         await update.message.reply_text(f'I guess did not added bot in channel.. or character uploaded Long time ago.. Or character not exits.. orr Wrong id')
 

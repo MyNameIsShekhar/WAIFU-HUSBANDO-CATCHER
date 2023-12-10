@@ -3,8 +3,7 @@ import time
 from html import escape
 
 from telegram import Update, InlineQueryResultPhoto
-from telegram.ext import InlineQueryHandler, CallbackContext, CommandHandler 
-from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import InlineQueryHandler, CallbackContext
 
 winter_img = "https://graph.org/file/7bfc05c5787aa19370dc8.jpg"
 

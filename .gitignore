@@ -4,6 +4,8 @@ test/
 .vscode/
 *.old
 .vim/
+*.session
+log.txt
 
 
 # Byte-compiled / optimized / DLL files

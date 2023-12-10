@@ -1,7 +1,5 @@
 from telegram import Update
 from itertools import groupby
-import urllib.request
-import re
 import math
 from html import escape 
 import random
