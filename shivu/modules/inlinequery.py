@@ -1,13 +1,17 @@
 import re
 import time
 from html import escape
+from cachetools import TTLCache
 
 from telegram import Update, InlineQueryResultPhoto
-from telegram.ext import InlineQueryHandler, CallbackContext
+from telegram.ext import InlineQueryHandler, CallbackContext, CommandHandler 
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-winter_img = "https://graph.org/file/7bfc05c5787aa19370dc8.jpg"
+from shivu import user_collection, collection, application 
 
-from shivu import user_collection, collection, application
+
+all_characters_cache = TTLCache(maxsize=10000, ttl=36000)
+user_collection_cache = TTLCache(maxsize=10000, ttl=60)
 
 async def inlinequery(update: Update, context: CallbackContext) -> None:
     query = update.inline_query.query
@@ -16,7 +20,14 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
     if query.startswith('collection.'):
         user_id, *search_terms = query.split(' ')[0].split('.')[1], ' '.join(query.split(' ')[1:])
         if user_id.isdigit():
-            user = await user_collection.find_one({'id': int(user_id)})
+            
+            
+            if user_id in user_collection_cache:
+                user = user_collection_cache[user_id]
+            else:
+                user = await user_collection.find_one({'id': int(user_id)})
+                user_collection_cache[user_id] = user
+
             if user:
                 all_characters = list({v['id']:v for v in user['characters']}.values())
                 if search_terms:
@@ -26,18 +37,19 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 all_characters = []
         else:
             all_characters = []
-    elif query.startswith('❄️_Winter'):
-        search_terms = ' '.join(query.split(' ')[1:])
-        all_characters = list(await collection.find({"rarity": "❄️ Winter"}).to_list(length=None))
-        if search_terms:
-            regex = re.compile(search_terms, re.IGNORECASE)
-            all_characters = [character for character in all_characters if regex.search(character['name']) or regex.search(character['anime'])]
+
+        
+    
     else:
         if query:
             regex = re.compile(query, re.IGNORECASE)
             all_characters = list(await collection.find({"$or": [{"name": regex}, {"anime": regex}]}).to_list(length=None))
         else:
-            all_characters = list(await collection.find({}).to_list(length=None))
+            if 'all_characters' in all_characters_cache:
+                all_characters = all_characters_cache['all_characters']
+            else:
+                all_characters = list(await collection.find({}).to_list(length=None))
+                all_characters_cache['all_characters'] = all_characters
 
     characters = all_characters[offset:offset+50]
     if len(characters) > 50:
