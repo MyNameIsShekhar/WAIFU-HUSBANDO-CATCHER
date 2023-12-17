@@ -8,3 +8,4 @@ apscheduler==3.6.3
 pyrogram
 tgcrypto 
 python-dotenv
+cachetools 
