@@ -12,8 +12,8 @@ class Config(object):
     UPDATE_CHAT = "Collect_em_support"
     BOT_USERNAME = "Collect_Em_AllBot"
     CHARA_CHANNEL_ID = "-1002133191051"
-    api_id = 64334680
-    api_hash = "7895dfd061f656367ccab30032"
+    api_id = 26626068
+    api_hash = "bf423698bcbe33cfd58b11c78c42caa2"
 
     
 class Production(Config):
