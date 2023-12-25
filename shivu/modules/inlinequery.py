@@ -11,10 +11,15 @@ from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from shivu import user_collection, collection, application, db
 
 
-# Create indexes
+# collection
 db.characters.create_index([('id', ASCENDING)])
 db.characters.create_index([('anime', ASCENDING)])
 db.characters.create_index([('img_url', ASCENDING)])
+
+# user_collection
+db.user_collection.create_index([('characters.id', ASCENDING)])
+db.user_collection.create_index([('characters.name', ASCENDING)])
+db.user_collection.create_index([('characters.img_url', ASCENDING)])
 
 all_characters_cache = TTLCache(maxsize=10000, ttl=36000)
 user_collection_cache = TTLCache(maxsize=10000, ttl=60)
