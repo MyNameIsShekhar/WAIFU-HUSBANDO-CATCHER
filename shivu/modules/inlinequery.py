@@ -2,13 +2,19 @@ import re
 import time
 from html import escape
 from cachetools import TTLCache
+from pymongo import MongoClient, ASCENDING
 
 from telegram import Update, InlineQueryResultPhoto
 from telegram.ext import InlineQueryHandler, CallbackContext, CommandHandler 
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 
-from shivu import user_collection, collection, application 
+from shivu import user_collection, collection, application, db
 
+
+# Create indexes
+db.characters.create_index([('id', ASCENDING)])
+db.characters.create_index([('anime', ASCENDING)])
+db.characters.create_index([('img_url', ASCENDING)])
 
 all_characters_cache = TTLCache(maxsize=10000, ttl=36000)
 user_collection_cache = TTLCache(maxsize=10000, ttl=60)
@@ -20,8 +26,6 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
     if query.startswith('collection.'):
         user_id, *search_terms = query.split(' ')[0].split('.')[1], ' '.join(query.split(' ')[1:])
         if user_id.isdigit():
-            
-            
             if user_id in user_collection_cache:
                 user = user_collection_cache[user_id]
             else:
@@ -37,9 +41,6 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
                 all_characters = []
         else:
             all_characters = []
-
-        
-    
     else:
         if query:
             regex = re.compile(query, re.IGNORECASE)
@@ -82,4 +83,3 @@ async def inlinequery(update: Update, context: CallbackContext) -> None:
     await update.inline_query.answer(results, next_offset=next_offset, cache_time=5)
 
 application.add_handler(InlineQueryHandler(inlinequery, block=False))
-
