@@ -1,5 +1,5 @@
 class Config(object):
-    LOGGER = True
+    LOGGER = True hdu
 
     # Get this value from my.telegram.org/apps
     OWNER_ID = "6765826972"
